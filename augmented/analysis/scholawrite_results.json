@@ -1,0 +1,13 @@
+{
+  "total_events": 61504,
+  "valid_ikis": 55066,
+  "mean_iki_ms": 3969.0161805833,
+  "entropy_per_iki_bits": 10.43972961324458,
+  "entropy_per_checkpoint_bits": 521.986480662229,
+  "clc_overall_rho": 0.030548889194983057,
+  "clc_overall_pval": 7.491154713754062e-13,
+  "clc_windows_total": 411,
+  "clc_windows_above_threshold": 214,
+  "pct_windows_above_threshold": 52.06812652068127,
+  "demanding_simple_ratio": 1.7052655153149696
+}

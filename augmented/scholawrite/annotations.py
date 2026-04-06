@@ -87,7 +87,8 @@ class CausalForensicValidator:
                 if std_x > 0 and std_y > 0:
                     coupling = sum((xi - mu_x) * (yi - mu_y) for xi, yi in zip(x, y)) / ((len(x)-1) * std_x * std_y)
             except (ValueError, ZeroDivisionError, TypeError):
-                pass
+                import logging
+                logging.getLogger(__name__).warning("Coupling computation failed in forensic validation")
 
         if span.trajectory_state == TrajectoryState.WARM:
             if len(span.causal_trace) < CausalForensicValidator.MIN_TRACE_LENGTH_WARM:
@@ -109,8 +110,8 @@ class CausalForensicValidator:
                     f"ASSIMILATED trajectory requires at least {CausalForensicValidator.MIN_TRACE_LENGTH_ASSIMILATED} "
                     f"causal events, got {len(span.causal_trace)}"
                 )
-            if abs(coupling) < 0.55:
-                errors.append(f"ASSIMILATED label invalid: weak coupling r={coupling:.2f} (min 0.55)")
+            if abs(coupling) < CausalForensicValidator.MIN_COUPLING_ASSIMILATED:
+                errors.append(f"ASSIMILATED label invalid: weak coupling r={coupling:.2f} (min {CausalForensicValidator.MIN_COUPLING_ASSIMILATED})")
 
             gs = [e.glucose_at_event for e in span.causal_trace]
             for i in range(len(gs)-1):

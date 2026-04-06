@@ -1,0 +1,318 @@
+{
+  "n_total_matched": 4971,
+  "subgroups": {
+    "nativeness": {
+      "native": {
+        "n": 4623,
+        "entropy_mean": 6.4052,
+        "entropy_std": 0.5716,
+        "clc_median": 0.0352,
+        "clc_mean": -0.0074,
+        "clc_positive_pct": 56.2,
+        "pause_freq_mean": 0.0295,
+        "iki_log_var_mean": 14.972,
+        "corr_entropy_clc": {
+          "rho": 0.0693,
+          "p": 2.4302e-06
+        },
+        "corr_entropy_pause": {
+          "rho": 0.7045,
+          "p": 0.0
+        },
+        "independence_holds": true
+      },
+      "non_native": {
+        "n": 348,
+        "entropy_mean": 6.6645,
+        "entropy_std": 0.5711,
+        "clc_median": 0.034,
+        "clc_mean": -0.0053,
+        "clc_positive_pct": 56.6,
+        "pause_freq_mean": 0.0375,
+        "iki_log_var_mean": 15.2908,
+        "corr_entropy_clc": {
+          "rho": 0.1106,
+          "p": 0.039266
+        },
+        "corr_entropy_pause": {
+          "rho": 0.7706,
+          "p": 1.1319e-69
+        },
+        "independence_holds": false
+      },
+      "between_group_tests": {
+        "entropy": {
+          "U": 590394.0,
+          "p": 1.142e-16,
+          "effect_size_r": 0.266,
+          "n_a": 4623,
+          "n_b": 348
+        },
+        "clc_rho": {
+          "U": 811716.0,
+          "p": 0.77697,
+          "effect_size_r": -0.0091,
+          "n_a": 4623,
+          "n_b": 348
+        },
+        "pause_freq": {
+          "U": 597798.5,
+          "p": 1.222e-15,
+          "effect_size_r": 0.2568,
+          "n_a": 4623,
+          "n_b": 348
+        },
+        "iki_log_var": {
+          "U": 619621.0,
+          "p": 8.2475e-13,
+          "effect_size_r": 0.2297,
+          "n_a": 4623,
+          "n_b": 348
+        }
+      }
+    },
+    "age_groups": {
+      "groups": {
+        "<25": {
+          "n": 767,
+          "entropy_mean": 6.4657,
+          "entropy_std": 0.5868,
+          "clc_median": 0.0156,
+          "clc_mean": -0.0146,
+          "clc_positive_pct": 52.5,
+          "pause_freq_mean": 0.0282,
+          "iki_log_var_mean": 14.8203,
+          "corr_entropy_clc": {
+            "rho": 0.0293,
+            "p": 0.41724
+          },
+          "corr_entropy_pause": {
+            "rho": 0.7463,
+            "p": 2.3726e-137
+          },
+          "independence_holds": true
+        },
+        "25-40": {
+          "n": 2531,
+          "entropy_mean": 6.3374,
+          "entropy_std": 0.5875,
+          "clc_median": 0.0386,
+          "clc_mean": -0.0016,
+          "clc_positive_pct": 57.3,
+          "pause_freq_mean": 0.0281,
+          "iki_log_var_mean": 14.9653,
+          "corr_entropy_clc": {
+            "rho": 0.0857,
+            "p": 1.5852e-05
+          },
+          "corr_entropy_pause": {
+            "rho": 0.7086,
+            "p": 0.0
+          },
+          "independence_holds": true
+        },
+        "40+": {
+          "n": 1673,
+          "entropy_mean": 6.5341,
+          "entropy_std": 0.5287,
+          "clc_median": 0.0385,
+          "clc_mean": -0.0123,
+          "clc_positive_pct": 56.4,
+          "pause_freq_mean": 0.0339,
+          "iki_log_var_mean": 15.118,
+          "corr_entropy_clc": {
+            "rho": 0.0913,
+            "p": 0.00018419
+          },
+          "corr_entropy_pause": {
+            "rho": 0.6892,
+            "p": 4.4135e-236
+          },
+          "independence_holds": true
+        }
+      },
+      "between_group_tests": {
+        "<25_vs_25-40": {
+          "entropy": {
+            "U": 1097246.0,
+            "p": 4.2433e-08,
+            "effect_size_r": -0.1304,
+            "n_a": 767,
+            "n_b": 2531
+          },
+          "clc_rho": {
+            "U": 927411.0,
+            "p": 0.061323,
+            "effect_size_r": 0.0445,
+            "n_a": 767,
+            "n_b": 2531
+          },
+          "pause_freq": {
+            "U": 954142.0,
+            "p": 0.47519,
+            "effect_size_r": 0.017,
+            "n_a": 767,
+            "n_b": 2531
+          }
+        },
+        "<25_vs_40+": {
+          "entropy": {
+            "U": 593517.0,
+            "p": 0.002922,
+            "effect_size_r": 0.0749,
+            "n_a": 767,
+            "n_b": 1673
+          },
+          "clc_rho": {
+            "U": 631298.0,
+            "p": 0.5239,
+            "effect_size_r": 0.016,
+            "n_a": 767,
+            "n_b": 1673
+          },
+          "pause_freq": {
+            "U": 492869.5,
+            "p": 3.4014e-20,
+            "effect_size_r": 0.2318,
+            "n_a": 767,
+            "n_b": 1673
+          }
+        },
+        "25-40_vs_40+": {
+          "entropy": {
+            "U": 1663619.0,
+            "p": 5.2698e-32,
+            "effect_size_r": 0.2142,
+            "n_a": 2531,
+            "n_b": 1673
+          },
+          "clc_rho": {
+            "U": 2179269.0,
+            "p": 0.107,
+            "effect_size_r": -0.0293,
+            "n_a": 2531,
+            "n_b": 1673
+          },
+          "pause_freq": {
+            "U": 1650269.0,
+            "p": 8.1473e-34,
+            "effect_size_r": 0.2205,
+            "n_a": 2531,
+            "n_b": 1673
+          }
+        }
+      }
+    },
+    "writing_strength": {
+      "low_1_2": {
+        "n": 431,
+        "entropy_mean": 6.4179,
+        "entropy_std": 0.532,
+        "clc_median": -0.0059,
+        "clc_mean": -0.0469,
+        "clc_positive_pct": 49.0,
+        "pause_freq_mean": 0.0297,
+        "iki_log_var_mean": 15.0725,
+        "corr_entropy_clc": {
+          "rho": 0.2716,
+          "p": 9.9959e-09
+        },
+        "corr_entropy_pause": {
+          "rho": 0.6503,
+          "p": 3.5556e-53
+        },
+        "independence_holds": false
+      },
+      "high_4_5": {
+        "n": 2983,
+        "entropy_mean": 6.4497,
+        "entropy_std": 0.587,
+        "clc_median": 0.0392,
+        "clc_mean": -0.0016,
+        "clc_positive_pct": 57.2,
+        "pause_freq_mean": 0.0303,
+        "iki_log_var_mean": 14.9648,
+        "corr_entropy_clc": {
+          "rho": 0.0235,
+          "p": 0.19866
+        },
+        "corr_entropy_pause": {
+          "rho": 0.7353,
+          "p": 0.0
+        },
+        "independence_holds": true
+      },
+      "between_group_tests": {
+        "entropy": {
+          "U": 631463.0,
+          "p": 0.55213,
+          "effect_size_r": 0.0177,
+          "n_a": 431,
+          "n_b": 2983
+        },
+        "clc_rho": {
+          "U": 575069.0,
+          "p": 0.00039588,
+          "effect_size_r": 0.1054,
+          "n_a": 431,
+          "n_b": 2983
+        },
+        "pause_freq": {
+          "U": 638958.0,
+          "p": 0.83934,
+          "effect_size_r": 0.006,
+          "n_a": 431,
+          "n_b": 2983
+        },
+        "iki_log_var": {
+          "U": 677319.0,
+          "p": 0.071436,
+          "effect_size_r": -0.0536,
+          "n_a": 431,
+          "n_b": 2983
+        }
+      }
+    }
+  },
+  "independence_across_subgroups": {
+    "native": {
+      "rho": 0.0693,
+      "holds": true
+    },
+    "non_native": {
+      "rho": 0.1106,
+      "holds": false
+    },
+    "age_<25": {
+      "rho": 0.0293,
+      "holds": true
+    },
+    "age_25-40": {
+      "rho": 0.0857,
+      "holds": true
+    },
+    "age_40+": {
+      "rho": 0.0913,
+      "holds": true
+    },
+    "strength_low": {
+      "rho": 0.2716,
+      "holds": false
+    },
+    "strength_high": {
+      "rho": 0.0235,
+      "holds": true
+    }
+  },
+  "all_independence_holds": false,
+  "accessibility_finding": {
+    "non_native_clc_median": 0.034,
+    "native_clc_median": 0.0352,
+    "clc_median_difference": -0.0012,
+    "non_native_clc_positive_pct": 56.6,
+    "native_clc_positive_pct": 56.2,
+    "mann_whitney_clc_p": 0.77697,
+    "mann_whitney_clc_effect_r": -0.0091,
+    "interpretation": "No significant CLC difference between native and non-native speakers"
+  }
+}

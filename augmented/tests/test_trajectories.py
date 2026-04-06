@@ -88,12 +88,18 @@ class TestClassifyEdit:
         assert result == EditClassification.SUBSTANTIAL
 
     def test_substantial_edit_at_threshold(self) -> None:
-        # Exactly at 20% threshold: 2 changes out of 10
+        # 3 substitutions out of 10 = 30% change via SequenceMatcher
         old = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-        new = ["a", "b", "c", "d", "e", "f", "g", "h", "x", "y"]
+        new = ["a", "b", "c", "d", "e", "f", "g", "x", "y", "z"]
         result = classify_edit(old, new)
-        # 4 changes (i,j removed + x,y added) / 10 = 40% >= 20%
         assert result == EditClassification.SUBSTANTIAL
+
+    def test_reorder_detected_as_change(self) -> None:
+        # SequenceMatcher detects reordering (set-based comparison would miss this)
+        old = ["the", "study", "examines", "this"]
+        new = ["this", "study", "examines", "the"]
+        result = classify_edit(old, new)
+        assert result != EditClassification.NONE
 
 
 class TestComputeTransition:

@@ -1,0 +1,116 @@
+{
+  "likelihood_ratios_by_attack": {
+    "attack_constant": {
+      "entropy": {
+        "lr_at_genuine_mean": 816755379846066.6,
+        "median_lr_genuine": 652216098632864.0,
+        "kl_divergence_bits": -0.0,
+        "genuine_mean": 5.6669,
+        "forged_mean": -0.0
+      },
+      "autocorr_lag1": {
+        "lr_at_genuine_mean": 4.37,
+        "median_lr_genuine": 5.25,
+        "kl_divergence_bits": 2.2587,
+        "genuine_mean": 0.0736,
+        "forged_mean": 0.7104
+      },
+      "iki_std": {
+        "lr_at_genuine_mean": 278484930105.54,
+        "median_lr_genuine": 358917199849.0,
+        "kl_divergence_bits": -0.1751,
+        "genuine_mean": 1414.2551,
+        "forged_mean": 0.0
+      }
+    },
+    "attack_iid": {
+      "entropy": {
+        "lr_at_genuine_mean": 1.0,
+        "median_lr_genuine": 0.96,
+        "kl_divergence_bits": 0.061,
+        "genuine_mean": 5.6669,
+        "forged_mean": 5.7393
+      },
+      "autocorr_lag1": {
+        "lr_at_genuine_mean": 2.77,
+        "median_lr_genuine": 1.84,
+        "kl_divergence_bits": 1.0887,
+        "genuine_mean": 0.0736,
+        "forged_mean": -0.0023
+      },
+      "iki_std": {
+        "lr_at_genuine_mean": 0.89,
+        "median_lr_genuine": 0.99,
+        "kl_divergence_bits": -0.0021,
+        "genuine_mean": 1414.2551,
+        "forged_mean": 1601.8365
+      },
+      "iki_log_var": {
+        "lr_at_genuine_mean": 0.87,
+        "median_lr_genuine": 0.94,
+        "kl_divergence_bits": 0.0425,
+        "genuine_mean": 13.7291,
+        "forged_mean": 14.1376
+      },
+      "pause_freq": {
+        "lr_at_genuine_mean": 0.84,
+        "median_lr_genuine": 0.88,
+        "kl_divergence_bits": 0.1465,
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0307
+      }
+    },
+    "attack_cross": {
+      "entropy": {
+        "lr_at_genuine_mean": 0.93,
+        "median_lr_genuine": 0.93,
+        "kl_divergence_bits": 0.0905,
+        "genuine_mean": 5.6669,
+        "forged_mean": 5.7447
+      },
+      "autocorr_lag1": {
+        "lr_at_genuine_mean": 3.82,
+        "median_lr_genuine": 2.19,
+        "kl_divergence_bits": 1.2209,
+        "genuine_mean": 0.0736,
+        "forged_mean": -0.0067
+      },
+      "iki_std": {
+        "lr_at_genuine_mean": 0.93,
+        "median_lr_genuine": 1.02,
+        "kl_divergence_bits": 0.0062,
+        "genuine_mean": 1414.2551,
+        "forged_mean": 1633.3111
+      },
+      "iki_log_var": {
+        "lr_at_genuine_mean": 0.96,
+        "median_lr_genuine": 0.96,
+        "kl_divergence_bits": 0.0535,
+        "genuine_mean": 13.7291,
+        "forged_mean": 14.1928
+      },
+      "pause_freq": {
+        "lr_at_genuine_mean": 0.92,
+        "median_lr_genuine": 0.92,
+        "kl_divergence_bits": -0.0153,
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0299
+      }
+    }
+  },
+  "combined_likelihood_ratios": {
+    "attack_constant": 1.2289807730431705e+27,
+    "attack_iid": 1.4,
+    "attack_cross": 1.8
+  },
+  "transcriptive_gap": {
+    "kl_demanding_to_simple_bits": 1.7045,
+    "kl_simple_to_demanding_bits": 1.1947,
+    "js_divergence_bits": 1.4496,
+    "n_demanding_ikis": 370172,
+    "n_simple_ikis": 1351027,
+    "demanding_mean_ms": 751.9,
+    "simple_mean_ms": 312.1
+  },
+  "interpretation": "Empirical likelihood ratios replace assumed 3:1/8:1/12:1 values. Transcriptive gap KL = 1.70 bits (Paper 07 claimed 0.8 bits)."
+}

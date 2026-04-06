@@ -5,15 +5,9 @@ import math
 import re
 import hashlib
 from functools import lru_cache
+from typing import Optional
 from .schema import ResourceAllocation, CognitiveState
-from .metrics import (
-    GLUCOSE_INITIAL,
-    GLUCOSE_FLOOR,
-    GLUCOSE_DEPLETION_RATE,
-    FATIGUE_DIVISOR,
-    HIGH_SYNTACTIC_DEMAND,
-)
-from .config import get_academic_markers_flat
+from .config import get_academic_markers_flat, get_sim_config
 
 __all__ = ["EmbodiedScholar", "erode_context_deterministically", "get_syntactic_demand", "get_embodied_state"]
 
@@ -25,80 +19,40 @@ class EmbodiedScholar:
     - Glucose: Cognitive fuel that depletes irreversibly over time
     - Visual fatigue: Accumulated strain from screen exposure
     - Resource allocation: Dynamic distribution of cognitive capacity
-
-    Glucose depletion is irreversible and token-granular, modeling the
-    metabolic constraints of extended writing sessions.
-
-    All threshold values are documented in docs/THRESHOLDS.md,
-    Section "Embodied Simulation Thresholds".
     """
-    def __init__(self, author_id: str, initial_glucose: float = GLUCOSE_INITIAL):
-        """Initialize the embodied scholar.
-
-        Args:
-            author_id: Unique identifier for this author
-            initial_glucose: Starting glucose level (default: 1.0 = full capacity)
-        """
+    def __init__(self, author_id: str, initial_glucose: Optional[float] = None):
+        """Initialize the embodied scholar."""
+        self.config = get_sim_config()
         self.author_id = author_id
-        self.glucose = initial_glucose
+        self.glucose = initial_glucose if initial_glucose is not None else self.config.initial_glucose
         self.visual_fatigue = 0.0
         self.total_tokens_produced = 0
 
     def consume_resources(self, tokens: int, syntactic_depth: float):
-        """Irreversible metabolic depletion per token and complexity.
-
-        Glucose depletes at rate GLUCOSE_DEPLETION_RATE (0.9992) per token,
-        with additional penalty for syntactic complexity. Visual fatigue
-        accumulates at tokens/FATIGUE_DIVISOR (12000.0).
-
-        Args:
-            tokens: Number of tokens produced
-            syntactic_depth: Complexity of syntactic structures
-
-        See docs/THRESHOLDS.md, Section "Embodied Simulation Thresholds".
-        """
+        """Irreversible metabolic depletion per token and complexity."""
+        cfg = self.config
         # Complexity penalty: higher syntactic depth increases depletion
         complexity_penalty = 1.0 + (syntactic_depth / 10.0)
 
         # Logarithmic decay matching human metabolic study results
-        # Rate: GLUCOSE_DEPLETION_RATE (0.9992), Floor: GLUCOSE_FLOOR (0.05)
-        self.glucose = max(GLUCOSE_FLOOR, self.glucose * (GLUCOSE_DEPLETION_RATE ** (tokens * complexity_penalty)))
+        self.glucose = max(cfg.glucose_floor, self.glucose * (cfg.glucose_depletion_rate ** (tokens * complexity_penalty)))
 
-        # Visual fatigue accumulates with production (divisor: FATIGUE_DIVISOR = 12000)
-        self.visual_fatigue = min(1.0, self.visual_fatigue + (tokens / FATIGUE_DIVISOR))
+        # Visual fatigue accumulates with production
+        self.visual_fatigue = min(1.0, self.visual_fatigue + (tokens / cfg.fatigue_divisor))
         self.total_tokens_produced += tokens
 
     def allocate_resources(self, demand: float) -> ResourceAllocation:
-        """Deterministic allocation based on resource competition.
-
-        Distributes cognitive resources between lexical, syntactic, and
-        attentional processes based on current metabolic state and task demands.
-
-        Resource allocation thresholds:
-        - Lexical: glucose * (1 - fatigue * 0.4) - fatigue reduces lexical access
-        - Syntactic: max(0.3, glucose * 1.3) - minimum floor of 0.3
-        - Attention: max(0.1, glucose - fatigue * 0.5) - minimum floor of 0.1
-
-        When demand > HIGH_SYNTACTIC_DEMAND (5.0), syntactic resources
-        reduced by 30% to model resource competition.
-
-        Args:
-            demand: Current syntactic planning demand
-
-        Returns:
-            ResourceAllocation with lexical, syntactic, attention values
-
-        See docs/THRESHOLDS.md, Section "Resource Allocation Thresholds".
-        """
-        # Lexical retrieval penalized by visual fatigue (up to 40% reduction)
-        lexical = self.glucose * (1.0 - self.visual_fatigue * 0.4)
-        # Syntactic planning with minimum floor of 0.3
-        syntactic = max(0.3, self.glucose * 1.3)
-        # High demand (> 5.0) triggers resource reallocation penalty
-        if demand > HIGH_SYNTACTIC_DEMAND:
+        """Deterministic allocation based on resource competition."""
+        cfg = self.config
+        # Lexical retrieval penalized by visual fatigue
+        lexical = self.glucose * (1.0 - self.visual_fatigue * cfg.lexical_fatigue_penalty)
+        # Syntactic planning with minimum floor
+        syntactic = max(cfg.syntactic_min_floor, self.glucose * 1.3)
+        # High demand triggers resource reallocation penalty
+        if demand > cfg.high_syntactic_demand:
             syntactic *= 0.7
-        # Attention with minimum floor of 0.1
-        attention = max(0.1, self.glucose - (self.visual_fatigue * 0.5))
+        # Attention with minimum floor
+        attention = max(cfg.attention_min_floor, self.glucose - (self.visual_fatigue * cfg.attention_fatigue_penalty))
 
         return ResourceAllocation(
             lexical=round(min(1.0, lexical), 3),
@@ -111,12 +65,56 @@ class EmbodiedScholar:
         return round(115 + 90 * math.log(1 + syntactic_depth) * (1.12 - self.glucose), 2)
 
     def get_biometric_salt(self, token_idx: int) -> str:
-        """Generate a deterministic biometric salt for cryptographic anchoring."""
-        return hashlib.sha256(f"{self.author_id}:{self.glucose:.6f}:{token_idx}".encode()).hexdigest()
+        """Generate a deterministic biometric salt for cryptographic anchoring.
 
-def get_embodied_state(author: EmbodiedScholar, rev_idx: int, total_revs: int, text_context: str = "") -> CognitiveState:
-    """Sample the current cognitive state of the persistent author."""
-    minute = int((rev_idx / max(1, total_revs)) * 90)
+        Uses only author_id and token_idx for cross-platform reproducibility.
+        Glucose state is tracked separately in the causal trace.
+        """
+        return hashlib.sha256(f"{self.author_id}:{token_idx}".encode()).hexdigest()
+
+
+def _estimate_minute(
+    rev_idx: int,
+    total_revs: int,
+    timestamp: str | None = None,
+    session_start: str | None = None,
+) -> int:
+    """Estimate session minute from timestamps or linear fallback."""
+    if timestamp and session_start:
+        try:
+            from datetime import datetime
+            fmt_candidates = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"]
+            t_start = t_now = None
+            for fmt in fmt_candidates:
+                try:
+                    t_start = datetime.strptime(session_start[:19], fmt)
+                    t_now = datetime.strptime(timestamp[:19], fmt)
+                    break
+                except ValueError:
+                    continue
+            if t_start and t_now:
+                delta_min = max(0, (t_now - t_start).total_seconds() / 60.0)
+                return min(int(delta_min), 180)  # cap at 3 hours
+        except Exception:
+            pass
+    # Fallback: linear interpolation over 90-minute session
+    return int((rev_idx / max(1, total_revs)) * 90)
+
+
+def get_embodied_state(
+    author: EmbodiedScholar,
+    rev_idx: int,
+    total_revs: int,
+    text_context: str = "",
+    timestamp: str | None = None,
+    session_start_timestamp: str | None = None,
+) -> CognitiveState:
+    """Sample the current cognitive state of the persistent author.
+
+    Uses actual timestamps when both ``timestamp`` and ``session_start_timestamp``
+    are provided; falls back to linear interpolation over a 90-minute session.
+    """
+    minute = _estimate_minute(rev_idx, total_revs, timestamp, session_start_timestamp)
     alloc = author.allocate_resources(get_syntactic_demand(text_context))
     return CognitiveState(
         minute=minute,
@@ -127,8 +125,30 @@ def get_embodied_state(author: EmbodiedScholar, rev_idx: int, total_revs: int, t
         biometric_salt=author.get_biometric_salt(rev_idx)
     )
 
+_GENERIC_SUBSTITUTIONS = [
+    "thing", "aspect", "element", "factor", "concept",
+    "matter", "point", "issue", "area", "item",
+]
+
+# Function words to preserve during semantic erosion
+_FUNCTION_WORDS = frozenset({
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did", "will", "would", "shall",
+    "should", "may", "might", "can", "could", "must", "of", "in", "to",
+    "for", "with", "on", "at", "from", "by", "as", "or", "and", "but",
+    "if", "not", "no", "so", "it", "its", "this", "that", "these", "those",
+    "he", "she", "they", "we", "i", "you", "my", "his", "her", "our", "their",
+})
+
+
 def erode_context_deterministically(text: str, clarity: float, salt: str) -> str:
-    """Simulate cognitive blurring by deterministically degrading context."""
+    """Simulate cognitive blurring by deterministically degrading context.
+
+    At clarity < 0.9: orthographic erosion (punctuation loss, case errors).
+    At clarity < 0.5: semantic erosion — 10-15% of content words replaced
+    with generic substitutes, simulating lexical retrieval failure under
+    fatigue (Flower & Hayes 1981).
+    """
     if clarity >= 0.9 or not text: return text
     chars = list(text)
     threshold = 1.0 - clarity
@@ -137,7 +157,26 @@ def erode_context_deterministically(text: str, clarity: float, salt: str) -> str
         if (h / 100.0) < threshold:
             if chars[i] in ",.!?;:": chars[i] = " "
             elif chars[i].isupper() and clarity < 0.6: chars[i] = chars[i].lower()
-    return "".join(chars)
+    result = "".join(chars)
+
+    # Semantic erosion: replace content words with generic substitutes
+    if clarity < 0.5:
+        words = result.split()
+        erosion_rate = min(0.15, (0.5 - clarity) * 0.3)  # 0-15% replacement
+        new_words = []
+        for wi, w in enumerate(words):
+            if w.lower() in _FUNCTION_WORDS or len(w) <= 3:
+                new_words.append(w)
+                continue
+            h = int(hashlib.md5(f"{salt}:w:{wi}".encode()).hexdigest(), 16) % 1000
+            if (h / 1000.0) < erosion_rate:
+                sub_idx = h % len(_GENERIC_SUBSTITUTIONS)
+                new_words.append(_GENERIC_SUBSTITUTIONS[sub_idx])
+            else:
+                new_words.append(w)
+        result = " ".join(new_words)
+
+    return result
 
 @lru_cache(maxsize=1)
 def _get_marker_pattern() -> re.Pattern:
@@ -170,4 +209,4 @@ def get_syntactic_demand(text: str) -> float:
     pattern = _get_marker_pattern()
     markers = len(pattern.findall(text))
 
-    return min(10.0, (len(words) / 10.0) + (markers * 1.2))
+    return max(1.0, min(10.0, (len(words) / 10.0) + (markers * 1.2)))

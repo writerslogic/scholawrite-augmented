@@ -92,6 +92,8 @@ class GenerationMetadata:
     cognitive_glucose: Optional[float] = None
     cognitive_fatigue: Optional[float] = None
     cognitive_attention: Optional[float] = None
+    json_extraction_success: bool = True
+    hardening_applied: bool = False
 
 
 @dataclass(frozen=True)

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import asyncio
+import random
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -39,13 +40,16 @@ class OpenRouterClient:
     Implements aggressive retries and connection pooling.
     Gracefully handles models that don't support certain parameters.
     """
-    api_key: str
+    api_key: str = field(repr=False)
     base_url: str = "https://openrouter.ai/api/v1"
     timeout_s: int = 120
     max_retries: int = 5
 
-    _client: httpx.AsyncClient = field(init=False)
-    _unsupported_params: Dict[str, set] = field(default_factory=dict, init=False)
+    _client: httpx.AsyncClient = field(init=False, repr=False)
+    _unsupported_params: Dict[str, set] = field(default_factory=dict, init=False, repr=False)
+
+    def __repr__(self) -> str:
+        return f"OpenRouterClient(api_key=***masked***, base_url={self.base_url!r})"
 
     def __post_init__(self):
         headers = {
@@ -71,12 +75,21 @@ class OpenRouterClient:
     async def close(self):
         await self._client.aclose()
 
+    async def __aenter__(self) -> OpenRouterClient:
+        return self
+
+    async def __aexit__(self, *exc_info) -> None:
+        await self.close()
+
     async def list_models(self) -> List[Dict[str, Any]]:
         """Fetch available models from OpenRouter API."""
         resp = await self._client.get(f"{self.base_url}/models")
         if resp.status_code != 200:
             raise OpenRouterError(f"Failed to fetch models: {resp.status_code}")
-        return resp.json().get("data", [])
+        try:
+            return resp.json().get("data", [])
+        except (ValueError, KeyError) as e:
+            raise OpenRouterError(f"Malformed model list response: {e}") from e
 
     async def chat_completion(
         self,
@@ -159,11 +172,13 @@ class OpenRouterClient:
                 )
 
                 if resp.status_code == 429:  # Rate Limit
-                    await asyncio.sleep((2 ** attempt) + 2)
+                    jitter = random.uniform(0, 1)
+                    await asyncio.sleep((2 ** attempt) + 2 + jitter)
                     continue
 
                 if resp.status_code >= 500:  # Server errors
-                    await asyncio.sleep(attempt + 1)
+                    jitter = random.uniform(0, 0.5)
+                    await asyncio.sleep(attempt + 1 + jitter)
                     continue
 
                 if resp.status_code == 400:
@@ -191,7 +206,10 @@ class OpenRouterClient:
                 if resp.status_code != 200:
                     raise OpenRouterError(f"API Error {resp.status_code}: {resp.text}")
 
-                result = resp.json()
+                try:
+                    result = resp.json()
+                except (ValueError, KeyError) as e:
+                    raise OpenRouterError(f"Malformed API response: {e}") from e
 
                 # Check for truncation
                 if reject_truncation:
@@ -212,6 +230,6 @@ class OpenRouterClient:
                     raise OpenRouterError(
                         f"Request failed after {self.max_retries} attempts: {e}"
                     )
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(2 ** attempt + random.uniform(0, 1))
 
         return {}

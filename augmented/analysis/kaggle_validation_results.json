@@ -1,0 +1,64 @@
+{
+  "dataset": "Kaggle Writing Quality Challenge - Constructed Essays",
+  "dataset_description": "Anonymized essay text from the Kaggle 'Linking Writing Processes to Writing Quality' competition supplementary data. All alphabetic characters replaced with 'q'; punctuation and spacing preserved. NO keystroke timing data.",
+  "n_essays": 2471,
+  "has_keystroke_timing": false,
+  "can_validate_behavioral_independence": false,
+  "reason": "The 'constructed essays' dataset contains only anonymized text, not keystroke logs. The main competition dataset (linking-writing-processes-to-writing-quality) has keystroke logs with event_id, down_time, up_time, action_time, activity, down_event, up_event, text_change, cursor_position, and word_count columns \u2014 which WOULD allow computing IKI entropy, IKI variance, and pause frequency. However, that dataset requires authenticated Kaggle API access to download.",
+  "structural_feature_correlations": {
+    "word_len_entropy_vs_sent_len_var": {
+      "rho": 0.0614,
+      "p_value": 0.0022436
+    },
+    "word_len_entropy_vs_punct_density": {
+      "rho": 0.0759,
+      "p_value": 0.00015944
+    },
+    "word_len_entropy_vs_mean_word_len": {
+      "rho": 0.8429,
+      "p_value": 0.0
+    },
+    "sent_len_var_vs_punct_density": {
+      "rho": -0.0943,
+      "p_value": 2.6501e-06
+    },
+    "sent_len_var_vs_mean_word_len": {
+      "rho": -0.0288,
+      "p_value": 0.15226
+    },
+    "punct_density_vs_mean_word_len": {
+      "rho": -0.0236,
+      "p_value": 0.24057
+    }
+  },
+  "structural_feature_summary": {
+    "n_independent_pairs": 5,
+    "n_total_pairs": 6,
+    "interpretation": "Structural text features (word-length entropy, sentence variance, punctuation density, mean word length) show varying degrees of correlation. This is expected \u2014 these are all surface-level text features from the same domain, unlike the cross-domain behavioral features in KLiCKE."
+  },
+  "klicke_reference": {
+    "entropy_vs_clc_rho": 0.0707,
+    "entropy_vs_pause_freq_rho": 0.7146,
+    "entropy_vs_iki_log_var_rho": 0.3829
+  },
+  "validation_status": "CANNOT_VALIDATE",
+  "recommendation": "To independently validate the cross-domain independence claim (entropy\u2194CLC < 0.1), download the main competition dataset via: 'kaggle competitions download -c linking-writing-processes-to-writing-quality'. That dataset contains keystroke logs (down_time, up_time per keypress) from which IKI sequences can be reconstructed. The constructed-essays supplementary dataset used here lacks the necessary behavioral data.",
+  "what_main_dataset_contains": {
+    "file": "train_logs.csv",
+    "columns": [
+      "id",
+      "event_id",
+      "down_time",
+      "up_time",
+      "action_time",
+      "activity",
+      "down_event",
+      "up_event",
+      "text_change",
+      "cursor_position",
+      "word_count"
+    ],
+    "n_writers": "~2471 (matching essay count)",
+    "description": "Keystroke-level event logs with millisecond timestamps. down_time and up_time enable IKI computation (IKI = down_time[i+1] - down_time[i]). activity column distinguishes typing, deletion, copy, paste, etc."
+  }
+}

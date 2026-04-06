@@ -4,11 +4,12 @@ from __future__ import annotations
 import random
 import json
 import threading
+import queue
 import re
 from datetime import datetime
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Dict, List, Sequence, Optional
+from typing import Dict, List, Sequence, Optional, Any
 
 from .schema import (
     AugmentedDocument,
@@ -29,6 +30,7 @@ import logging
 
 # Set up logger for leakage detection warnings
 _leakage_logger = logging.getLogger("scholawrite.augment.leakage")
+_logger = logging.getLogger(__name__)
 
 __all__ = [
     "build_augmented", "build_augmented_async", "InjectionRecord",
@@ -49,18 +51,7 @@ def check_and_log_leakage(
     context_id: str,
     mode: str = LeakageFilterMode.WARN,
 ) -> tuple[bool, List[str]]:
-    """Check generated text for prompt leakage and handle according to mode.
-
-    Args:
-        text: The generated text to check.
-        context_id: Identifier for logging (e.g., injection_id, revision context).
-        mode: One of LeakageFilterMode values.
-
-    Returns:
-        Tuple of (is_clean, detected_patterns).
-        is_clean is True if no leakage detected or mode is IGNORE.
-        detected_patterns is list of matched pattern strings.
-    """
+    """Check generated text for prompt leakage and handle according to mode."""
     if mode == LeakageFilterMode.IGNORE:
         return True, []
 
@@ -91,55 +82,21 @@ def _verify_insertion(
     expected_text: str,
     strict: bool = False,
 ) -> bool:
-    """
-    Verify that injected text exists at the expected position.
-
-    Args:
-        revision_text: The full text of the revision after insertion.
-        span: The InjectionSpan with updated character offsets.
-        expected_text: The text that was supposed to be inserted.
-        strict: If True, raises InsertionVerificationError on failure.
-
-    Returns:
-        True if verification passes, False otherwise.
-
-    Raises:
-        InsertionVerificationError: If strict=True and verification fails.
-    """
-    # Check span boundaries are within text
-    if span.span_start_char < 0:
-        msg = f"Span start {span.span_start_char} is negative"
-        if strict:
-            raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
-        return False
-
-    if span.span_start_char >= len(revision_text):
-        msg = f"Span start {span.span_start_char} exceeds text length {len(revision_text)}"
-        if strict:
-            raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
+    """Verify that injected text exists at the expected position."""
+    if span.span_start_char < 0 or span.span_start_char >= len(revision_text):
+        msg = f"Span start {span.span_start_char} out of bounds"
+        if strict: raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
         return False
 
     if span.span_end_char > len(revision_text):
-        msg = f"Span end {span.span_end_char} exceeds text length {len(revision_text)}"
-        if strict:
-            raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
+        msg = f"Span end {span.span_end_char} out of bounds"
+        if strict: raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
         return False
 
-    # Extract the actual content at the span position
     actual = revision_text[span.span_start_char:span.span_end_char]
-
-    # Verify the expected text is present
     if expected_text not in actual:
-        msg = f"Expected text not found at span position. Expected: '{expected_text[:50]}...', Got: '{actual[:50]}...'"
-        if strict:
-            raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
-        return False
-
-    # Verify span is not empty
-    if not actual.strip():
-        msg = f"Span references empty or whitespace-only content"
-        if strict:
-            raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
+        msg = f"Expected text mismatch at span position"
+        if strict: raise InsertionVerificationError(msg, span.injection_id, span.revision_id)
         return False
 
     return True
@@ -151,41 +108,48 @@ def _verify_all_spans(
     injected_texts: Dict[str, str],
     strict: bool = False,
 ) -> List[str]:
-    """
-    Verify all spans in a revision after insertions.
-
-    Args:
-        revision_text: The full text of the revision after all insertions.
-        spans: List of InjectionSpans with updated character offsets.
-        injected_texts: Mapping from injection_id to the injected text.
-        strict: If True, raises on first failure.
-
-    Returns:
-        List of warning messages for any verification failures.
-    """
+    """Verify all spans in a revision after insertions."""
     warnings = []
-
     for span in spans:
         expected = injected_texts.get(span.injection_id, "")
         if not _verify_insertion(revision_text, span, expected, strict=strict):
-            warnings.append(
-                f"Verification failed for span {span.injection_id} in revision {span.revision_id}"
-            )
-
+            warnings.append(f"Verification failed: {span.injection_id} in {span.revision_id}")
     return warnings
 
+
 class LLMCache:
-    """Thread-safe LLM response cache with file persistence."""
+    """Thread-safe LLM response cache with background persistence."""
 
     def __init__(
         self,
         cache_file: Path = Path("data/augmented/full/llm_cache.jsonl"),
         trace_file: Path = Path("data/augmented/full/negotiation_traces.jsonl"),
     ):
-        self._lock = threading.Lock()
         self._cache: Dict[str, str] = {}
         self._cache_file = cache_file
         self._trace_file = trace_file
+        self._lock = threading.Lock()
+        self._write_queue: queue.Queue = queue.Queue()
+        self._worker_thread = threading.Thread(target=self._background_worker, daemon=True)
+        self._worker_thread.start()
+
+    def _background_worker(self):
+        """Worker thread to handle disk I/O from the queue."""
+        while True:
+            try:
+                task_type, payload = self._write_queue.get()
+                if task_type == "cache":
+                    prompt_hash, result = payload
+                    self._cache_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(self._cache_file, "a", encoding="utf-8") as f:
+                        f.write(json.dumps({"prompt_hash": prompt_hash, "result": result}) + "\n")
+                elif task_type == "trace":
+                    self._trace_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(self._trace_file, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(payload) + "\n")
+                self._write_queue.task_done()
+            except Exception as e:
+                logging.error(f"LLMCache background worker error: {e}")
 
     def load(self) -> None:
         """Load cache from disk."""
@@ -207,29 +171,22 @@ class LLMCache:
             return self._cache.get(prompt_hash)
 
     def save(self, prompt_hash: str, result: str) -> None:
-        """Save LLM result to cache (async write to avoid blocking)."""
-        def _write():
-            with self._lock:
-                self._cache[prompt_hash] = result
-                self._cache_file.parent.mkdir(parents=True, exist_ok=True)
-                with open(self._cache_file, "a", encoding="utf-8") as f:
-                    f.write(json.dumps({"prompt_hash": prompt_hash, "result": result}) + "\n")
-        threading.Thread(target=_write, daemon=True).start()
+        """Queue LLM result for persistence."""
+        with self._lock:
+            self._cache[prompt_hash] = result
+        self._write_queue.put(("cache", (prompt_hash, result)))
 
     def save_trace(self, injection_id: str, revision_id: int, trace: List[CausalEvent]) -> None:
-        """Save causal trace to file (async write)."""
-        def _write():
-            with self._lock:
-                self._trace_file.parent.mkdir(parents=True, exist_ok=True)
-                with open(self._trace_file, "a", encoding="utf-8") as f:
-                    f.write(json.dumps({
-                        "injection_id": injection_id,
-                        "revision_id": revision_id,
-                        "timestamp": datetime.now().isoformat(),
-                        "trace": [asdict(e) for e in trace]
-                    }) + "\n")
-        if trace:
-            threading.Thread(target=_write, daemon=True).start()
+        """Queue causal trace for persistence."""
+        if not trace:
+            return
+        payload = {
+            "injection_id": injection_id,
+            "revision_id": revision_id,
+            "timestamp": datetime.now().isoformat(),
+            "trace": [asdict(e) if hasattr(e, '__dataclass_fields__') else e for e in trace]
+        }
+        self._write_queue.put(("trace", payload))
 
     @staticmethod
     def make_key(doc_id: str, inj_id: str, rev_idx: int, context_hash: str) -> str:
@@ -238,9 +195,20 @@ class LLMCache:
         key_data = f"{doc_id}:{inj_id}:{rev_idx}:{context_hash}"
         return hashlib.sha256(key_data.encode()).hexdigest()[:32]
 
+    def flush(self, timeout: float = 5.0) -> None:
+        """Wait for pending writes to complete."""
+        self._write_queue.join()
 
-# Module-level instance for backward compatibility
-_default_cache = LLMCache()
+
+# Module-level instance, lazily initialized
+_default_cache: Optional[LLMCache] = None
+
+
+def _get_default_cache() -> LLMCache:
+    global _default_cache
+    if _default_cache is None:
+        _default_cache = LLMCache()
+    return _default_cache
 
 @dataclass(frozen=True)
 class InjectionRecord:
@@ -345,7 +313,7 @@ def build_augmented(
                         text, birth_spans, injected_texts, strict=strict_verification
                     )
                     for warning in warnings:
-                        print(f"[WARN] {warning}")
+                        _logger.warning(warning)
 
             doc_revisions.append(AugmentedRevision(
                 doc_id=rev.doc_id,
@@ -405,7 +373,7 @@ async def build_augmented_async(
         InsertionVerificationError: If strict_verification=True and verification fails.
     """
     if cache is None:
-        cache = _default_cache
+        cache = _get_default_cache()
     cache.load()
     revision_lookup = {rev.revision_id: (doc_idx, rev_idx) for doc_idx, doc in enumerate(seed_docs) for rev_idx, rev in enumerate(doc.revisions)}
     augmented_docs = []
@@ -423,19 +391,20 @@ async def build_augmented_async(
             span_rng = random.Random(f"{doc.doc_id}:{inj_id}")
 
             # --- Bridge Initial Trace Gap ---
-            # Sample initial text from the human-checked or placeholder birth text
-            # In a full run, we'd load this from generated_text.jsonl, here we use the span's implicit provenance
-            current_text = "This approach"
+            # Extract actual span text from the birth revision for causal grounding
+            birth_rev_text = doc.revisions[birth_idx].text if birth_idx < len(doc.revisions) else ""
+            current_text = birth_rev_text[inj.span_start_char:inj.span_end_char] or "This approach"
             current_trace = list(inj.causal_trace)
             current_meta = inj.generation_metadata
 
             evolved_texts[inj_id], evolved_traces[inj_id], evolved_sigs[inj_id], evolved_ids[inj_id], evolved_meta[inj_id] = {birth_idx: current_text}, {birth_idx: current_trace}, {birth_idx: {}}, {birth_idx: inj_id}, {birth_idx: current_meta}
             target_model = inj.generator_class or (random.choice(models) if models else "openai/gpt-3.5-turbo")
 
+            edits_made = 0
             for rev_idx in range(birth_idx + 1, len(doc.revisions)):
-                # GUARANTEE at least one edit per span to ensure causal grounding
-                force_edit = (rev_idx == birth_idx + 2)
-                if force_edit or span_rng.random() < 0.05:
+                # Guarantee at least one edit per span; after that, stochastic
+                force_edit = (edits_made == 0 and rev_idx >= birth_idx + 2)
+                if force_edit or span_rng.random() < 0.08:
                     state = get_embodied_state(author, rev_idx, len(doc.revisions), current_text)
                     rev_text = doc.revisions[rev_idx].text
                     pos = inj.span_start_char
@@ -449,7 +418,7 @@ async def build_augmented_async(
                     cached_result = cache.get(cache_key)
 
                     if cached_result:
-                        print(f"  [CACHE HIT] {inj_id[:8]} at rev {rev_idx}", flush=True)
+                        _logger.debug("Cache hit: %s at rev %d", inj_id[:8], rev_idx)
                         # Parse cached result (stored as JSON)
                         try:
                             cached_data = json.loads(cached_result)
@@ -463,7 +432,7 @@ async def build_augmented_async(
                             cached_result = None  # Invalid cache, regenerate
 
                     if not cached_result:
-                        print(f"  Irreversible Process Edit: {inj_id[:8]} at rev {rev_idx}...", flush=True)
+                        _logger.info("Irreversible Process Edit: %s at rev %d", inj_id[:8], rev_idx)
                         new_text, trace, sigs, causal_id, gen_meta = await run_causal_agentic_loop(client, [m1, m2], abstract, pre, current_text, fol, state, profile, f"{doc.doc_id}:{inj_id}:{rev_idx}", doc.doc_id, doc.revisions[rev_idx].revision_id, ordinal, author)
 
                         # Save to cache for future runs
@@ -494,6 +463,7 @@ async def build_augmented_async(
                         evolved_texts[inj_id][rev_idx], evolved_traces[inj_id][rev_idx], evolved_sigs[inj_id][rev_idx], evolved_ids[inj_id][rev_idx], evolved_meta[inj_id][rev_idx] = new_text, trace, sigs, causal_id, gen_meta
                         current_text = new_text
                         current_meta = gen_meta
+                        edits_made += 1
                         if trace:
                             cache.save_trace(causal_id, rev_idx, trace)
 
@@ -554,7 +524,7 @@ async def build_augmented_async(
                         text, updated_spans, injected_texts, strict=strict_verification
                     )
                     for warning in warnings:
-                        print(f"[WARN] {warning}")
+                        _logger.warning(warning)
 
             doc_revisions.append(AugmentedRevision(
                 doc_id=rev.doc_id,

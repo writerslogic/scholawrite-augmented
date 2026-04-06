@@ -1,0 +1,158 @@
+{
+  "attack_constant": {
+    "n_sessions": 1000,
+    "n_genuine": 500,
+    "n_forged": 500,
+    "auc": 1.0,
+    "eer": 0.0,
+    "accuracy_at_05": 0.999,
+    "far_at_05": 0.002,
+    "frr_at_05": 0.0,
+    "operating_points": {
+      "FAR_at_1pct_FRR": 0.0,
+      "FRR_at_1pct_FRR": 0.0,
+      "FAR_at_5pct_FRR": 0.0,
+      "FRR_at_5pct_FRR": 0.0,
+      "FAR_at_10pct_FRR": 0.0,
+      "FRR_at_10pct_FRR": 0.0
+    },
+    "confusion_matrix": {
+      "tp": 500,
+      "fp": 1,
+      "tn": 499,
+      "fn": 0
+    }
+  },
+  "attack_iid": {
+    "n_sessions": 1000,
+    "n_genuine": 500,
+    "n_forged": 500,
+    "auc": 0.7531,
+    "eer": 0.284,
+    "accuracy_at_05": 0.717,
+    "far_at_05": 0.398,
+    "frr_at_05": 0.168,
+    "operating_points": {
+      "FAR_at_1pct_FRR": 0.886,
+      "FRR_at_1pct_FRR": 0.01,
+      "FAR_at_5pct_FRR": 0.69,
+      "FRR_at_5pct_FRR": 0.05,
+      "FAR_at_10pct_FRR": 0.544,
+      "FRR_at_10pct_FRR": 0.1
+    },
+    "confusion_matrix": {
+      "tp": 416,
+      "fp": 199,
+      "tn": 301,
+      "fn": 84
+    }
+  },
+  "attack_cross": {
+    "n_sessions": 1000,
+    "n_genuine": 500,
+    "n_forged": 500,
+    "auc": 0.7784,
+    "eer": 0.275,
+    "accuracy_at_05": 0.728,
+    "far_at_05": 0.386,
+    "frr_at_05": 0.158,
+    "operating_points": {
+      "FAR_at_1pct_FRR": 0.85,
+      "FRR_at_1pct_FRR": 0.01,
+      "FAR_at_5pct_FRR": 0.628,
+      "FRR_at_5pct_FRR": 0.048,
+      "FAR_at_10pct_FRR": 0.51,
+      "FRR_at_10pct_FRR": 0.1
+    },
+    "confusion_matrix": {
+      "tp": 421,
+      "fp": 193,
+      "tn": 307,
+      "fn": 79
+    }
+  },
+  "attack_markov": {
+    "n_sessions": 1000,
+    "n_genuine": 500,
+    "n_forged": 500,
+    "auc": 0.8666,
+    "eer": 0.205,
+    "accuracy_at_05": 0.798,
+    "far_at_05": 0.19,
+    "frr_at_05": 0.214,
+    "operating_points": {
+      "FAR_at_1pct_FRR": 0.84,
+      "FRR_at_1pct_FRR": 0.01,
+      "FAR_at_5pct_FRR": 0.576,
+      "FRR_at_5pct_FRR": 0.05,
+      "FAR_at_10pct_FRR": 0.36,
+      "FRR_at_10pct_FRR": 0.1
+    },
+    "confusion_matrix": {
+      "tp": 393,
+      "fp": 95,
+      "tn": 405,
+      "fn": 107
+    }
+  },
+  "all_attacks": {
+    "n_sessions": 2500,
+    "n_genuine": 500,
+    "n_forged": 2000,
+    "auc": 0.7849,
+    "eer": 0.3293,
+    "accuracy_at_05": 0.8348,
+    "far_at_05": 0.784,
+    "frr_at_05": 0.0105,
+    "operating_points": {
+      "FAR_at_1pct_FRR": 0.786,
+      "FRR_at_1pct_FRR": 0.01,
+      "FAR_at_5pct_FRR": 0.508,
+      "FRR_at_5pct_FRR": 0.0505,
+      "FAR_at_10pct_FRR": 0.418,
+      "FRR_at_10pct_FRR": 0.1015
+    },
+    "confusion_matrix": {
+      "tp": 1979,
+      "fp": 392,
+      "tn": 108,
+      "fn": 21
+    }
+  },
+  "all_attacks_no_clc": {
+    "auc": 0.7568,
+    "eer": 0.3368,
+    "features_used": [
+      "entropy",
+      "autocorr_lag1",
+      "iki_mean",
+      "iki_std",
+      "iki_log_var",
+      "pause_freq"
+    ],
+    "note": "CLC excluded because forged sessions have CLC=0 by construction"
+  },
+  "feature_importance": {
+    "entropy": 0.887,
+    "entropy_std": 0.0129,
+    "autocorr_lag1": 1.2228,
+    "autocorr_lag1_std": 0.0088,
+    "iki_mean": 0.4015,
+    "iki_mean_std": 0.0075,
+    "iki_std": 1.1624,
+    "iki_std_std": 0.0105,
+    "iki_log_var": 1.9784,
+    "iki_log_var_std": 0.0193,
+    "pause_freq": 0.1529,
+    "pause_freq_std": 0.0042,
+    "clc_proxy": 0.397,
+    "clc_proxy_std": 0.0047
+  },
+  "all_attacks_balanced": {
+    "n_genuine": 500,
+    "n_forged": 500,
+    "auc": 0.7603,
+    "eer": 0.343,
+    "note": "Balanced 500:500 downsample (125 per attack type)"
+  }
+}

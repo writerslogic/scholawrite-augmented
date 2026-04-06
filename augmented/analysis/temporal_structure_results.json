@@ -1,0 +1,69 @@
+{
+  "n_writers": 300,
+  "n_writers_permutation_test": 100,
+  "acf_genuine_mean": [
+    0.1108,
+    0.0899,
+    0.0621,
+    0.0519,
+    0.0428,
+    0.0399,
+    0.034,
+    0.034,
+    0.027,
+    0.0244
+  ],
+  "acf_shuffled_mean": [
+    -0.0016,
+    -0.002,
+    -0.0,
+    -0.0001,
+    0.0004,
+    -0.0015,
+    -0.0001,
+    -0.0007,
+    -0.0001,
+    -0.0001
+  ],
+  "marginal_entropy_mean": 6.4534,
+  "conditional_entropy_mean": 3.8781,
+  "temporal_redundancy_genuine": 2.5754,
+  "temporal_redundancy_shuffled": 2.3015,
+  "delta_entropy": 0.2739,
+  "permutation_test": {
+    "observed_lag1_acf": 0.1174,
+    "null_mean": -0.0005,
+    "null_std": 0.0018,
+    "p_value_lag1_corrected": 0.01,
+    "significant_lag1": true,
+    "n_permutations": 1000,
+    "correction": "Bonferroni",
+    "n_tests": 10,
+    "per_lag_raw_p": [
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001
+    ],
+    "per_lag_corrected_p": [
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.01
+    ],
+    "n_significant_lags": 10
+  },
+  "interpretation": "Genuine sequences show temporal redundancy of 2.58 bits vs 2.30 bits for shuffled (iid). Lag-1 ACF = 0.117 (Bonferroni-corrected p = 0.0100), 10/10 lags significant after Bonferroni correction. Confirms that iid retype attacks destroy detectable temporal structure."
+}

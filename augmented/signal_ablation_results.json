@@ -1,0 +1,434 @@
+{
+  "naive": {
+    "baseline_auc": 0.6,
+    "baseline_ci": [
+      0.6,
+      0.1667,
+      0.96
+    ],
+    "ablation": {
+      "causal_dag": {
+        "auc_without": 0.36,
+        "auc_without_ci": [
+          0.36,
+          0.0,
+          0.7917
+        ],
+        "auc_only": 1.0,
+        "auc_only_ci": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "delta_without": 0.24,
+        "contribution_rank": 1
+      },
+      "causal_concentration": {
+        "auc_without": 0.52,
+        "auc_without_ci": [
+          0.52,
+          0.125,
+          0.9048
+        ],
+        "auc_only": 0.56,
+        "auc_only_ci": [
+          0.56,
+          0.16,
+          1.0
+        ],
+        "delta_without": 0.08,
+        "contribution_rank": 2
+      },
+      "cross_channel_mi": {
+        "auc_without": 0.6,
+        "auc_without_ci": [
+          0.6,
+          0.1667,
+          0.96
+        ],
+        "auc_only": 0.5,
+        "auc_only_ci": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 3
+      },
+      "decay_type": {
+        "auc_without": 0.6,
+        "auc_without_ci": [
+          0.6,
+          0.1667,
+          0.96
+        ],
+        "auc_only": 0.5,
+        "auc_only_ci": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 4
+      },
+      "free_energy": {
+        "auc_without": 0.8,
+        "auc_without_ci": [
+          0.8,
+          0.4167,
+          1.0
+        ],
+        "auc_only": 0.4,
+        "auc_only_ci": [
+          0.4,
+          0.0,
+          0.8571
+        ],
+        "delta_without": -0.2,
+        "contribution_rank": 6
+      },
+      "adaptation": {
+        "auc_without": 0.68,
+        "auc_without_ci": [
+          0.68,
+          0.25,
+          1.0
+        ],
+        "auc_only": 0.28,
+        "auc_only_ci": [
+          0.28,
+          0.0,
+          0.6667
+        ],
+        "delta_without": -0.08,
+        "contribution_rank": 5
+      }
+    },
+    "n_samples": 5,
+    "n_events": 15
+  },
+  "statistical": {
+    "baseline_auc": 0.68,
+    "baseline_ci": [
+      0.68,
+      0.2381,
+      1.0
+    ],
+    "ablation": {
+      "causal_dag": {
+        "auc_without": 0.6,
+        "auc_without_ci": [
+          0.6,
+          0.1429,
+          1.0
+        ],
+        "auc_only": 0.96,
+        "auc_only_ci": [
+          0.96,
+          0.76,
+          1.0
+        ],
+        "delta_without": 0.08,
+        "contribution_rank": 2
+      },
+      "causal_concentration": {
+        "auc_without": 0.4,
+        "auc_without_ci": [
+          0.4,
+          0.0,
+          0.8
+        ],
+        "auc_only": 0.96,
+        "auc_only_ci": [
+          0.96,
+          0.8095,
+          1.0
+        ],
+        "delta_without": 0.28,
+        "contribution_rank": 1
+      },
+      "cross_channel_mi": {
+        "auc_without": 0.68,
+        "auc_without_ci": [
+          0.68,
+          0.2381,
+          1.0
+        ],
+        "auc_only": 0.7,
+        "auc_only_ci": [
+          0.7,
+          0.5,
+          0.9286
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 3
+      },
+      "decay_type": {
+        "auc_without": 0.68,
+        "auc_without_ci": [
+          0.68,
+          0.2381,
+          1.0
+        ],
+        "auc_only": 0.5,
+        "auc_only_ci": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 4
+      },
+      "free_energy": {
+        "auc_without": 0.8,
+        "auc_without_ci": [
+          0.8,
+          0.44,
+          1.0
+        ],
+        "auc_only": 0.48,
+        "auc_only_ci": [
+          0.48,
+          0.14,
+          0.875
+        ],
+        "delta_without": -0.12,
+        "contribution_rank": 5
+      },
+      "adaptation": {
+        "auc_without": 0.88,
+        "auc_without_ci": [
+          0.88,
+          0.6,
+          1.0
+        ],
+        "auc_only": 0.18,
+        "auc_only_ci": [
+          0.18,
+          0.0,
+          0.5
+        ],
+        "delta_without": -0.2,
+        "contribution_rank": 6
+      }
+    },
+    "n_samples": 5,
+    "n_events": 15
+  },
+  "reverse_engineered": {
+    "baseline_auc": 0.96,
+    "baseline_ci": [
+      0.96,
+      0.8095,
+      1.0
+    ],
+    "ablation": {
+      "causal_dag": {
+        "auc_without": 0.84,
+        "auc_without_ci": [
+          0.84,
+          0.5,
+          1.0
+        ],
+        "auc_only": 0.96,
+        "auc_only_ci": [
+          0.96,
+          0.76,
+          1.0
+        ],
+        "delta_without": 0.12,
+        "contribution_rank": 1
+      },
+      "causal_concentration": {
+        "auc_without": 0.88,
+        "auc_without_ci": [
+          0.88,
+          0.5238,
+          1.0
+        ],
+        "auc_only": 1.0,
+        "auc_only_ci": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "delta_without": 0.08,
+        "contribution_rank": 2
+      },
+      "cross_channel_mi": {
+        "auc_without": 0.96,
+        "auc_without_ci": [
+          0.96,
+          0.8095,
+          1.0
+        ],
+        "auc_only": 0.8,
+        "auc_only_ci": [
+          0.8,
+          0.5714,
+          1.0
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 3
+      },
+      "decay_type": {
+        "auc_without": 0.96,
+        "auc_without_ci": [
+          0.96,
+          0.8095,
+          1.0
+        ],
+        "auc_only": 0.5,
+        "auc_only_ci": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 4
+      },
+      "free_energy": {
+        "auc_without": 0.96,
+        "auc_without_ci": [
+          0.96,
+          0.8095,
+          1.0
+        ],
+        "auc_only": 0.68,
+        "auc_only_ci": [
+          0.68,
+          0.3,
+          1.0
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 5
+      },
+      "adaptation": {
+        "auc_without": 1.0,
+        "auc_without_ci": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "auc_only": 0.42,
+        "auc_only_ci": [
+          0.42,
+          0.1042,
+          0.75
+        ],
+        "delta_without": -0.04,
+        "contribution_rank": 6
+      }
+    },
+    "n_samples": 5,
+    "n_events": 15
+  },
+  "expert": {
+    "baseline_auc": 0.52,
+    "baseline_ci": [
+      0.52,
+      0.12,
+      0.9167
+    ],
+    "ablation": {
+      "causal_dag": {
+        "auc_without": 0.52,
+        "auc_without_ci": [
+          0.52,
+          0.0952,
+          0.9167
+        ],
+        "auc_only": 0.52,
+        "auc_only_ci": [
+          0.52,
+          0.25,
+          0.7857
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 2
+      },
+      "causal_concentration": {
+        "auc_without": 0.32,
+        "auc_without_ci": [
+          0.32,
+          0.0,
+          0.75
+        ],
+        "auc_only": 0.72,
+        "auc_only_ci": [
+          0.72,
+          0.3333,
+          1.0
+        ],
+        "delta_without": 0.2,
+        "contribution_rank": 1
+      },
+      "cross_channel_mi": {
+        "auc_without": 0.52,
+        "auc_without_ci": [
+          0.52,
+          0.12,
+          0.9167
+        ],
+        "auc_only": 0.6,
+        "auc_only_ci": [
+          0.6,
+          0.5,
+          0.8333
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 3
+      },
+      "decay_type": {
+        "auc_without": 0.52,
+        "auc_without_ci": [
+          0.52,
+          0.12,
+          0.9167
+        ],
+        "auc_only": 0.5,
+        "auc_only_ci": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 4
+      },
+      "free_energy": {
+        "auc_without": 0.52,
+        "auc_without_ci": [
+          0.52,
+          0.0952,
+          0.9167
+        ],
+        "auc_only": 0.48,
+        "auc_only_ci": [
+          0.48,
+          0.125,
+          0.88
+        ],
+        "delta_without": 0.0,
+        "contribution_rank": 5
+      },
+      "adaptation": {
+        "auc_without": 0.6,
+        "auc_without_ci": [
+          0.6,
+          0.1905,
+          1.0
+        ],
+        "auc_only": 0.42,
+        "auc_only_ci": [
+          0.42,
+          0.0833,
+          0.75
+        ],
+        "delta_without": -0.08,
+        "contribution_rank": 6
+      }
+    },
+    "n_samples": 5,
+    "n_events": 15
+  }
+}

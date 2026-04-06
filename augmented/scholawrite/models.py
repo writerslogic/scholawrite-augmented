@@ -6,6 +6,7 @@ dataset generation that works regardless of when the code is run.
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 from dataclasses import dataclass, field
@@ -158,7 +159,7 @@ def _parse_capabilities_from_api(model_data: Dict[str, Any], vendor: str) -> Mod
     # If API provides specific capability info, use it
     if supported:
         return ModelCapabilities(
-            supports_temperature="temperature" in supported or True,  # Always true
+            supports_temperature="temperature" in supported,
             supports_top_p="top_p" in supported,
             supports_top_k="top_k" in supported,
             supports_presence_penalty="presence_penalty" in supported,
@@ -305,6 +306,7 @@ class ModelRegistry:
             raise RuntimeError("Must call discover() before selecting models")
 
         selected: List[ModelInfo] = []
+        selected_ids: set = set()
         vendor_counts: Dict[str, int] = {}
 
         # Sort vendors by priority
@@ -323,8 +325,9 @@ class ModelRegistry:
                     continue
                 if vendor_counts.get(vendor, 0) >= max_per_vendor:
                     break
-                if model.id not in [m.id for m in selected]:
+                if model.id not in selected_ids:
                     selected.append(model)
+                    selected_ids.add(model.id)
                     vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
                     break
 
@@ -338,8 +341,9 @@ class ModelRegistry:
                     continue
                 if vendor_counts.get(vendor, 0) >= max_per_vendor:
                     break
-                if model.id not in [m.id for m in selected]:
+                if model.id not in selected_ids:
                     selected.append(model)
+                    selected_ids.add(model.id)
                     vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
                     if len(selected) >= count:
                         break
@@ -350,9 +354,10 @@ class ModelRegistry:
             for model in all_models:
                 if len(selected) >= count:
                     break
-                if model.id not in [m.id for m in selected]:
+                if model.id not in selected_ids:
                     if vendor_counts.get(model.vendor, 0) < max_per_vendor:
                         selected.append(model)
+                        selected_ids.add(model.id)
                         vendor_counts[model.vendor] = vendor_counts.get(model.vendor, 0) + 1
 
         return [m.id for m in selected]
@@ -392,6 +397,7 @@ class ModelRegistry:
 
 # Module-level registry instance
 _registry: Optional[ModelRegistry] = None
+_registry_lock: asyncio.Lock = asyncio.Lock()
 
 
 async def discover_models(api_key: Optional[str] = None, force: bool = False) -> ModelRegistry:
@@ -401,10 +407,11 @@ async def discover_models(api_key: Optional[str] = None, force: bool = False) ->
     so subsequent calls return the same registry unless force=True.
     """
     global _registry
-    if _registry is None or force:
-        _registry = ModelRegistry()
-        await _registry.discover(api_key)
-    return _registry
+    async with _registry_lock:
+        if _registry is None or force:
+            _registry = ModelRegistry()
+            await _registry.discover(api_key)
+        return _registry
 
 
 def get_registry() -> Optional[ModelRegistry]:

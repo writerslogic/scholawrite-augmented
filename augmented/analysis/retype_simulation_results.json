@@ -1,0 +1,165 @@
+{
+  "n_writers": 500,
+  "session_length": 200,
+  "total_sessions": 2500,
+  "genuine_sessions": 500,
+  "forged_sessions": 2000,
+  "detection_by_attack_type": {
+    "attack_constant": {
+      "entropy": {
+        "genuine_mean": 5.6669,
+        "forged_mean": -0.0,
+        "cohens_d": 12.0337,
+        "auc_mann_whitney": 1.0
+      },
+      "autocorr_lag1": {
+        "genuine_mean": 0.0736,
+        "forged_mean": 0.7104,
+        "cohens_d": 1.9324,
+        "auc_mann_whitney": 0.7998
+      },
+      "iki_std": {
+        "genuine_mean": 1414.2551,
+        "forged_mean": 0.0,
+        "cohens_d": 1.6256,
+        "auc_mann_whitney": 1.0
+      },
+      "iki_log_var": {
+        "genuine_mean": 13.7291,
+        "forged_mean": 0.0,
+        "cohens_d": 10.0563,
+        "auc_mann_whitney": 1.0
+      },
+      "pause_freq": {
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0,
+        "cohens_d": 1.6545,
+        "auc_mann_whitney": 0.97
+      },
+      "clc_proxy": {
+        "genuine_mean": 0.0567,
+        "forged_mean": 0.0,
+        "cohens_d": 0.2973,
+        "auc_mann_whitney": 0.68
+      }
+    },
+    "attack_iid": {
+      "entropy": {
+        "genuine_mean": 5.6669,
+        "forged_mean": 5.7393,
+        "cohens_d": 0.1252,
+        "auc_mann_whitney": 0.5161
+      },
+      "autocorr_lag1": {
+        "genuine_mean": 0.0736,
+        "forged_mean": -0.0023,
+        "cohens_d": 0.7862,
+        "auc_mann_whitney": 0.7563
+      },
+      "iki_std": {
+        "genuine_mean": 1414.2551,
+        "forged_mean": 1601.8365,
+        "cohens_d": 0.1516,
+        "auc_mann_whitney": 0.5586
+      },
+      "iki_log_var": {
+        "genuine_mean": 13.7291,
+        "forged_mean": 14.1376,
+        "cohens_d": 0.2275,
+        "auc_mann_whitney": 0.5586
+      },
+      "pause_freq": {
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0307,
+        "cohens_d": 0.0856,
+        "auc_mann_whitney": 0.5478
+      },
+      "clc_proxy": {
+        "genuine_mean": 0.0567,
+        "forged_mean": 0.0,
+        "cohens_d": 0.2973,
+        "auc_mann_whitney": 0.68
+      }
+    },
+    "attack_cross": {
+      "entropy": {
+        "genuine_mean": 5.6669,
+        "forged_mean": 5.7447,
+        "cohens_d": 0.1381,
+        "auc_mann_whitney": 0.5131
+      },
+      "autocorr_lag1": {
+        "genuine_mean": 0.0736,
+        "forged_mean": -0.0067,
+        "cohens_d": 0.8457,
+        "auc_mann_whitney": 0.7756
+      },
+      "iki_std": {
+        "genuine_mean": 1414.2551,
+        "forged_mean": 1633.3111,
+        "cohens_d": 0.1789,
+        "auc_mann_whitney": 0.5682
+      },
+      "iki_log_var": {
+        "genuine_mean": 13.7291,
+        "forged_mean": 14.1928,
+        "cohens_d": 0.2589,
+        "auc_mann_whitney": 0.5682
+      },
+      "pause_freq": {
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0299,
+        "cohens_d": 0.0508,
+        "auc_mann_whitney": 0.5394
+      },
+      "clc_proxy": {
+        "genuine_mean": 0.0567,
+        "forged_mean": 0.0,
+        "cohens_d": 0.2973,
+        "auc_mann_whitney": 0.68
+      }
+    },
+    "attack_markov": {
+      "entropy": {
+        "genuine_mean": 5.6669,
+        "forged_mean": 5.8174,
+        "cohens_d": 0.2574,
+        "auc_mann_whitney": 0.5702
+      },
+      "autocorr_lag1": {
+        "genuine_mean": 0.0736,
+        "forged_mean": 0.073,
+        "cohens_d": 0.0046,
+        "auc_mann_whitney": 0.5337
+      },
+      "iki_std": {
+        "genuine_mean": 1414.2551,
+        "forged_mean": 3577.4165,
+        "cohens_d": 1.4045,
+        "auc_mann_whitney": 0.8406
+      },
+      "iki_log_var": {
+        "genuine_mean": 13.7291,
+        "forged_mean": 15.9857,
+        "cohens_d": 1.3212,
+        "auc_mann_whitney": 0.8406
+      },
+      "pause_freq": {
+        "genuine_mean": 0.0287,
+        "forged_mean": 0.0343,
+        "cohens_d": 0.2411,
+        "auc_mann_whitney": 0.5963
+      },
+      "clc_proxy": {
+        "genuine_mean": 0.0567,
+        "forged_mean": 0.0,
+        "cohens_d": 0.2973,
+        "auc_mann_whitney": 0.68
+      }
+    }
+  },
+  "methodology": "White-box adaptive attack analysis following Killourhy & Maxion (2009). Four attack strategies of increasing sophistication: constant-rate replay, distribution-matched iid sampling, cross-writer transfer, and Markov-chain retype preserving lag-1 autocorrelation.",
+  "limitations": {
+    "clc_zero_in_forged": "All forged sessions have CLC proxy = 0 by construction because synthetic IKI sequences lack the cognitive-load activity labels present in genuine writing. This makes CLC a trivially discriminative feature. Detection results should be validated with CLC excluded to assess robustness."
+  }
+}

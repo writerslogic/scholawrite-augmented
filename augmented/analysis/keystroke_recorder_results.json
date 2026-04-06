@@ -1,0 +1,68 @@
+{
+  "data_source": "keystroke-recorder field data",
+  "db_path": "/Users/davidcondrey/.local/data/keystrokes.db",
+  "filtering": {
+    "composition_apps": [
+      "com.apple.Notes",
+      "com.apple.TextEdit",
+      "com.apple.dt.Xcode",
+      "com.literatureandlatte.scrivener3",
+      "com.microsoft.VSCode",
+      "com.sublimetext.4",
+      "md.obsidian"
+    ],
+    "min_keystrokes": 50,
+    "min_words": 10
+  },
+  "sessions": {
+    "total_with_keystrokes": 47,
+    "composition_sessions": 16,
+    "total_composition_keystrokes": 14997,
+    "total_composition_words": 2114
+  },
+  "checkpoints": {
+    "active_with_clc": 103,
+    "wpm": {
+      "mean": 32.29586013903445,
+      "median": 33.984151868000446,
+      "std": 20.766483764876583
+    },
+    "iki_ms": {
+      "mean": 253.6783770374881,
+      "median": 214.8980410652173,
+      "std": 126.35752822949672
+    },
+    "entropy_bits": {
+      "mean": 600.0013932210844,
+      "median": 631.9378983313718,
+      "std": 259.1873784906598
+    }
+  },
+  "clc": {
+    "mean": -0.00017368412719704173,
+    "median": -0.07818110675310719,
+    "std": 0.5362014537657865,
+    "min": -0.9702259441620505,
+    "max": 0.9985341564654832,
+    "pct_positive": 42.71844660194175,
+    "pct_strong_positive": 33.00970873786408,
+    "session_median": -0.05339121026499755,
+    "wilcoxon_p": 0.855224609375
+  },
+  "phases": {
+    "planning_pauses": 87,
+    "translating_bursts": 669,
+    "revising_bursts": 229,
+    "revision_density_mean": 0.12059733993498048,
+    "delete_add_ratio": 0.09713749413420929
+  },
+  "simulation_validation": {
+    "field_mean_iki_ms": 253.6783770374881,
+    "sim_baseline_iki_ms": 139,
+    "low_complexity_iki_ms": 171.0831046483371,
+    "high_complexity_iki_ms": 359.16533388797444,
+    "complexity_ratio": 2.09936179628165,
+    "sim_predicted_ratio": 3.96,
+    "lag1_acf_mean": 0.10886627646120757
+  }
+}

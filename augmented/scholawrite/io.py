@@ -22,6 +22,8 @@ from .schema import (
     GenerationMetadata,
 )
 from . import ids, text, time
+import logging
+_logger = logging.getLogger(__name__)
 
 __all__ = [
     "load_seed",
@@ -31,6 +33,8 @@ __all__ = [
     "read_documents_jsonl",
     "write_augmented_jsonl",
     "read_augmented_jsonl",
+    "report_dataset_statistics",
+    "to_feature_matrix",
 ]
 
 def load_parquet_dir(path: Union[str, Path], pattern: str = "*.parquet") -> pd.DataFrame:
@@ -106,26 +110,34 @@ def read_documents_jsonl(input_path: Union[str, Path]) -> List[SeedDocument]:
     documents = []
     total_revs = 0
     with open(input_path, "r", encoding="utf-8") as f:
-        for line in f:
+        for line_num, line in enumerate(f, 1):
             if not line.strip(): continue
-            data = json.loads(line)
-            revisions = []
-            for rev in data["revisions"]:
-                revisions.append(SeedRevision(
-                    doc_id=rev["doc_id"],
-                    revision_id=rev["revision_id"],
-                    revision_index=rev["revision_index"],
-                    text=rev["text"],
-                    timestamp=rev.get("timestamp"),
-                    provenance_hash=rev["provenance_hash"],
-                    # Original ScholaWrite fields (may be None for older data)
-                    before_text=rev.get("before_text"),
-                    writing_intention=rev.get("writing_intention"),
-                    high_level_category=rev.get("high_level_category"),
-                ))
-            total_revs += len(revisions)
-            if total_revs % 10000 == 0: print(f"Loaded {total_revs} revisions...")
-            documents.append(SeedDocument(doc_id=data["doc_id"], revisions=revisions))
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError as e:
+                _logger.warning("Skipping malformed JSON at line %d: %s", line_num, e)
+                continue
+            try:
+                revisions = []
+                for rev in data["revisions"]:
+                    revisions.append(SeedRevision(
+                        doc_id=rev["doc_id"],
+                        revision_id=rev["revision_id"],
+                        revision_index=rev["revision_index"],
+                        text=rev["text"],
+                        timestamp=rev.get("timestamp"),
+                        provenance_hash=rev["provenance_hash"],
+                        before_text=rev.get("before_text"),
+                        writing_intention=rev.get("writing_intention"),
+                        high_level_category=rev.get("high_level_category"),
+                    ))
+                total_revs += len(revisions)
+                if total_revs % 10000 == 0:
+                    _logger.info("Loaded %d revisions...", total_revs)
+                documents.append(SeedDocument(doc_id=data["doc_id"], revisions=revisions))
+            except KeyError as e:
+                _logger.warning("Missing field at line %d: %s", line_num, e)
+                continue
     return documents
 
 def _serialize_enum(value):
@@ -167,12 +179,31 @@ def _serialize_augmented_document(doc: AugmentedDocument) -> dict:
         ]
     }
 
-def write_augmented_jsonl(documents: List[AugmentedDocument], output_path: Union[str, Path]) -> None:
+def write_augmented_jsonl(
+    documents: List[AugmentedDocument],
+    output_path: Union[str, Path],
+    append: bool = False,
+) -> None:
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "a", encoding="utf-8") as f:
+    mode = "a" if append else "w"
+    with open(output_path, mode, encoding="utf-8") as f:
         for doc in documents:
             f.write(json.dumps(_serialize_augmented_document(doc), ensure_ascii=False) + "\n")
+
+def _safe_enum(enum_cls, value, field_name: str):
+    """Parse enum value with validation, raising ValueError on unknown values."""
+    if value is None:
+        return None
+    try:
+        return enum_cls(value)
+    except ValueError:
+        valid = [e.value for e in enum_cls]
+        raise ValueError(
+            f"Invalid {field_name} value '{value}'. "
+            f"Valid values: {valid}. Data may be from an incompatible schema version."
+        )
+
 
 def _deserialize_injection_span(data: dict) -> InjectionSpan:
     causal = [CausalEvent(**e) for e in data.get("causal_trace", [])]
@@ -180,10 +211,10 @@ def _deserialize_injection_span(data: dict) -> InjectionSpan:
     gen_meta = GenerationMetadata(**meta_data) if meta_data else None
     return InjectionSpan(
         doc_id=data["doc_id"], revision_id=data["revision_id"], injection_id=data["injection_id"],
-        label=Label(data["label"]),
-        injection_level=InjectionLevel(data["injection_level"]) if data["injection_level"] else None,
-        trajectory_state=TrajectoryState(data["trajectory_state"]) if data["trajectory_state"] else None,
-        ambiguity_flag=AmbiguityFlag(data["ambiguity_flag"]),
+        label=_safe_enum(Label, data["label"], "label"),
+        injection_level=_safe_enum(InjectionLevel, data.get("injection_level"), "injection_level"),
+        trajectory_state=_safe_enum(TrajectoryState, data.get("trajectory_state"), "trajectory_state"),
+        ambiguity_flag=_safe_enum(AmbiguityFlag, data["ambiguity_flag"], "ambiguity_flag"),
         span_start_char=data["span_start_char"], span_end_char=data["span_end_char"],
         span_start_sentence=data["span_start_sentence"], span_end_sentence=data["span_end_sentence"],
         generator_class=data["generator_class"], prompt_hash=data["prompt_hash"],
@@ -200,21 +231,141 @@ def read_augmented_jsonl(input_path: Union[str, Path]) -> List[AugmentedDocument
     if not input_path.exists(): raise FileNotFoundError(f"Input not found: {input_path}")
     documents = []
     with open(input_path, "r", encoding="utf-8") as f:
-        for line in f:
+        for line_num, line in enumerate(f, 1):
             if not line.strip(): continue
-            data = json.loads(line)
-            revisions = []
-            for rev_data in data["revisions"]:
-                annotations = [_deserialize_injection_span(ann) for ann in rev_data.get("annotations", [])]
-                revisions.append(AugmentedRevision(
-                    doc_id=rev_data["doc_id"], revision_id=rev_data["revision_id"],
-                    revision_index=rev_data["revision_index"], text=rev_data["text"],
-                    timestamp=rev_data["timestamp"], provenance_hash=rev_data["provenance_hash"],
-                    annotations=annotations,
-                    # Original ScholaWrite fields (may be None for older data)
-                    before_text=rev_data.get("before_text"),
-                    writing_intention=rev_data.get("writing_intention"),
-                    high_level_category=rev_data.get("high_level_category"),
-                ))
-            documents.append(AugmentedDocument(doc_id=data["doc_id"], revisions=revisions))
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError as e:
+                _logger.warning("Skipping malformed JSON at line %d: %s", line_num, e)
+                continue
+            try:
+                revisions = []
+                for rev_data in data["revisions"]:
+                    annotations = [_deserialize_injection_span(ann) for ann in rev_data.get("annotations", [])]
+                    revisions.append(AugmentedRevision(
+                        doc_id=rev_data["doc_id"], revision_id=rev_data["revision_id"],
+                        revision_index=rev_data["revision_index"], text=rev_data["text"],
+                        timestamp=rev_data["timestamp"], provenance_hash=rev_data["provenance_hash"],
+                        annotations=annotations,
+                        before_text=rev_data.get("before_text"),
+                        writing_intention=rev_data.get("writing_intention"),
+                        high_level_category=rev_data.get("high_level_category"),
+                    ))
+                documents.append(AugmentedDocument(doc_id=data["doc_id"], revisions=revisions))
+            except KeyError as e:
+                _logger.warning("Missing field at line %d: %s", line_num, e)
+                continue
     return documents
+
+
+def report_dataset_statistics(docs: List[AugmentedDocument]) -> dict:
+    """Compute aggregate dataset statistics for paper reporting.
+
+    Returns label distribution, injection level breakdown, trajectory
+    state distribution, per-document revision counts, and annotation density.
+    """
+    from collections import Counter
+
+    n_docs = len(docs)
+    n_revisions = sum(len(d.revisions) for d in docs)
+    n_annotations = 0
+    label_counts: Counter = Counter()
+    injection_level_counts: Counter = Counter()
+    trajectory_state_counts: Counter = Counter()
+    ambiguity_counts: Counter = Counter()
+    generator_counts: Counter = Counter()
+    rev_per_doc = []
+    ann_per_rev = []
+    text_lengths = []
+
+    for doc in docs:
+        rev_per_doc.append(len(doc.revisions))
+        for rev in doc.revisions:
+            ann_per_rev.append(len(rev.annotations))
+            text_lengths.append(len(rev.text.split()))
+            for ann in rev.annotations:
+                n_annotations += 1
+                label_counts[ann.label.value] += 1
+                if ann.injection_level:
+                    injection_level_counts[ann.injection_level.value] += 1
+                if ann.trajectory_state:
+                    trajectory_state_counts[ann.trajectory_state.value] += 1
+                ambiguity_counts[ann.ambiguity_flag.value] += 1
+                generator_counts[ann.generator_class] += 1
+
+    def _safe_mean(vals: list) -> float:
+        return round(sum(vals) / len(vals), 2) if vals else 0.0
+
+    return {
+        "n_documents": n_docs,
+        "n_revisions": n_revisions,
+        "n_annotations": n_annotations,
+        "revisions_per_doc": {"mean": _safe_mean(rev_per_doc), "min": min(rev_per_doc, default=0), "max": max(rev_per_doc, default=0)},
+        "annotations_per_revision": {"mean": _safe_mean(ann_per_rev), "min": min(ann_per_rev, default=0), "max": max(ann_per_rev, default=0)},
+        "text_words_per_revision": {"mean": _safe_mean(text_lengths), "min": min(text_lengths, default=0), "max": max(text_lengths, default=0)},
+        "label_distribution": dict(label_counts),
+        "injection_level_distribution": dict(injection_level_counts),
+        "trajectory_state_distribution": dict(trajectory_state_counts),
+        "ambiguity_distribution": dict(ambiguity_counts),
+        "generator_distribution": dict(generator_counts),
+    }
+
+
+def to_feature_matrix(
+    docs: List[AugmentedDocument],
+    feature_fn=None,
+) -> "tuple[list[list[float]], list[int], list[str]]":
+    """Convert augmented documents into ML-ready (X, y, feature_names).
+
+    Each revision becomes one sample. Label: 1 if any injection annotation, 0 otherwise.
+    Default features: word count, sentence count, type-token ratio, avg word length,
+    avg sentence length. Pass a custom ``feature_fn(text: str) -> list[float]``
+    with matching ``feature_names`` to override.
+
+    Returns:
+        (X, y, feature_names) — lists suitable for numpy, sklearn, or torch.
+
+    Example (sklearn)::
+
+        from scholawrite.io import read_augmented_jsonl, to_feature_matrix
+        docs = read_augmented_jsonl("augmented.jsonl")
+        X, y, names = to_feature_matrix(docs)
+        from sklearn.ensemble import RandomForestClassifier
+        clf = RandomForestClassifier().fit(X, y)
+
+    Example (PyTorch)::
+
+        import torch
+        from torch.utils.data import TensorDataset, DataLoader
+        X, y, _ = to_feature_matrix(docs)
+        ds = TensorDataset(torch.tensor(X), torch.tensor(y))
+        loader = DataLoader(ds, batch_size=32, shuffle=True)
+    """
+    import re as _re
+
+    default_names = [
+        "word_count", "sentence_count", "type_token_ratio",
+        "avg_word_length", "avg_sentence_length",
+    ]
+
+    def _default_features(txt: str) -> list:
+        words = txt.split()
+        n_words = len(words)
+        sents = [s.strip() for s in _re.split(r'[.!?]+', txt) if s.strip()]
+        n_sents = max(len(sents), 1)
+        unique = len(set(w.lower() for w in words)) if words else 0
+        ttr = unique / max(n_words, 1)
+        avg_wl = sum(len(w) for w in words) / max(n_words, 1)
+        avg_sl = n_words / n_sents
+        return [float(n_words), float(n_sents), ttr, avg_wl, avg_sl]
+
+    fn = feature_fn or _default_features
+    X: list = []
+    y: list = []
+    for doc in docs:
+        for rev in doc.revisions:
+            X.append(fn(rev.text))
+            has_inj = any(ann.label.is_injection() for ann in rev.annotations)
+            y.append(1 if has_inj else 0)
+    names = default_names if feature_fn is None else [f"f{i}" for i in range(len(X[0]) if X else 0)]
+    return X, y, names

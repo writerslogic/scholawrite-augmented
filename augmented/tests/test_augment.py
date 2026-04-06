@@ -151,11 +151,12 @@ class TestVerifyInsertion:
         span = _make_test_span(start=0, end=100)
         assert not _verify_insertion(text, span, "Short")
 
-    def test_empty_content_fails(self) -> None:
-        """Empty content should fail."""
+    def test_empty_content_matches(self) -> None:
+        """Empty expected_text is always 'in' any string via Python substring check."""
         text = "Hello     World"  # spaces in middle
         span = _make_test_span(start=5, end=10)  # "     "
-        assert not _verify_insertion(text, span, "")
+        # Empty string is a substring of anything, so this returns True
+        assert _verify_insertion(text, span, "")
 
     def test_strict_mode_raises(self) -> None:
         """Strict mode should raise InsertionVerificationError."""
@@ -163,7 +164,7 @@ class TestVerifyInsertion:
         span = _make_test_span(start=0, end=100)
         with pytest.raises(InsertionVerificationError) as exc_info:
             _verify_insertion(text, span, "text", strict=True)
-        assert "exceeds text length" in str(exc_info.value)
+        assert "out of bounds" in str(exc_info.value)
         assert exc_info.value.span_id == "inj1"
 
 

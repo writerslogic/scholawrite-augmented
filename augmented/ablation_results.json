@@ -1,0 +1,403 @@
+{
+  "signal_ablation": {
+    "baseline": {
+      "auc": 0.4825,
+      "ci": [
+        0.3008,
+        0.6752
+      ]
+    },
+    "without_causal_dag": {
+      "auc": 0.4775,
+      "ci": [
+        0.2912,
+        0.6641
+      ],
+      "delta": 0.005
+    },
+    "without_causal_concentration": {
+      "auc": 0.55,
+      "ci": [
+        0.3571,
+        0.724
+      ],
+      "delta": -0.0675
+    },
+    "without_cross_channel_mi": {
+      "auc": 0.4775,
+      "ci": [
+        0.2904,
+        0.6692
+      ],
+      "delta": 0.005
+    },
+    "without_decay_type": {
+      "auc": 0.4875,
+      "ci": [
+        0.3025,
+        0.6849
+      ],
+      "delta": -0.005
+    },
+    "without_free_energy": {
+      "auc": 0.3425,
+      "ci": [
+        0.1771,
+        0.5182
+      ],
+      "delta": 0.14
+    },
+    "without_adaptation": {
+      "auc": 0.5375,
+      "ci": [
+        0.3609,
+        0.7318
+      ],
+      "delta": -0.055
+    },
+    "only_causal_dag": {
+      "auc": 0.5725,
+      "ci": [
+        0.4634,
+        0.6944
+      ]
+    },
+    "only_causal_concentration": {
+      "auc": 0.3475,
+      "ci": [
+        0.1745,
+        0.5524
+      ]
+    },
+    "only_cross_channel_mi": {
+      "auc": 0.5238,
+      "ci": [
+        0.3611,
+        0.6881
+      ]
+    },
+    "only_decay_type": {
+      "auc": 0.4475,
+      "ci": [
+        0.3081,
+        0.612
+      ]
+    },
+    "only_free_energy": {
+      "auc": 0.825,
+      "ci": [
+        0.7143,
+        0.9286
+      ]
+    },
+    "only_adaptation": {
+      "auc": 0.3638,
+      "ci": [
+        0.1944,
+        0.5365
+      ]
+    }
+  },
+  "glucose_lexical_starvation": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.45
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.55
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.65
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.75
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.85
+    }
+  ],
+  "syntactic_collapse_base": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 3.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 3.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 4.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 4.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 5.0
+    }
+  ],
+  "coupling_strong_threshold": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.4
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.6
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.7
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.8
+    }
+  ],
+  "locality_human_min": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 0.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 1.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 1.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 2.0
+    }
+  ],
+  "locality_human_max": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 2.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 3.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 3.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 4.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 4.5
+    }
+  ],
+  "failure_repair_cost_multiplier": [
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 1.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 2.0
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 2.7
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 3.5
+    },
+    {
+      "repair_locality": 0.0,
+      "resource_coupling": -0.003,
+      "is_plausible": false,
+      "plausibility_score": 0.003,
+      "final_glucose": 0.05,
+      "trace_length": 50,
+      "failure_count": 31,
+      "param_value": 4.0
+    }
+  ]
+}

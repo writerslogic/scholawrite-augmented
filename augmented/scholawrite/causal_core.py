@@ -7,17 +7,8 @@ from statistics import mean, stdev
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, Dict, Any
 from .embodied import EmbodiedScholar
-from .metrics import (
-    GLUCOSE_FLOOR,
-    GLUCOSE_LEXICAL_STARVATION,
-    SYNTACTIC_COLLAPSE_BASE,
-    SYNTACTIC_COLLAPSE_GLUCOSE_FACTOR,
-    MIN_TRACE_LENGTH_COUPLING,
-    LOCALITY_HUMAN_MIN,
-    LOCALITY_HUMAN_MAX,
-    COUPLING_STRONG_THRESHOLD,
-)
-from .config import get_discourse_markers, CONFIG_DIR
+from .config import get_discourse_markers, CONFIG_DIR, get_sim_config
+from .schema import CausalEvent
 
 __all__ = [
     "LexicalIntention",
@@ -64,10 +55,7 @@ class DeterministicRepairGenerator:
             return {}
 
     def generate_repair(self, intention: LexicalIntention, mode: str, glucose: float, token_idx: int) -> Tuple[str, int]:
-        """Deterministic repair generation based on metabolic state.
-
-        Repair markers are loaded from configs/discourse_markers.json.
-        """
+        """Deterministic repair generation based on metabolic state."""
         seed = int(hashlib.md5(f"{intention.target}:{mode}:{glucose:.4f}:{token_idx}".encode()).hexdigest(), 16)
 
         # Load repair markers from config
@@ -93,6 +81,7 @@ class IrreversibleProcessEngine:
     """
 
     def __init__(self, author: EmbodiedScholar, discipline: str = "general_academic"):
+        self.config = get_sim_config()
         self.author = author
         self.token_idx = 0
         self.trace: List[ExecutionEvent] = []
@@ -100,13 +89,14 @@ class IrreversibleProcessEngine:
 
     def execute(self, intention: LexicalIntention) -> str:
         """Execute a single intention, permanently depleting the author's resources."""
+        cfg = self.config
         glucose_before = self.author.glucose
         failure = self._check_failure(intention)
 
         if failure:
             output, repair_dist = self.repair_gen.generate_repair(intention, failure, self.author.glucose, self.token_idx)
-            # Failure repair costs 2.7x the base cognitive cost
-            depletion_cost = intention.cognitive_cost * 2.7
+            # Failure repair costs more
+            depletion_cost = intention.cognitive_cost * cfg.failure_repair_cost_multiplier
         else:
             output = intention.target
             repair_dist = 0
@@ -115,77 +105,51 @@ class IrreversibleProcessEngine:
         latency = self.author.calculate_latency(intention.syntactic_depth)
 
         # Record event using state BEFORE permanent depletion
-        # Glucose floor: GLUCOSE_FLOOR (0.05) maintains minimal cognitive function
         self.trace.append(ExecutionEvent(
             intention=intention, actual_output=output,
             failure_mode=failure, repair_distance=repair_dist,
-            glucose_before=glucose_before, glucose_after=max(GLUCOSE_FLOOR, self.author.glucose - depletion_cost),
+            glucose_before=glucose_before, glucose_after=max(cfg.glucose_floor, self.author.glucose - depletion_cost),
             latency_ms=round(latency, 2)
         ))
 
         # IRREVERSIBLE RESOURCE CONSUMPTION
+        glucose_before_consume = self.author.glucose
         self.author.consume_resources(1, intention.syntactic_depth)
-        self.author.glucose = max(GLUCOSE_FLOOR, self.author.glucose - depletion_cost)
+        self.author.glucose = max(cfg.glucose_floor, self.author.glucose - depletion_cost)
+        if self.author.glucose > glucose_before_consume + 0.0001:
+            raise ValueError(
+                f"Irreversibility violated: glucose {glucose_before_consume:.6f} -> {self.author.glucose:.6f}"
+            )
 
         self.token_idx += 1
         return output
 
     def _check_failure(self, intention: LexicalIntention) -> Optional[str]:
-        """Deterministic resource-gated failure check.
-
-        Failure modes are triggered based on metabolic state and task demands:
-
-        1. lexical_starvation: Glucose < GLUCOSE_LEXICAL_STARVATION (0.65) and
-           lexical rarity exceeds capacity. Based on resource competition models
-           of lexical retrieval under cognitive load.
-
-        2. syntactic_collapse: Syntactic depth exceeds SYNTACTIC_COLLAPSE_BASE (4.0)
-           plus glucose-scaled capacity (glucose * SYNTACTIC_COLLAPSE_GLUCOSE_FACTOR).
-           Higher glucose extends syntactic planning capacity.
-
-        See docs/THRESHOLDS.md, Section "Embodied Simulation Thresholds".
-        """
+        """Deterministic resource-gated failure check."""
+        cfg = self.config
         # Lexical starvation: low glucose + high lexical rarity
-        # Threshold: GLUCOSE_LEXICAL_STARVATION (0.65)
-        if self.author.glucose < GLUCOSE_LEXICAL_STARVATION and intention.lexical_rarity > (0.4 + (1.0 - self.author.glucose) * 0.6):
+        if self.author.glucose < cfg.glucose_lexical_starvation and intention.lexical_rarity > (0.4 + (1.0 - self.author.glucose) * 0.6):
             return "lexical_starvation"
         # Syntactic collapse: depth exceeds glucose-scaled capacity
-        # Thresholds: SYNTACTIC_COLLAPSE_BASE (4.0), SYNTACTIC_COLLAPSE_GLUCOSE_FACTOR (3.5)
-        if intention.syntactic_depth > (SYNTACTIC_COLLAPSE_BASE + self.author.glucose * SYNTACTIC_COLLAPSE_GLUCOSE_FACTOR):
+        if intention.syntactic_depth > (cfg.syntactic_collapse_base + self.author.glucose * cfg.syntactic_collapse_glucose_factor):
             return "syntactic_collapse"
         return None
 
     def compute_causal_signatures(self) -> Dict[str, Any]:
-        """Mathematically rigorous biometric validation.
-
-        Computes two key signatures of human production:
-
-        1. Repair Locality: Token distance between failures and repairs
-           Human baseline: LOCALITY_HUMAN_MIN (1.0) to LOCALITY_HUMAN_MAX (3.5)
-           Based on typing repair studies (Salthouse, 1984)
-
-        2. Resource Coupling: Pearson correlation between failure events
-           and subsequent syntactic simplification
-           Human baseline: abs(r) >= COUPLING_STRONG_THRESHOLD (0.6)
-
-        See docs/THRESHOLDS.md for detailed justifications.
-
-        Returns:
-            Dict with repair_locality, resource_coupling, and is_plausible
-        """
+        """Mathematically rigorous biometric validation."""
+        cfg = self.config
         if not self.trace:
-            return {"repair_locality": 0.0, "resource_coupling": 0.0, "is_plausible": False}
+            return {"repair_locality": 0.0, "resource_coupling": 0.0, "is_plausible": False, "causal_asymmetry": 0.0}
 
         fails = [i for i, e in enumerate(self.trace) if e.failure_mode]
         repairs = [i for i, e in enumerate(self.trace) if e.repair_distance > 0]
 
-        # 1. Repair Locality (Human baseline: LOCALITY_HUMAN_MIN to LOCALITY_HUMAN_MAX)
+        # 1. Repair Locality
         locality = sum(min([abs(r-f) for r in repairs if r>=f] or [100]) for f in fails) / len(fails) if fails else 0.0
 
-        # 2. Resource Coupling (Human baseline: abs(r) >= COUPLING_STRONG_THRESHOLD)
-        # Requires MIN_TRACE_LENGTH_COUPLING (10) events for meaningful correlation
+        # 2. Resource Coupling
         coupling = 0.0
-        if len(self.trace) > MIN_TRACE_LENGTH_COUPLING and fails:
+        if len(self.trace) > cfg.min_trace_length_coupling and fails:
             try:
                 x = [1 if e.failure_mode else 0 for e in self.trace[:-1]]
                 y = [e.intention.syntactic_depth for e in self.trace[1:]]
@@ -194,17 +158,42 @@ class IrreversibleProcessEngine:
                 if std_x > 0 and std_y > 0:
                     coupling = sum((xi - mu_x) * (yi - mu_y) for xi, yi in zip(x, y)) / ((len(x)-1) * std_x * std_y)
             except (ValueError, ZeroDivisionError, TypeError):
-                pass
+                import logging
+                logging.getLogger(__name__).warning("Coupling computation failed in causal engine for trace of length %d", len(self.trace))
 
-        # Plausibility requires BOTH locality and coupling within human baselines
-        is_plausible = (
-            LOCALITY_HUMAN_MIN <= locality <= LOCALITY_HUMAN_MAX
-            and abs(coupling) >= COUPLING_STRONG_THRESHOLD
-        )
+        # Continuous plausibility score (0.0-1.0)
+        locality_score = 0.0
+        if cfg.locality_human_max > cfg.locality_human_min:
+            if cfg.locality_human_min <= locality <= cfg.locality_human_max:
+                midpoint = (cfg.locality_human_min + cfg.locality_human_max) / 2
+                half_range = (cfg.locality_human_max - cfg.locality_human_min) / 2
+                locality_score = 1.0 - abs(locality - midpoint) / half_range
+        coupling_score = min(1.0, abs(coupling) / cfg.coupling_strong_threshold) if cfg.coupling_strong_threshold > 0 else 0.0
+        plausibility = round(0.5 * locality_score + 0.5 * coupling_score, 3)
+
+        # Granger causality asymmetry from the trace
+        from .metrics import granger_causality_test
+        causal_events = [
+            CausalEvent(
+                intention=e.intention.target,
+                actual_output=e.actual_output,
+                status="failure" if e.failure_mode else "success",
+                failure_mode=e.failure_mode,
+                repair_artifact=e.actual_output if e.repair_distance > 0 else None,
+                glucose_at_event=e.glucose_before,
+                latency_ms=e.latency_ms,
+                syntactic_complexity=e.intention.syntactic_depth,
+            )
+            for e in self.trace
+        ]
+        causal_asymmetry = granger_causality_test(causal_events)
+
         return {
             "repair_locality": round(locality, 2),
             "resource_coupling": round(coupling, 3),
-            "is_plausible": is_plausible
+            "is_plausible": plausibility >= 0.5,
+            "plausibility_score": plausibility,
+            "causal_asymmetry": round(causal_asymmetry, 4),
         }
 
     def render_text(self) -> str:

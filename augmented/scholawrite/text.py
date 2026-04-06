@@ -25,12 +25,8 @@ __all__ = ["normalize_text", "split_sentences", "char_offsets", "compute_provena
 # Sentence boundary pattern: split after .!? followed by whitespace and capital letter
 _SENTENCE_BOUNDARY = re.compile(r'(?<=[.!?])\s+(?=[A-Z])')
 
-# Significantly enhanced leakage patterns to catch conversational artifacts,
-# instruction echos, and formatting markers common in flagship LLM outputs.
-_LEAKAGE_PATTERNS = re.compile(
-    r"(?i)^(?:sure|certainly|here is|here's|revised|modified|updated|final|corrected|as requested|the following|of course|i have|i've|understood|absolutely|no problem|glad to help|the (?:modified|revised) (?:text|version|span|paragraph|section) is|\[TARGET\]|\[PRECEDING\]|\[FOLLOWING\]|\[REVISED\]|\[SPAN\]|objective:|persona:|setting:|state of mind:|background:|ambient note|internal thought|---|\*\*\*|###|####|REVISED VERSION:|MODIFIED TEXT:|REVISION:|EDIT:)",
-    re.IGNORECASE
-)
+# Leakage pattern matching is now delegated to injection.py (config-driven)
+# with additional heuristic layers in has_prompt_leakage() below.
 
 def normalize_text(text: str) -> str:
     """Standardize scholarly text for deterministic hashing."""
@@ -50,7 +46,10 @@ def char_offsets(text: str, sentences: List[str]) -> List[Tuple[int, int]]:
     offsets, current = [], 0
     for s in sentences:
         idx = text.find(s, current)
-        if idx == -1: idx = current
+        if idx < 0:
+            import logging
+            logging.getLogger(__name__).warning("Sentence not found at expected position, using current offset %d", current)
+            idx = current
         offsets.append((idx, idx + len(s)))
         current = idx + len(s)
     return offsets
@@ -64,17 +63,33 @@ def get_token_count(text: str) -> int:
     return len(text.split())
 
 def has_prompt_leakage(text: str) -> bool:
-    """Multi-layer adversarial leakage detection."""
+    """Multi-layer adversarial leakage detection.
+
+    Combines config-driven patterns from injection.py with additional
+    heuristic checks for markers and instruction echoes.
+    """
+    from .injection import has_prompt_leakage as _config_leakage_check
     clean = text.strip()
-    if _LEAKAGE_PATTERNS.search(clean): return True
+    # Layer 1: Config-driven pattern matching
+    if _config_leakage_check(clean):
+        return True
+    # Layer 2: Bracket marker detection
     if "[" in clean and "]" in clean:
         markers = ["TARGET", "SPAN", "REVISED", "PRECEDING", "FOLLOWING", "MARKER"]
-        if any(m in clean.upper() for m in markers): return True
-    instruction_echos = ["Return ONLY", "meta-commentary", "modified text", "revised text", "without commentary", "no meta-talk", "no quotes"]
+        if any(m in clean.upper() for m in markers):
+            return True
+    # Layer 3: Instruction echo detection
+    instruction_echos = [
+        "Return ONLY", "meta-commentary", "modified text", "revised text",
+        "without commentary", "no meta-talk", "no quotes",
+    ]
     lower_clean = clean.lower()
     for m in instruction_echos:
-        if m.lower() in lower_clean: return True
-    if clean.startswith('"') and clean.endswith('"') and clean.count('"') == 2: return True
+        if m.lower() in lower_clean:
+            return True
+    # Layer 4: Suspicious quoting
+    if clean.startswith('"') and clean.endswith('"') and clean.count('"') == 2:
+        return True
     return False
 
 def compute_character_jaccard(a: str, b: str) -> float:

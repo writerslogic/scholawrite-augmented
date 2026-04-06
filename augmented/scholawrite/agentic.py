@@ -19,9 +19,10 @@ DOES NOT contain:
 from __future__ import annotations
 
 import json
+import random
 import re
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 from .schema import DocumentProfile, CausalEvent, CognitiveState, GenerationMetadata, ResourceAllocation
 from .embodied import EmbodiedScholar
@@ -29,6 +30,7 @@ from .openrouter import OpenRouterClient, OpenRouterError
 from .baselines import _compression_discontinuity
 from .causal_core import IrreversibleProcessEngine, LexicalIntention
 from .ids import make_causal_injection_id
+from .config import get_sim_config
 
 __all__ = ["run_causal_agentic_loop", "load_meta_commentary_config", "ContentGenerationError"]
 
@@ -37,178 +39,61 @@ class ContentGenerationError(Exception):
     """Raised when content generation fails after all retries."""
 
 
-# Cached config
-_config_cache: Optional[dict] = None
-# Path: augmented/scholawrite/agentic.py -> augmented/configs/
-_config_path = Path(__file__).parent.parent / "configs" / "meta_commentary_patterns.json"
+def _robust_json_extract(text: str) -> Optional[List[Dict[str, Any]]]:
+    """Robustly extract and repair JSON from LLM output.
 
-
-def load_meta_commentary_config(config_path: Optional[Path] = None) -> dict:
-    """Load meta-commentary patterns from JSON config file.
-
-    Args:
-        config_path: Path to config file. Uses default if not provided.
-
-    Returns:
-        Parsed config dictionary with patterns and settings.
-    """
-    global _config_cache
-
-    path = config_path or _config_path
-    if _config_cache is None or config_path is not None:
-        if not path.exists():
-            # Return minimal defaults if config missing
-            return {
-                "prefix_patterns": [r'^Here is .*?:?\s*\n*', r'^Here\'s .*?:?\s*\n*'],
-                "suffix_patterns": [],
-                "wrapper_removal": {},
-                "quality_indicators": {"min_length_chars": 50, "min_words": 10}
-            }
-        with open(path, "r", encoding="utf-8") as f:
-            _config_cache = json.load(f)
-
-    return _config_cache
-
-
-def _strip_meta_commentary(text: str, config: Optional[dict] = None) -> str:
-    """Remove LLM meta-commentary from text using configurable patterns.
-
-    Args:
-        text: Raw text that may contain meta-commentary.
-        config: Pattern config dict. Loads from file if not provided.
-
-    Returns:
-        Cleaned text with meta-commentary removed.
+    Handles:
+    - Text before/after JSON blocks
+    - Markdown code blocks
+    - Simple trailing commas
     """
     if not text:
-        return text
+        return None
 
-    cfg = config or load_meta_commentary_config()
-    result = text.strip()
+    # Try finding the largest block starting with [ and ending with ]
+    match = re.search(r'\[[\s\S]*\]', text)
+    if not match:
+        return None
 
-    # Apply prefix patterns
-    for pattern in cfg.get("prefix_patterns", []):
+    candidate = match.group().strip()
+
+    # Simple repair: remove trailing commas before closing braces/brackets
+    repaired = re.sub(r',\s*([\]\}])', r'\1', candidate)
+
+    for attempt in (repaired, candidate):
         try:
-            result = re.sub(pattern, '', result, flags=re.IGNORECASE | re.MULTILINE)
-        except re.error:
-            continue  # Skip invalid patterns
-
-    # Apply suffix patterns
-    for pattern in cfg.get("suffix_patterns", []):
-        try:
-            result = re.sub(pattern, '', result, flags=re.IGNORECASE | re.MULTILINE)
-        except re.error:
+            parsed = json.loads(attempt)
+            if isinstance(parsed, list):
+                return parsed
+        except json.JSONDecodeError:
             continue
-
-    # Apply wrapper removal
-    wrappers = cfg.get("wrapper_removal", {})
-
-    # Markdown bold headers
-    if "markdown_bold_headers" in wrappers:
-        result = re.sub(wrappers["markdown_bold_headers"], '', result)
-
-    # Full quote wrap
-    result = result.strip()
-    if result.startswith('"') and result.endswith('"') and result.count('"') == 2:
-        result = result[1:-1]
-
-    # Backtick wrap
-    if result.startswith('`') and result.endswith('`') and '`' not in result[1:-1]:
-        result = result[1:-1]
-
-    # Triple backtick code blocks
-    if result.startswith('```') and result.endswith('```'):
-        match = re.match(r'^```[\w]*\n([\s\S]*?)\n```$', result)
-        if match:
-            result = match.group(1)
-
-    return result.strip()
-
-
-def _check_content_quality(text: str, config: Optional[dict] = None) -> Tuple[bool, str]:
-    """Check if generated content meets quality standards.
-
-    Args:
-        text: Generated text to check.
-        config: Config dict with quality_indicators.
-
-    Returns:
-        Tuple of (is_valid, reason_if_invalid).
-    """
-    cfg = config or load_meta_commentary_config()
-    indicators = cfg.get("quality_indicators", {})
-
-    min_chars = indicators.get("min_length_chars", 50)
-    min_words = indicators.get("min_words", 10)
-    suspicious = indicators.get("suspicious_phrases", [])
-
-    if not text:
-        return False, "empty_response"
-
-    if len(text) < min_chars:
-        return False, f"too_short_chars:{len(text)}"
-
-    word_count = len(text.split())
-    if word_count < min_words:
-        return False, f"too_short_words:{word_count}"
-
-    # Check for suspicious phrases that indicate refusal or meta-output
-    text_lower = text.lower()
-    for phrase in suspicious:
-        if phrase.lower() in text_lower:
-            return False, f"suspicious_phrase:{phrase}"
-
-    return True, "ok"
+    return None
 
 
 def _cognitive_to_generation_params(state: CognitiveState, attempt: int = 0) -> dict:
-    """Map cognitive state to LLM generation parameters.
-
-    Maps the embodied scholar's metabolic state to generation parameters that
-    simulate realistic cognitive effects:
-
-    - Low glucose (depleted) → Lower temperature (conservative, less creative)
-    - High fatigue → Higher presence penalty (avoiding repetition when exhausted)
-    - Low attention → Lower top_p (narrower focus, less exploratory)
-    - Syntactic resources → Affects max_tokens (complex planning = longer outputs)
-
-    Args:
-        state: Current CognitiveState from EmbodiedScholar
-        attempt: Retry attempt number (0-indexed)
-
-    Returns:
-        Dict with temperature, top_p, presence_penalty, frequency_penalty, max_tokens
-    """
+    """Map cognitive state to LLM generation parameters using SimulationConfig."""
+    cfg = get_sim_config()
     glucose = state.glucose_level
     fatigue = state.fatigue_index
     attention = state.allocation.attention if state.allocation else 0.8
     syntactic = state.allocation.syntactic if state.allocation else 0.7
 
     # Temperature: Higher glucose = more creative/exploratory
-    # Range: 0.5 (depleted) to 0.9 (fresh)
     # Retry increases temp slightly to encourage different outputs
-    base_temp = 0.5 + (glucose * 0.4)
+    base_temp = cfg.temp_min + (glucose * (cfg.temp_max - cfg.temp_min))
     temperature = min(1.0, base_temp + (attempt * 0.05))
 
     # Top_p: Attention determines focus breadth
-    # Low attention = narrower sampling, high attention = broader exploration
-    # Range: 0.8 (narrow) to 0.98 (broad)
-    top_p = 0.8 + (attention * 0.18)
+    top_p = cfg.top_p_min + (attention * (cfg.top_p_max - cfg.top_p_min))
 
     # Presence penalty: Fatigue increases tendency to avoid repetition
-    # Exhausted writers instinctively avoid repeated phrases
-    # Range: 0.0 (fresh) to 0.5 (fatigued)
-    presence_penalty = fatigue * 0.5
+    presence_penalty = fatigue * cfg.presence_penalty_max
 
     # Frequency penalty: Inverse of syntactic resources
-    # High syntactic planning = more tolerance for repeated structures
-    # Low syntactic resources = avoid overused patterns
-    # Range: 0.0 (high resources) to 0.3 (low resources)
-    frequency_penalty = max(0.0, 0.3 * (1.0 - syntactic))
+    frequency_penalty = max(0.0, cfg.freq_penalty_max * (1.0 - syntactic))
 
     # Max tokens: Higher syntactic resources allow longer, more complex outputs
-    # Range: 1536 (constrained) to 3072 (expansive)
-    base_tokens = int(1536 + (syntactic * 1536))
+    base_tokens = int(cfg.max_tokens_base + (syntactic * cfg.max_tokens_scale))
     max_tokens = min(4096, base_tokens + (attempt * 256))
 
     return {
@@ -218,6 +103,103 @@ def _cognitive_to_generation_params(state: CognitiveState, attempt: int = 0) -> 
         "frequency_penalty": round(frequency_penalty, 3),
         "max_tokens": max_tokens,
     }
+
+
+# Cached config
+_config_cache: Optional[dict] = None
+# Path: augmented/scholawrite/agentic.py -> augmented/configs/
+_config_path = Path(__file__).parent.parent / "configs" / "meta_commentary_patterns.json"
+
+_FALLBACK_META_CONFIG: dict = {
+    "prefix_patterns": [r'^Here is .*?:?\s*\n*', r'^Here\'s .*?:?\s*\n*'],
+    "suffix_patterns": [],
+    "wrapper_removal": {},
+    "quality_indicators": {"min_length_chars": 50, "min_words": 10},
+}
+
+
+def load_meta_commentary_config(config_path: Optional[Path] = None) -> dict:
+    """Load meta-commentary patterns from JSON config file."""
+    global _config_cache
+
+    # Custom path: load fresh without caching
+    if config_path is not None:
+        if not config_path.exists():
+            return _FALLBACK_META_CONFIG.copy()
+        with open(config_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # Default path: cache result
+    if _config_cache is None:
+        if not _config_path.exists():
+            _config_cache = _FALLBACK_META_CONFIG.copy()
+        else:
+            with open(_config_path, "r", encoding="utf-8") as f:
+                _config_cache = json.load(f)
+
+    return _config_cache
+
+
+def _strip_meta_commentary(text: str, config: Optional[dict] = None) -> str:
+    """Remove LLM meta-commentary from text using configurable patterns."""
+    if not text:
+        return text
+
+    cfg = config or load_meta_commentary_config()
+    result = text.strip()
+
+    for pattern in cfg.get("prefix_patterns", []):
+        try:
+            result = re.sub(pattern, '', result, flags=re.IGNORECASE | re.MULTILINE)
+        except re.error:
+            continue
+
+    for pattern in cfg.get("suffix_patterns", []):
+        try:
+            result = re.sub(pattern, '', result, flags=re.IGNORECASE | re.MULTILINE)
+        except re.error:
+            continue
+
+    wrappers = cfg.get("wrapper_removal", {})
+    if "markdown_bold_headers" in wrappers:
+        result = re.sub(wrappers["markdown_bold_headers"], '', result)
+
+    result = result.strip()
+    if result.startswith('"') and result.endswith('"') and result.count('"') == 2:
+        result = result[1:-1]
+    if result.startswith('`') and result.endswith('`') and '`' not in result[1:-1]:
+        result = result[1:-1]
+    if result.startswith('```') and result.endswith('```'):
+        match = re.match(r'^```[\w]*\n([\s\S]*?)\n```$', result)
+        if match:
+            result = match.group(1)
+
+    return result.strip()
+
+
+def _check_content_quality(text: str, config: Optional[dict] = None) -> Tuple[bool, str]:
+    """Check if generated content meets quality standards."""
+    cfg = config or load_meta_commentary_config()
+    indicators = cfg.get("quality_indicators", {})
+
+    min_chars = indicators.get("min_length_chars", 50)
+    min_words = indicators.get("min_words", 10)
+    suspicious = indicators.get("suspicious_phrases", [])
+
+    if not text:
+        return False, "empty_response"
+    if len(text) < min_chars:
+        return False, f"too_short_chars:{len(text)}"
+    word_count = len(text.split())
+    if word_count < min_words:
+        return False, f"too_short_words:{word_count}"
+
+    text_lower = text.lower()
+    for phrase in suspicious:
+        if phrase.lower() in text_lower:
+            return False, f"suspicious_phrase:{phrase}"
+
+    return True, "ok"
 
 
 async def _generate_scholarly_content_with_retry(
@@ -230,6 +212,7 @@ async def _generate_scholarly_content_with_retry(
     target_length: int,
     salt: str,
     state: Optional[CognitiveState] = None,
+    profile: Optional[DocumentProfile] = None,
     max_retries: int = 3,
 ) -> Tuple[str, GenerationMetadata]:
     """Generate scholarly content with automatic retry across models.
@@ -270,7 +253,8 @@ async def _generate_scholarly_content_with_retry(
             biometric_salt=salt,
         )
 
-    prompt = f"""You are a tenured professor writing a scholarly paper in {discipline}.
+    persona = profile.persona if profile else "a tenured professor"
+    prompt = f"""You are {persona} writing a scholarly paper in {discipline}.
 
 Generate a cohesive passage (approximately {target_length} words) that fits naturally between the preceding and following text.
 
@@ -282,7 +266,7 @@ Following text: "{following[:300]}"
 
 CRITICAL REQUIREMENTS:
 - Write substantive scholarly content appropriate for the discipline
-- Maintain academic register and terminology
+- Maintain academic register and terminology consistent with {discipline}
 - Ensure smooth transitions with surrounding context
 - DO NOT include any preamble like "Here is..." or "The passage..."
 - DO NOT wrap the text in quotes or formatting
@@ -329,7 +313,7 @@ OUTPUT: Write ONLY the scholarly passage. Begin immediately with the actual cont
 
             except OpenRouterError as e:
                 errors.append(f"{model}[{attempt}]: {type(e).__name__}:{str(e)[:50]}")
-            except Exception as e:
+            except (KeyError, ValueError, TypeError, json.JSONDecodeError) as e:
                 errors.append(f"{model}[{attempt}]: {type(e).__name__}:{str(e)[:50]}")
 
     raise ContentGenerationError(
@@ -385,8 +369,9 @@ async def run_causal_agentic_loop(
     config = load_meta_commentary_config()
     discipline = profile.discipline if profile else "academic writing"
 
-    # Target length based on context
-    target_words = max(40, len(span.split()) * 4)
+    # Target length: Gaussian around 1.5x span length (sigma=0.4x)
+    span_len = len(span.split())
+    target_words = max(40, int(random.gauss(span_len * 1.5, span_len * 0.4)))
 
     # 1. GENERATE (Create new scholarly content via LLM with retry)
     # Pass cognitive state to drive generation parameters
@@ -400,6 +385,7 @@ async def run_causal_agentic_loop(
         target_length=target_words,
         salt=salt,
         state=state,
+        profile=profile,
     )
 
     # 2. PLAN (Technical Intention Deconstruction of GENERATED content)
@@ -414,6 +400,8 @@ Return ONLY a JSON list of objects with keys: target, syntactic_depth, lexical_r
 
     m_author = models[0]
     m_critic = models[1] if len(models) > 1 else models[0]
+    json_extraction_success = True
+    hardening_applied = False
 
     try:
         resp = await client.chat_completion(
@@ -424,9 +412,9 @@ Return ONLY a JSON list of objects with keys: target, syntactic_depth, lexical_r
         )
 
         raw = resp.get("choices", [{}])[0].get("message", {}).get("content", "")
-        match = re.search(r'\[[\s\S]*\]', raw)
-        if match:
-            intent_data = json.loads(match.group())
+        intent_data = _robust_json_extract(raw)
+        
+        if intent_data:
             intentions = []
             for i, d in enumerate(intent_data):
                 if i < len(tokens):
@@ -436,11 +424,15 @@ Return ONLY a JSON list of objects with keys: target, syntactic_depth, lexical_r
                         lexical_rarity=float(d.get("lexical_rarity", 0.5)),
                         cognitive_cost=float(d.get("cognitive_cost", 0.03))
                     ))
+            # Pad if LLM provided fewer intentions than tokens
             for i in range(len(intentions), len(tokens)):
                 intentions.append(LexicalIntention(tokens[i], 5.0, 0.5, 0.03))
         else:
-            raise ValueError("JSON not found")
-    except (json.JSONDecodeError, ValueError, KeyError, TypeError, OpenRouterError):
+            raise ValueError("JSON not found or malformed")
+    except (ValueError, KeyError, TypeError, OpenRouterError) as e:
+        import logging
+        logging.getLogger(__name__).warning("Intention extraction failed (%s), using defaults for %d tokens", type(e).__name__, len(tokens))
+        json_extraction_success = False
         intentions = [LexicalIntention(t, 5.0, 0.5, 0.03) for t in tokens]
 
     # 3. EXECUTE (Irreversible Process Engine - Mutates Author)
@@ -474,10 +466,20 @@ CRITICAL: Output ONLY the refined text. No preamble, no explanations, no "Here i
             )
             hardened = resp_h.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
             hardened = _strip_meta_commentary(hardened, config)
-            if hardened and len(hardened) > len(causal_text) * 0.5:
+            if hardened and len(hardened) >= len(causal_text) * 0.8:
                 final_text = hardened
-        except OpenRouterError:
-            pass  # Keep causal_text if hardening fails
+                hardening_applied = True
+                import logging
+                logging.getLogger(__name__).info("Hardening applied: %d -> %d chars", len(causal_text), len(hardened))
+            else:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Hardening rejected: output too short (%d vs %d required)",
+                    len(hardened) if hardened else 0, int(len(causal_text) * 0.8)
+                )
+        except OpenRouterError as e:
+            import logging
+            logging.getLogger(__name__).warning("Hardening failed: %s", e)
 
     # 5. IDENTITY BINDING (Anchor to process signatures)
     causal_events = [CausalEvent(
@@ -492,5 +494,25 @@ CRITICAL: Output ONLY the refined text. No preamble, no explanations, no "Here i
     ) for e in engine.trace]
 
     causal_id = make_causal_injection_id(doc_id, rev_id, ordinal, sigs)
+
+    # Update metadata with extraction and hardening outcomes
+    if gen_metadata is not None:
+        gen_metadata = GenerationMetadata(
+            model_id=gen_metadata.model_id,
+            temperature=gen_metadata.temperature,
+            max_tokens=gen_metadata.max_tokens,
+            top_p=gen_metadata.top_p,
+            top_k=gen_metadata.top_k,
+            presence_penalty=gen_metadata.presence_penalty,
+            frequency_penalty=gen_metadata.frequency_penalty,
+            repetition_penalty=gen_metadata.repetition_penalty,
+            seed=gen_metadata.seed,
+            attempt_number=gen_metadata.attempt_number,
+            cognitive_glucose=gen_metadata.cognitive_glucose,
+            cognitive_fatigue=gen_metadata.cognitive_fatigue,
+            cognitive_attention=gen_metadata.cognitive_attention,
+            json_extraction_success=json_extraction_success,
+            hardening_applied=hardening_applied,
+        )
 
     return final_text, causal_events, sigs, causal_id, gen_metadata

@@ -52,21 +52,17 @@ def tokenize(text: str) -> List[str]:
 
 
 def classify_edit(old_tokens: List[str], new_tokens: List[str]) -> EditClassification:
-    """Classify the magnitude of an edit based on token differences."""
+    """Classify the magnitude of an edit using sequence-aware comparison.
+
+    Uses SequenceMatcher to capture reordering, substitution, and insertion
+    that set-based comparison would miss.
+    """
     if old_tokens == new_tokens:
         return EditClassification.NONE
 
-    old_set = set(old_tokens)
-    new_set = set(new_tokens)
-
-    # Calculate symmetric difference
-    added = new_set - old_set
-    removed = old_set - new_set
-    total_changes = len(added) + len(removed)
-
-    # Denominator is max of old/new token counts
-    denominator = max(len(old_tokens), len(new_tokens), 1)
-    change_ratio = total_changes / denominator
+    from difflib import SequenceMatcher
+    ratio = SequenceMatcher(None, old_tokens, new_tokens).ratio()
+    change_ratio = 1.0 - ratio
 
     if change_ratio >= SUBSTANTIAL_EDIT_THRESHOLD:
         return EditClassification.SUBSTANTIAL
@@ -210,7 +206,8 @@ def determine_trajectory_state(
     """
     locality = sigs.get("repair_locality", 0.0)
     coupling = abs(sigs.get("resource_coupling", 0.0))
-    is_plausible = sigs.get("is_plausible", False)
+    plausibility = sigs.get("plausibility", 0.0)
+    is_plausible = sigs.get("is_plausible", plausibility >= 0.5)
 
     # 1. ASSIMILATED: Strongest coupling (> 0.7) + biometric plausibility
     # MUST be earned by irreversible process signatures demonstrating

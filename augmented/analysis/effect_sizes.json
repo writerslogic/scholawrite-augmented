@@ -1,0 +1,26 @@
+{
+  "n_composition_windows": 121167,
+  "n_transcription_windows": 395983,
+  "entropy": {
+    "composition_mean": 4.246,
+    "composition_sd": 0.9055,
+    "transcription_mean": 4.8352,
+    "transcription_sd": 0.2944,
+    "cohens_d": -1.1588,
+    "glass_delta": -2.0011,
+    "cliffs_delta": -0.4313,
+    "mann_whitney_p": 0.0,
+    "magnitude": "large"
+  },
+  "clc": {
+    "composition_mean": -0.1982,
+    "composition_sd": 0.3811,
+    "transcription_mean": 0.2273,
+    "transcription_sd": 0.1636,
+    "cohens_d": -1.8223,
+    "glass_delta": -2.6005,
+    "cliffs_delta": -0.6538,
+    "mann_whitney_p": 0.0,
+    "magnitude": "large"
+  }
+}

@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import re
 import random
+from functools import lru_cache
 from dataclasses import dataclass
 from typing import List, Tuple
 from .schema import SeedDocument, InjectionSpan, InjectionLevel, TrajectoryState, AmbiguityFlag, Label
@@ -41,43 +42,78 @@ __all__ = [
 ]
 
 
-# Load leakage patterns from config (lazy-loaded and cached)
-def _get_leakage_patterns() -> List[str]:
-    """Get leakage patterns, loading from config on first access."""
+# Lazy-loaded constant for backwards compatibility
+@property
+def _leakage_patterns_list():
     return get_leakage_patterns()
 
 
-# For backwards compatibility, expose as module-level variable
-LEAKAGE_PATTERNS = property(lambda self: _get_leakage_patterns())
+class _LeakagePatternsAccessor(list):
+    """Lazy list that loads patterns on first access."""
+    _loaded = False
 
+    def _ensure_loaded(self):
+        if not self._loaded:
+            self.extend(get_leakage_patterns())
+            self._loaded = True
 
-class _LeakagePatternProxy:
-    """Proxy to lazily load leakage patterns from config."""
     def __iter__(self):
-        return iter(_get_leakage_patterns())
+        self._ensure_loaded()
+        return super().__iter__()
 
     def __len__(self):
-        return len(_get_leakage_patterns())
+        self._ensure_loaded()
+        return super().__len__()
 
-    def __getitem__(self, idx):
-        return _get_leakage_patterns()[idx]
+    def __getitem__(self, index):
+        self._ensure_loaded()
+        return super().__getitem__(index)
+
+    def __bool__(self):
+        self._ensure_loaded()
+        return super().__bool__()
 
 
-LEAKAGE_PATTERNS = _LeakagePatternProxy()
+LEAKAGE_PATTERNS = _LeakagePatternsAccessor()
+
+
+# Load leakage patterns from config (lazy-loaded and cached)
+@lru_cache(maxsize=1)
+def _get_compiled_leakage_regex() -> re.Pattern:
+    """Compile all leakage patterns into a single optimized regex."""
+    patterns = get_leakage_patterns()
+    if not patterns:
+        return re.compile(r"(?!x)x")  # Matches nothing
+    # Strip inline (?i) flags since we apply IGNORECASE at compile time
+    stripped = [re.sub(r'^\(\?i\)', '', p) for p in patterns]
+    combined = "|".join(f"(?:{p})" for p in stripped)
+    return re.compile(combined, re.MULTILINE | re.IGNORECASE)
 
 
 def detect_prompt_leakage(text: str) -> List[str]:
-    """Detect LLM artifact patterns in text. Returns matched pattern strings."""
-    detected = []
-    for pattern in LEAKAGE_PATTERNS:
-        if re.search(pattern, text, re.MULTILINE):
-            detected.append(pattern)
+    """Detect LLM artifact patterns in text efficiently using compiled regex.
+
+    Returns:
+        List of unique matched strings found in the text.
+    """
+    if not text:
+        return []
+
+    regex = _get_compiled_leakage_regex()
+    detected: List[str] = []
+    seen: set = set()
+    for match in regex.finditer(text):
+        val = match.group(0)
+        if val not in seen:
+            seen.add(val)
+            detected.append(val)
     return detected
 
 
 def has_prompt_leakage(text: str) -> bool:
     """Check if text contains any prompt leakage patterns."""
-    return len(detect_prompt_leakage(text)) > 0
+    regex = _get_compiled_leakage_regex()
+    return regex.search(text) is not None
 
 
 @dataclass

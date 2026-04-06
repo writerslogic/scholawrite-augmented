@@ -1,0 +1,67 @@
+{
+  "n_writers": 4971,
+  "n_windows": 159725,
+  "n_bootstrap": 10000,
+  "cross_domain_correlations": {
+    "entropy_vs_clc_rho": {
+      "rho": 0.0707,
+      "ci_95_lower": 0.0409,
+      "ci_95_upper": 0.1004,
+      "bayes_factor_for_independence": 0.0
+    },
+    "entropy_vs_iki_log_var": {
+      "rho": 0.3829,
+      "ci_95_lower": 0.3584,
+      "ci_95_upper": 0.4076,
+      "bayes_factor_for_independence": 0.0
+    },
+    "entropy_vs_pause_freq": {
+      "rho": 0.7146,
+      "ci_95_lower": 0.6987,
+      "ci_95_upper": 0.7293,
+      "bayes_factor_for_independence": 0.0
+    },
+    "clc_rho_vs_iki_log_var": {
+      "rho": 0.1455,
+      "ci_95_lower": 0.1175,
+      "ci_95_upper": 0.1737,
+      "bayes_factor_for_independence": 0.0
+    },
+    "clc_rho_vs_pause_freq": {
+      "rho": 0.0331,
+      "ci_95_lower": 0.0044,
+      "ci_95_upper": 0.0614,
+      "bayes_factor_for_independence": 0.0659
+    },
+    "iki_log_var_vs_pause_freq": {
+      "rho": 0.6169,
+      "ci_95_lower": 0.5981,
+      "ci_95_upper": 0.6354,
+      "bayes_factor_for_independence": 0.0
+    }
+  },
+  "clc_statistics": {
+    "per_writer_median": {
+      "value": 0.0351,
+      "ci_95_lower": 0.0289,
+      "ci_95_upper": 0.0421
+    },
+    "per_window_median": {
+      "value": 0.1724,
+      "ci_95_lower": 0.1724,
+      "ci_95_upper": 0.1724
+    },
+    "pct_positive": {
+      "value": 56.27,
+      "ci_95_lower": 54.88,
+      "ci_95_upper": 57.61
+    }
+  },
+  "entropy_statistics": {
+    "per_writer_mean": {
+      "value": 6.4234,
+      "ci_95_lower": 6.4072,
+      "ci_95_upper": 6.4394
+    }
+  }
+}

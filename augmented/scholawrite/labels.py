@@ -60,7 +60,8 @@ def parse_label(predicted_label: str, fallback: str = "Invalid", verbose: bool =
         return predicted_label
 
     # Substring match (handles verbose LLM outputs)
-    for label in WRITING_INTENTIONS:
+    # Sort by length descending so "Text Production" matches before "Text"
+    for label in sorted(WRITING_INTENTIONS, key=len, reverse=True):
         if label in predicted_label:
             return label
 

@@ -1,0 +1,46 @@
+{
+  "n_writers": 4971,
+  "correlation_matrix": {
+    "entropy_vs_clc_rho": {
+      "rho": 0.0707,
+      "p_raw": 6.03e-07,
+      "p_bonferroni": 3.62e-06
+    },
+    "entropy_vs_iki_log_var": {
+      "rho": 0.3829,
+      "p_raw": 2.54e-173,
+      "p_bonferroni": 1.52e-172
+    },
+    "entropy_vs_pause_freq": {
+      "rho": 0.7146,
+      "p_raw": 0.0,
+      "p_bonferroni": 0.0
+    },
+    "clc_rho_vs_iki_log_var": {
+      "rho": 0.1455,
+      "p_raw": 6.13e-25,
+      "p_bonferroni": 3.68e-24
+    },
+    "clc_rho_vs_pause_freq": {
+      "rho": 0.0331,
+      "p_raw": 0.0197,
+      "p_bonferroni": 0.118
+    },
+    "iki_log_var_vs_pause_freq": {
+      "rho": 0.6169,
+      "p_raw": 0.0,
+      "p_bonferroni": 0.0
+    }
+  },
+  "partial_correlations": {
+    "entropy_vs_clc_rho_partial": 0.0856,
+    "entropy_vs_iki_log_var_partial": -0.1177,
+    "entropy_vs_pause_freq_partial": 0.661,
+    "clc_rho_vs_iki_log_var_partial": 0.1675,
+    "clc_rho_vs_pause_freq_partial": -0.111,
+    "iki_log_var_vs_pause_freq_partial": 0.5391
+  },
+  "max_abs_rho": 0.7146,
+  "product_bound_conservative": false,
+  "interpretation": "Strong correlations detected; product bound requires correction."
+}

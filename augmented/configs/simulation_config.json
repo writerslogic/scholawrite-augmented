@@ -1,0 +1,33 @@
+{
+    "_comment": "Tunable simulation parameters. See docs/THRESHOLDS.md for justifications.",
+
+    "initial_glucose": 1.0,
+    "glucose_floor": 0.05,
+    "glucose_depletion_rate": 0.9992,
+    "fatigue_divisor": 12000.0,
+
+    "high_syntactic_demand": 5.0,
+    "lexical_fatigue_penalty": 0.4,
+    "syntactic_min_floor": 0.3,
+    "attention_min_floor": 0.1,
+    "attention_fatigue_penalty": 0.5,
+
+    "glucose_lexical_starvation": 0.65,
+    "syntactic_collapse_base": 4.0,
+    "syntactic_collapse_glucose_factor": 3.5,
+    "failure_repair_cost_multiplier": 2.7,
+
+    "temp_min": 0.5,
+    "temp_max": 0.9,
+    "top_p_min": 0.8,
+    "top_p_max": 0.98,
+    "presence_penalty_max": 0.5,
+    "freq_penalty_max": 0.3,
+    "max_tokens_base": 1536,
+    "max_tokens_scale": 1536,
+
+    "locality_human_min": 1.0,
+    "locality_human_max": 3.5,
+    "coupling_strong_threshold": 0.6,
+    "min_trace_length_coupling": 10
+}
