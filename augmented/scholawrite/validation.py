@@ -294,8 +294,24 @@ def _trace_to_checkpoint_metrics(trace: List[CausalEvent]) -> Dict[str, float]:
     med_lat = median(latencies)
     std_lat = stdev(latencies) if n > 1 else 0.0
 
-    # Entropy via thermodynamic module
-    entropy = compute_entropy_production_rate(trace)
+    # Log-scale IKI entropy (matches external dataset computation)
+    import math as _math
+    positive = [v for v in latencies if v > 0]
+    if len(positive) >= 2:
+        log_vals = [_math.log(v) for v in positive]
+        lo, hi = min(log_vals), max(log_vals)
+        if hi - lo > 1e-12:
+            n_bins = 10
+            bw = (hi - lo) / n_bins
+            counts = [0] * n_bins
+            for lv in log_vals:
+                counts[min(int((lv - lo) / bw), n_bins - 1)] += 1
+            tot = len(positive)
+            entropy = -sum((c / tot) * _math.log2(c / tot) for c in counts if c > 0)
+        else:
+            entropy = 0.0
+    else:
+        entropy = 0.0
 
     # Lag-1 autocorrelation of latencies
     lag1 = _lag1_autocorr(latencies)
@@ -304,9 +320,9 @@ def _trace_to_checkpoint_metrics(trace: List[CausalEvent]) -> Dict[str, float]:
     failures = sum(1 for e in trace if e.status != "success")
     rev_density = failures / n
 
-    # Approximate WPM (assume 5 chars per word, 200ms per token average)
+    # WPM: assume 5 chars per word (matches external dataset computation)
     total_time_ms = sum(latencies)
-    wpm = (n / max(total_time_ms / 60000.0, 0.001))
+    wpm = (n / 5.0) / max(total_time_ms / 60000.0, 0.001)
 
     # Phase proportions from free energy trajectory
     planning_r, translating_r, revising_r = _extract_phase_proportions(trace)

@@ -99,7 +99,7 @@ def main() -> None:
         ds_results = {"n_checkpoints": len(records), "task_type": meta.task_type.value, "signals": {}}
 
         for signal in signals:
-            sim_vals = [getattr(cp, signal) for cp in sim_checkpoints if getattr(cp, signal) is not None]
+            sim_vals = [cp[signal] for cp in sim_checkpoints if cp.get(signal) is not None]
             real_vals = [getattr(cp, signal) for cp in records if getattr(cp, signal) is not None]
             if len(sim_vals) < 5 or len(real_vals) < 5:
                 continue
@@ -128,7 +128,7 @@ def main() -> None:
     all_records = [cp for records in datasets.values() for cp in records]
     _out(f"Total checkpoints: {len(all_records)}")
     for signal in signals:
-        sim_vals = [getattr(cp, signal) for cp in sim_checkpoints if getattr(cp, signal) is not None]
+        sim_vals = [cp[signal] for cp in sim_checkpoints if cp.get(signal) is not None]
         real_vals = [getattr(cp, signal) for cp in all_records if getattr(cp, signal) is not None]
         if len(sim_vals) < 5 or len(real_vals) < 5:
             continue

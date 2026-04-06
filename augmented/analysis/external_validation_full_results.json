@@ -1,0 +1,1644 @@
+{
+  "aalto_136m": {
+    "n_checkpoints": 168513,
+    "task_type": "transcription",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 168513,
+        "sim_n": 200,
+        "real_median": 274.1388,
+        "real_iqr": [
+          217.917,
+          360.4664
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.5782,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 21837171.5,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 0.5195,
+        "cliffs_delta": 0.2959,
+        "wasserstein_distance": 90.1753,
+        "levene_statistic": 150.7815,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 168513,
+        "sim_n": 200,
+        "real_median": 2.2002,
+        "real_iqr": [
+          2.0277,
+          2.3675
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -68.2259,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.0349,
+        "levene_statistic": 33077.5367,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 168513,
+        "sim_n": 200,
+        "real_median": 0.0216,
+        "real_iqr": [
+          -0.004,
+          0.0591
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9982,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 759.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -10.6044,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.5852,
+        "levene_statistic": 143.2481,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 168513,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -177.7706,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 321113.986,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 168513,
+        "sim_n": 200,
+        "real_median": 43.7734,
+        "real_iqr": [
+          33.2902,
+          55.0668
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 200.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -13.5581,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 205.9103,
+        "levene_statistic": 103.4759,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "aalto_howwetype": {
+    "n_checkpoints": 30,
+    "task_type": "transcription",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 30,
+        "sim_n": 200,
+        "real_median": 191.5714,
+        "real_iqr": [
+          156.631,
+          223.0116
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.7567,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 839.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -2.4244,
+        "cliffs_delta": -0.7203,
+        "wasserstein_distance": 53.236,
+        "levene_statistic": 204.4671,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 30,
+        "sim_n": 200,
+        "real_median": 2.4905,
+        "real_iqr": [
+          2.4298,
+          2.5864
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.2302,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.7414,
+        "levene_statistic": 35.3619,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 30,
+        "sim_n": 200,
+        "real_median": 0.092,
+        "real_iqr": [
+          0.0528,
+          0.1245
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.9013,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.5325,
+        "levene_statistic": 4.1192,
+        "levene_pvalue": 0.0257
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 30,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.5352,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 56.6708,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 30,
+        "sim_n": 200,
+        "real_median": 62.6401,
+        "real_iqr": [
+          53.8089,
+          76.6132
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -21.7238,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 186.1473,
+        "levene_statistic": 34.6053,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "cmu_benchmark": {
+    "n_checkpoints": 20400,
+    "task_type": "password",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 20400,
+        "sim_n": 200,
+        "real_median": 220.97,
+        "real_iqr": [
+          177.83,
+          285.44
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.5056,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 1666113.5,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 0.0844,
+        "cliffs_delta": -0.1833,
+        "wasserstein_distance": 69.5666,
+        "levene_statistic": 106.9031,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 20400,
+        "sim_n": 200,
+        "real_median": 2.6464,
+        "real_iqr": [
+          2.4464,
+          2.7219
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -46.2998,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.6442,
+        "levene_statistic": 13797.8565,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 20400,
+        "sim_n": 200,
+        "real_median": 0.1223,
+        "real_iqr": [
+          0.0042,
+          0.2377
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9498,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 18020.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -2.8749,
+        "cliffs_delta": -0.9912,
+        "wasserstein_distance": 0.5036,
+        "levene_statistic": 73.8058,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 20400,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -62.1156,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 38870.3956,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 20400,
+        "sim_n": 200,
+        "real_median": 54.306,
+        "real_iqr": [
+          42.0536,
+          67.4802
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -10.742,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 195.4662,
+        "levene_statistic": 132.6806,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "emosurv": {
+    "n_checkpoints": 81,
+    "task_type": "transcription",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 81,
+        "sim_n": 200,
+        "real_median": 337.8412,
+        "real_iqr": [
+          280.6977,
+          442.3642
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.8739,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 14729.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 1.6572,
+        "cliffs_delta": 0.8184,
+        "wasserstein_distance": 158.7563,
+        "levene_statistic": 126.7185,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 81,
+        "sim_n": 200,
+        "real_median": 2.3539,
+        "real_iqr": [
+          2.1266,
+          2.5675
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.9359,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.8824,
+        "levene_statistic": 87.2305,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 81,
+        "sim_n": 200,
+        "real_median": 0.0447,
+        "real_iqr": [
+          0.0063,
+          0.1046
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.958,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 59.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.2545,
+        "cliffs_delta": -0.9927,
+        "wasserstein_distance": 0.5344,
+        "levene_statistic": 0.4131,
+        "levene_pvalue": 0.3565
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 81,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -7.2292,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 153.2547,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 81,
+        "sim_n": 200,
+        "real_median": 35.5196,
+        "real_iqr": [
+          27.127,
+          42.7506
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -23.5875,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 215.5286,
+        "levene_statistic": 20.3822,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "iiitd_bu": {
+    "n_checkpoints": 71,
+    "task_type": "composition",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 71,
+        "sim_n": 200,
+        "real_median": 426.2514,
+        "real_iqr": [
+          344.7272,
+          527.0749
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.9577,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 13959.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 2.7617,
+        "cliffs_delta": 0.9661,
+        "wasserstein_distance": 205.7157,
+        "levene_statistic": 246.2318,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 71,
+        "sim_n": 200,
+        "real_median": 1.9958,
+        "real_iqr": [
+          1.893,
+          2.1374
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.9329,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.2142,
+        "levene_statistic": 79.505,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 71,
+        "sim_n": 200,
+        "real_median": 0.0435,
+        "real_iqr": [
+          0.0072,
+          0.0951
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.5971,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.5638,
+        "levene_statistic": 12.5488,
+        "levene_pvalue": 0.0002
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 71,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -7.0985,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 134.2989,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 71,
+        "sim_n": 200,
+        "real_median": 28.1524,
+        "real_iqr": [
+          22.7672,
+          34.8101
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -27.1147,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 220.7627,
+        "levene_statistic": 4.3568,
+        "levene_pvalue": 0.0223
+      }
+    }
+  },
+  "ikdd": {
+    "n_checkpoints": 533,
+    "task_type": "mixed",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 533,
+        "sim_n": 200,
+        "real_median": 533.1331,
+        "real_iqr": [
+          413.8792,
+          655.1724
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.9756,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 104317.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 1.9847,
+        "cliffs_delta": 0.9572,
+        "wasserstein_distance": 311.888,
+        "levene_statistic": 268.2682,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 533,
+        "sim_n": 200,
+        "real_median": 2.4322,
+        "real_iqr": [
+          2.1664,
+          2.6608
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -11.0415,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.811,
+        "levene_statistic": 534.0959,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 533,
+        "sim_n": 200,
+        "real_median": 0.1765,
+        "real_iqr": [
+          0.1236,
+          0.2287
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9806,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 91.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.0806,
+        "cliffs_delta": -0.9983,
+        "wasserstein_distance": 0.4404,
+        "levene_statistic": 3.9071,
+        "levene_pvalue": 0.0292
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 533,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -11.7016,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 1012.9117,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 533,
+        "sim_n": 200,
+        "real_median": 22.5085,
+        "real_iqr": [
+          18.3158,
+          28.994
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -18.2274,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 225.4877,
+        "levene_statistic": 1.9771,
+        "levene_pvalue": 0.1002
+      }
+    }
+  },
+  "keyrecs": {
+    "n_checkpoints": 99,
+    "task_type": "transcription",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 99,
+        "sim_n": 200,
+        "real_median": 275.6114,
+        "real_iqr": [
+          230.9761,
+          354.4911
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.6163,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 13889.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 1.0761,
+        "cliffs_delta": 0.4029,
+        "wasserstein_distance": 76.7759,
+        "levene_statistic": 209.9967,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 99,
+        "sim_n": 200,
+        "real_median": 1.749,
+        "real_iqr": [
+          1.5841,
+          1.8968
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -7.3791,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.4718,
+        "levene_statistic": 109.1826,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 99,
+        "sim_n": 200,
+        "real_median": 0.0284,
+        "real_iqr": [
+          0.0071,
+          0.0749
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.9052,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.5725,
+        "levene_statistic": 22.0174,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 99,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -7.4588,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 187.3922,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 99,
+        "sim_n": 200,
+        "real_median": 43.5396,
+        "real_iqr": [
+          33.8513,
+          51.9534
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -21.0682,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 206.6563,
+        "levene_statistic": 39.768,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "klicke": {
+    "n_checkpoints": 4992,
+    "task_type": "composition",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 4992,
+        "sim_n": 200,
+        "real_median": 380.3313,
+        "real_iqr": [
+          295.2568,
+          506.5591
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.8644,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 897032.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 1.1149,
+        "cliffs_delta": 0.7969,
+        "wasserstein_distance": 180.4892,
+        "levene_statistic": 242.789,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 4992,
+        "sim_n": 200,
+        "real_median": 1.9878,
+        "real_iqr": [
+          1.8368,
+          2.1341
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -28.8619,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.245,
+        "levene_statistic": 5100.1602,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 4992,
+        "sim_n": 200,
+        "real_median": 0.0977,
+        "real_iqr": [
+          0.056,
+          0.1571
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9686,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 4171.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.2079,
+        "cliffs_delta": -0.9916,
+        "wasserstein_distance": 0.4985,
+        "levene_statistic": 1.9775,
+        "levene_pvalue": 0.1002
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 4992,
+        "sim_n": 200,
+        "real_median": 0.1184,
+        "real_iqr": [
+          0.0794,
+          0.1689
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 0.9726,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 2333.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -4.6814,
+        "cliffs_delta": -0.9953,
+        "wasserstein_distance": 0.3282,
+        "levene_statistic": 4.3723,
+        "levene_pvalue": 0.0221
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 4992,
+        "sim_n": 200,
+        "real_median": 31.5514,
+        "real_iqr": [
+          23.7075,
+          40.6593
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -17.3192,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 217.4209,
+        "levene_statistic": 44.8325,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "mendeley_liveness": {
+    "n_checkpoints": 644,
+    "task_type": "composition",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 644,
+        "sim_n": 200,
+        "real_median": 202.303,
+        "real_iqr": [
+          178.3528,
+          235.8269
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.6615,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 30424.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -0.6071,
+        "cliffs_delta": -0.5276,
+        "wasserstein_distance": 43.915,
+        "levene_statistic": 155.1051,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 644,
+        "sim_n": 200,
+        "real_median": 2.0124,
+        "real_iqr": [
+          1.9062,
+          2.1515
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -12.2003,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.1975,
+        "levene_statistic": 734.2789,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 644,
+        "sim_n": 200,
+        "real_median": 0.1482,
+        "real_iqr": [
+          0.1153,
+          0.1858
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9884,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 22.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.547,
+        "cliffs_delta": -0.9997,
+        "wasserstein_distance": 0.4682,
+        "levene_statistic": 50.4095,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 644,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -12.5587,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 1224.2961,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 644,
+        "sim_n": 200,
+        "real_median": 59.317,
+        "real_iqr": [
+          50.9116,
+          67.4408
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -16.7092,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 191.5164,
+        "levene_statistic": 47.5702,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "scholawrite_hf": {
+    "n_checkpoints": 7,
+    "task_type": "composition",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 7,
+        "sim_n": 200,
+        "real_median": 3657.8242,
+        "real_iqr": [
+          3427.6822,
+          4047.4827
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 1400.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 62.9135,
+        "cliffs_delta": 1.0,
+        "wasserstein_distance": 3418.6377,
+        "levene_statistic": 441.532,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 7,
+        "sim_n": 200,
+        "real_median": 2.3588,
+        "real_iqr": [
+          2.2993,
+          2.3709
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.9507,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.8755,
+        "levene_statistic": 8.8023,
+        "levene_pvalue": 0.0018
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 7,
+        "sim_n": 200,
+        "real_median": 0.0956,
+        "real_iqr": [
+          0.0658,
+          0.1066
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -5.8127,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.5307,
+        "levene_statistic": 7.2148,
+        "levene_pvalue": 0.0043
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 7,
+        "sim_n": 200,
+        "real_median": 0.3387,
+        "real_iqr": [
+          0.3167,
+          0.3558
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 0.87,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 78.0,
+        "mann_whitney_pvalue": 0.0001,
+        "cohens_d": -1.7547,
+        "cliffs_delta": -0.8886,
+        "wasserstein_distance": 0.1305,
+        "levene_statistic": 4.4088,
+        "levene_pvalue": 0.0216
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 7,
+        "sim_n": 200,
+        "real_median": 3.2806,
+        "real_iqr": [
+          2.9648,
+          3.5009
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -33.756,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 247.3501,
+        "levene_statistic": 11.0664,
+        "levene_pvalue": 0.0005
+      }
+    }
+  },
+  "stress_detection": {
+    "n_checkpoints": 2,
+    "task_type": "composition",
+    "signals": {}
+  },
+  "synthetic_liveness": {
+    "n_checkpoints": 200,
+    "task_type": "mixed",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 200,
+        "sim_n": 200,
+        "real_median": 324.5037,
+        "real_iqr": [
+          313.1509,
+          337.9467
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.995,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 39999.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 5.6142,
+        "cliffs_delta": 1.0,
+        "wasserstein_distance": 85.1328,
+        "levene_statistic": 102.4782,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 200,
+        "sim_n": 200,
+        "real_median": 2.0463,
+        "real_iqr": [
+          1.9709,
+          2.149
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -8.4182,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 19.1774,
+        "levene_statistic": 238.9225,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 200,
+        "sim_n": 200,
+        "real_median": 0.195,
+        "real_iqr": [
+          0.0065,
+          0.4136
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.875,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 614.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -2.6497,
+        "cliffs_delta": -0.9693,
+        "wasserstein_distance": 0.4229,
+        "levene_statistic": 217.4236,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 200,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -8.6344,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4587,
+        "levene_statistic": 379.2137,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 200,
+        "sim_n": 200,
+        "real_median": 36.9796,
+        "real_iqr": [
+          35.5221,
+          38.3478
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -38.71,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 213.5506,
+        "levene_statistic": 150.6453,
+        "levene_pvalue": 0.0
+      }
+    }
+  },
+  "tappy_parkinsons": {
+    "n_checkpoints": 249,
+    "task_type": "mixed",
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 249,
+        "sim_n": 200,
+        "real_median": 438.1826,
+        "real_iqr": [
+          360.055,
+          526.5911
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.9759,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 49266.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 2.3237,
+        "cliffs_delta": 0.9786,
+        "wasserstein_distance": 210.7708,
+        "levene_statistic": 310.8297,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 249,
+        "sim_n": 200,
+        "real_median": 2.2345,
+        "real_iqr": [
+          1.8895,
+          2.6275
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -8.7038,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.9929,
+        "levene_statistic": 216.4473,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 249,
+        "sim_n": 200,
+        "real_median": 0.2003,
+        "real_iqr": [
+          0.1138,
+          0.3076
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9088,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 1127.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -3.1439,
+        "cliffs_delta": -0.9547,
+        "wasserstein_distance": 0.4052,
+        "levene_statistic": 26.3042,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 249,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -9.1504,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 0.4586,
+        "levene_statistic": 472.38,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 249,
+        "sim_n": 200,
+        "real_median": 27.3858,
+        "real_iqr": [
+          22.7881,
+          33.3282
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -25.9512,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 221.7777,
+        "levene_statistic": 0.6627,
+        "levene_pvalue": 0.2774
+      }
+    }
+  },
+  "_pooled": {
+    "n_checkpoints": 195821,
+    "signals": {
+      "mean_iki_ms": {
+        "signal_name": "mean_iki_ms",
+        "real_n": 195821,
+        "sim_n": 200,
+        "real_median": 270.5384,
+        "real_iqr": [
+          213.8109,
+          358.3309
+        ],
+        "sim_median": 240.105,
+        "sim_iqr": [
+          234.39,
+          244.51
+        ],
+        "ks_statistic": 0.5618,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 24669539.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": 0.4844,
+        "cliffs_delta": 0.2598,
+        "wasserstein_distance": 90.8995,
+        "levene_statistic": 144.6212,
+        "levene_pvalue": 0.0
+      },
+      "iki_entropy_bits": {
+        "signal_name": "iki_entropy_bits",
+        "real_n": 195821,
+        "sim_n": 200,
+        "real_median": 2.2241,
+        "real_iqr": [
+          2.0407,
+          2.4191
+        ],
+        "sim_median": 21.0504,
+        "sim_iqr": [
+          19.3861,
+          22.9956
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 0.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -62.7265,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 18.9997,
+        "levene_statistic": 27549.265,
+        "levene_pvalue": 0.0
+      },
+      "lag1_autocorrelation": {
+        "signal_name": "lag1_autocorrelation",
+        "real_n": 195821,
+        "sim_n": 200,
+        "real_median": 0.0267,
+        "real_iqr": [
+          -0.0029,
+          0.0732
+        ],
+        "sim_median": 0.6227,
+        "sim_iqr": [
+          0.5685,
+          0.6847
+        ],
+        "ks_statistic": 0.9847,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 24863.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -6.8033,
+        "cliffs_delta": -0.9987,
+        "wasserstein_distance": 0.5733,
+        "levene_statistic": 15.4278,
+        "levene_pvalue": 0.0
+      },
+      "revision_density": {
+        "signal_name": "revision_density",
+        "real_n": 195821,
+        "sim_n": 200,
+        "real_median": 0.0,
+        "real_iqr": [
+          0.0,
+          0.0
+        ],
+        "sim_median": 0.46,
+        "sim_iqr": [
+          0.4,
+          0.52
+        ],
+        "ks_statistic": 0.999,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 2411.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -19.3013,
+        "cliffs_delta": -0.9999,
+        "wasserstein_distance": 0.4554,
+        "levene_statistic": 1189.1367,
+        "levene_pvalue": 0.0
+      },
+      "wpm": {
+        "signal_name": "wpm",
+        "real_n": 195821,
+        "sim_n": 200,
+        "real_median": 44.356,
+        "real_iqr": [
+          33.4886,
+          56.1244
+        ],
+        "sim_median": 249.89,
+        "sim_iqr": [
+          245.4,
+          256.06
+        ],
+        "ks_statistic": 1.0,
+        "ks_pvalue": 0.0,
+        "mann_whitney_u": 200.0,
+        "mann_whitney_pvalue": 0.0,
+        "cohens_d": -12.8414,
+        "cliffs_delta": -1.0,
+        "wasserstein_distance": 205.1582,
+        "levene_statistic": 108.5094,
+        "levene_pvalue": 0.0
+      }
+    }
+  }
+}

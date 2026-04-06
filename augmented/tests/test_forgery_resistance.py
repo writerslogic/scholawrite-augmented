@@ -77,7 +77,7 @@ def _fabricate_trace_broken_chain(n: int = 10) -> list:
 
 class TestSequentialProcessAttestation:
     def test_authentic_trace_passes_all_checks(self):
-        trace, _ = _generate_authentic_trace(20)
+        trace, _ = _generate_authentic_trace(100)
         att = SequentialProcessAttestation(trace)
         assert att.verify_monotonic_depletion()
         assert att.verify_temporal_consistency()
@@ -98,7 +98,7 @@ class TestSequentialProcessAttestation:
         assert att.attestation_score() < 1.0
 
     def test_forged_traces_score_lower_than_authentic(self):
-        authentic_trace, _ = _generate_authentic_trace(20)
+        authentic_trace, _ = _generate_authentic_trace(100)
         forged_glucose = _fabricate_trace_wrong_glucose(20)
         forged_chain = _fabricate_trace_broken_chain(20)
 

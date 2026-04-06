@@ -79,6 +79,12 @@ class SimulationConfig:
     max_tokens_base: int = 1536
     max_tokens_scale: int = 1536
 
+    # Keystroke Latency Noise
+    # Log-normal sigma for IKI variance. 0.9 targets CV~1.5, matching
+    # KLiCKe composition writers (empirical sigma=1.57, conservative subset).
+    # Set to 0.0 for fully deterministic traces.
+    latency_log_normal_sigma: float = 0.9
+
     # Forensic Signatures
     locality_human_min: float = 1.0
     locality_human_max: float = 3.5

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import random
 import re
 import hashlib
 from functools import lru_cache
@@ -27,6 +28,8 @@ class EmbodiedScholar:
         self.glucose = initial_glucose if initial_glucose is not None else self.config.initial_glucose
         self.visual_fatigue = 0.0
         self.total_tokens_produced = 0
+        seed = int(hashlib.sha256(author_id.encode()).hexdigest()[:8], 16)
+        self._rng = random.Random(seed)
 
     def consume_resources(self, tokens: int, syntactic_depth: float):
         """Irreversible metabolic depletion per token and complexity."""
@@ -61,8 +64,13 @@ class EmbodiedScholar:
         )
 
     def calculate_latency(self, syntactic_depth: float) -> float:
-        """Deterministic mapping from state to keystroke latency (ms)."""
-        return round(115 + 90 * math.log(1 + syntactic_depth) * (1.12 - self.glucose), 2)
+        """Mapping from state to keystroke latency (ms) with log-normal noise."""
+        deterministic = 115 + 90 * math.log(1 + syntactic_depth) * (1.12 - self.glucose)
+        sigma = self.config.latency_log_normal_sigma
+        if sigma <= 0.0:
+            return round(deterministic, 2)
+        mu = math.log(max(deterministic, 1.0)) - sigma ** 2 / 2.0
+        return round(max(50.0, self._rng.lognormvariate(mu, sigma)), 2)
 
     def get_biometric_salt(self, token_idx: int) -> str:
         """Generate a deterministic biometric salt for cryptographic anchoring.
