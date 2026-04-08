@@ -1,0 +1,17 @@
+{
+  "real": {
+    "mean_iki_session1": 190.5342,
+    "mean_iki_last_session": 251.7135,
+    "slope_ms_per_session": 61.1792,
+    "n_participants": 1000,
+    "pct_increasing": 1.0
+  },
+  "simulation": {
+    "mean_iki_window1": 240.3383,
+    "mean_iki_window4": 271.8805,
+    "slope_per_quarter": 8.959382,
+    "pct_increasing": 0.74
+  },
+  "direction_matches": true,
+  "spearman_rho_real": 0.792941
+}

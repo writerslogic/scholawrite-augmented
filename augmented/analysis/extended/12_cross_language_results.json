@@ -1,0 +1,70 @@
+{
+  "n_nationalities": 9,
+  "n_participants_total": 86,
+  "per_nationality": {
+    "Czech Republic": {
+      "mean_iki": 364.221,
+      "std_iki": 804.4394,
+      "entropy": 1.7762,
+      "n": 3
+    },
+    "Estonia": {
+      "mean_iki": 299.4756,
+      "std_iki": 593.778,
+      "entropy": 2.0404,
+      "n": 3
+    },
+    "Greece": {
+      "mean_iki": 332.8739,
+      "std_iki": 1091.8024,
+      "entropy": 1.9662,
+      "n": 13
+    },
+    "Hungary": {
+      "mean_iki": 212.8635,
+      "std_iki": 614.4711,
+      "entropy": 1.7582,
+      "n": 4
+    },
+    "Italy": {
+      "mean_iki": 275.1355,
+      "std_iki": 445.1913,
+      "entropy": 1.9831,
+      "n": 8
+    },
+    "Poland": {
+      "mean_iki": 294.6886,
+      "std_iki": 911.0501,
+      "entropy": 1.9612,
+      "n": 26
+    },
+    "Portugal": {
+      "mean_iki": 303.5788,
+      "std_iki": 649.9575,
+      "entropy": 1.9114,
+      "n": 21
+    },
+    "South Africa": {
+      "mean_iki": 342.5067,
+      "std_iki": 887.4271,
+      "entropy": 1.8772,
+      "n": 4
+    },
+    "United Kingdom": {
+      "mean_iki": 241.5829,
+      "std_iki": 611.0074,
+      "entropy": 1.6644,
+      "n": 4
+    }
+  },
+  "between_within_ratio": 88.235372,
+  "universality_hypothesis": {
+    "supported": false,
+    "reasoning": "F-ratio 88.24 and 0.0% non-significant KS pairs indicate nationality-specific effects. Process signals may partly reflect linguistic or cultural typing habits."
+  },
+  "most_distinctive": [
+    "Czech Republic",
+    "Hungary",
+    "South Africa"
+  ]
+}

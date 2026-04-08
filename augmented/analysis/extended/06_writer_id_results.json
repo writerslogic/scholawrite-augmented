@@ -1,0 +1,10 @@
+{
+  "n_writers": 4992,
+  "rank1_accuracy": 0.0116,
+  "rank5_accuracy": 0.0294,
+  "rank10_accuracy": 0.0443,
+  "chance_rank1": 0.0002,
+  "chance_rank5": 0.001002,
+  "identification_entropy_bits": 10.9377,
+  "above_chance_ratio": 58.0
+}

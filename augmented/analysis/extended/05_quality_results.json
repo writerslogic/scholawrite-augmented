@@ -1,0 +1,64 @@
+{
+  "n_writers": 4992,
+  "signals": {
+    "mean_iki": {
+      "spearman_rho": -0.5278,
+      "p_value": 0.0,
+      "ci_lower": -0.547,
+      "ci_upper": -0.5054
+    },
+    "std_iki": {
+      "spearman_rho": -0.3798,
+      "p_value": 0.0,
+      "ci_lower": -0.4027,
+      "ci_upper": -0.3562
+    },
+    "entropy_bits": {
+      "spearman_rho": -0.2105,
+      "p_value": 0.0,
+      "ci_lower": -0.2372,
+      "ci_upper": -0.1844
+    },
+    "lag1_autocorr": {
+      "spearman_rho": 0.0643,
+      "p_value": 5e-06,
+      "ci_lower": 0.0345,
+      "ci_upper": 0.0931
+    },
+    "revision_density": {
+      "spearman_rho": 0.0619,
+      "p_value": 1.2e-05,
+      "ci_lower": 0.0368,
+      "ci_upper": 0.088
+    },
+    "planning_ratio": {
+      "spearman_rho": -0.0923,
+      "p_value": 0.0,
+      "ci_lower": -0.1179,
+      "ci_upper": -0.0638
+    },
+    "wpm": {
+      "spearman_rho": 0.6969,
+      "p_value": 0.0,
+      "ci_lower": 0.6808,
+      "ci_upper": 0.7115
+    },
+    "burst_count": {
+      "spearman_rho": 0.6731,
+      "p_value": 0.0,
+      "ci_lower": 0.6556,
+      "ci_upper": 0.6893
+    },
+    "pause_count": {
+      "spearman_rho": 0.109,
+      "p_value": 0.0,
+      "ci_lower": 0.0816,
+      "ci_upper": 0.1354
+    }
+  },
+  "top_predictors": [
+    "wpm",
+    "burst_count",
+    "mean_iki"
+  ]
+}

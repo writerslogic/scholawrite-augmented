@@ -1,0 +1,94 @@
+{
+  "tiers": [
+    "constant",
+    "iid",
+    "cross",
+    "markov"
+  ],
+  "per_signal_auc": {
+    "entropy": [
+      1.0,
+      0.5161,
+      0.5131,
+      0.5702
+    ],
+    "autocorr_lag1": [
+      0.7998,
+      0.7563,
+      0.7756,
+      0.5337
+    ],
+    "iki_std": [
+      1.0,
+      0.5586,
+      0.5682,
+      0.8406
+    ],
+    "iki_log_var": [
+      1.0,
+      0.5586,
+      0.5682,
+      0.8406
+    ],
+    "pause_freq": [
+      0.97,
+      0.5478,
+      0.5394,
+      0.5963
+    ],
+    "clc_proxy": [
+      0.68,
+      0.68,
+      0.68,
+      0.68
+    ]
+  },
+  "composite_auc_per_tier": [
+    0.9083,
+    0.6029,
+    0.6074,
+    0.6769
+  ],
+  "marginal_cost": {
+    "entropy": [
+      -0.4839,
+      -0.003,
+      0.0571
+    ],
+    "autocorr_lag1": [
+      -0.0435,
+      0.0193,
+      -0.2419
+    ],
+    "iki_std": [
+      -0.4414,
+      0.0096,
+      0.2724
+    ],
+    "iki_log_var": [
+      -0.4414,
+      0.0096,
+      0.2724
+    ],
+    "pause_freq": [
+      -0.4222,
+      -0.0084,
+      0.0569
+    ],
+    "clc_proxy": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "detection_collapses_at_tier": {
+    "entropy": 1,
+    "autocorr_lag1": 3,
+    "iki_std": null,
+    "iki_log_var": null,
+    "pause_freq": 1,
+    "clc_proxy": null
+  },
+  "near_random_threshold": 0.55,
+  "ablation_available": true
+}

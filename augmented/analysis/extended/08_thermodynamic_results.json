@@ -1,0 +1,17 @@
+{
+  "human": {
+    "mean_asymmetry": -0.115171,
+    "std_asymmetry": 2.229018,
+    "pct_positive": 0.5168,
+    "n_writers": 4992
+  },
+  "simulation": {
+    "mean_asymmetry": -0.018693,
+    "std_asymmetry": 0.382685,
+    "pct_positive": 0.505,
+    "n_traces": 200
+  },
+  "ks_statistic": 0.193205,
+  "ks_pvalue": 1e-06,
+  "cohens_d": -0.044111
+}

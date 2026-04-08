@@ -1,0 +1,111 @@
+{
+  "per_dataset": {
+    "aalto_136m": {
+      "mean_ratio": 0.078033,
+      "std_ratio": 0.954461,
+      "n": 168513,
+      "task_type": "transcription"
+    },
+    "aalto_howwetype": {
+      "mean_ratio": 0.000416,
+      "std_ratio": 0.001163,
+      "n": 30,
+      "task_type": "transcription"
+    },
+    "cmu_benchmark": {
+      "mean_ratio": 0.007916,
+      "std_ratio": 0.099629,
+      "n": 20400,
+      "task_type": "password"
+    },
+    "emosurv": {
+      "mean_ratio": 0.084041,
+      "std_ratio": 0.268434,
+      "n": 81,
+      "task_type": "transcription"
+    },
+    "iiitd_bu": {
+      "mean_ratio": 0.154224,
+      "std_ratio": 0.539399,
+      "n": 71,
+      "task_type": "composition"
+    },
+    "ikdd": {
+      "mean_ratio": 0.891248,
+      "std_ratio": 7.259616,
+      "n": 533,
+      "task_type": "mixed"
+    },
+    "keyrecs": {
+      "mean_ratio": 0.014066,
+      "std_ratio": 0.018758,
+      "n": 99,
+      "task_type": "transcription"
+    },
+    "klicke": {
+      "mean_ratio": 0.082249,
+      "std_ratio": 0.556407,
+      "n": 4992,
+      "task_type": "composition"
+    },
+    "mendeley_liveness": {
+      "mean_ratio": 0.0,
+      "std_ratio": 0.0,
+      "n": 644,
+      "task_type": "composition"
+    },
+    "scholawrite_hf": {
+      "mean_ratio": 14.611361,
+      "std_ratio": 9.69677,
+      "n": 7,
+      "task_type": "composition"
+    },
+    "stress_detection": {
+      "mean_ratio": 0.48765,
+      "std_ratio": 0.307383,
+      "n": 2,
+      "task_type": "composition"
+    },
+    "synthetic_liveness": {
+      "mean_ratio": 0.0,
+      "std_ratio": 0.0,
+      "n": 200,
+      "task_type": "mixed"
+    },
+    "tappy_parkinsons": {
+      "mean_ratio": 0.00182,
+      "std_ratio": 0.021722,
+      "n": 249,
+      "task_type": "mixed"
+    }
+  },
+  "per_task_type": {
+    "transcription": {
+      "mean_ratio": 0.077985,
+      "n": 168723
+    },
+    "password": {
+      "mean_ratio": 0.007916,
+      "n": 20400
+    },
+    "composition": {
+      "mean_ratio": 0.091811,
+      "n": 5716
+    },
+    "mixed": {
+      "mean_ratio": 0.484204,
+      "n": 982
+    }
+  },
+  "kruskal_wallis": {
+    "statistic": 51100.431084,
+    "p_value": 0.0
+  },
+  "correlation_with_mean_iki": 0.250538,
+  "correlation_with_revision_density": 0.006157,
+  "simulation": {
+    "mean_ratio": 0.006949,
+    "std_ratio": 0.010841,
+    "n": 100
+  }
+}

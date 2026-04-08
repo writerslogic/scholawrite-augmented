@@ -1,0 +1,59 @@
+{
+  "tiers": [
+    "constant (naive)",
+    "iid (statistical)",
+    "cross-user",
+    "markov"
+  ],
+  "per_signal_capacity_bits": {
+    "autocorr_lag1": [
+      0.277672,
+      0.198861,
+      0.231879,
+      0.003279
+    ],
+    "clc_proxy": [
+      0.095619,
+      0.095619,
+      0.095619,
+      0.095619
+    ],
+    "entropy": [
+      1.0,
+      0.000748,
+      0.000495,
+      0.014266
+    ],
+    "iki_log_var": [
+      1.0,
+      0.009931,
+      0.013463,
+      0.367128
+    ],
+    "iki_std": [
+      1.0,
+      0.009931,
+      0.013463,
+      0.367128
+    ],
+    "pause_freq": [
+      0.805608,
+      0.006603,
+      0.004484,
+      0.026926
+    ]
+  },
+  "total_capacity_per_tier": [
+    4.178899,
+    0.321693,
+    0.359403,
+    0.874346
+  ],
+  "capacity_degradation_ratio": [
+    1.0,
+    0.07698,
+    0.086004,
+    0.209229
+  ],
+  "tier_where_capacity_below_half": 1
+}

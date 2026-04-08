@@ -1,0 +1,39 @@
+{
+  "n_pd": 159,
+  "n_healthy": 54,
+  "n_skipped_no_label_or_data": 120,
+  "signals": {
+    "mean_iki": {
+      "ks_statistic": 0.1562,
+      "ks_pvalue": 0.279096,
+      "cohens_d": 0.009,
+      "auc_pd_classification": 0.5181,
+      "n_pd": 159,
+      "n_healthy": 54
+    },
+    "std_iki": {
+      "ks_statistic": 0.1307,
+      "ks_pvalue": 0.496702,
+      "cohens_d": 0.1849,
+      "auc_pd_classification": 0.5469,
+      "n_pd": 159,
+      "n_healthy": 54
+    },
+    "entropy": {
+      "ks_statistic": 0.1139,
+      "ks_pvalue": 0.672361,
+      "cohens_d": -0.1923,
+      "auc_pd_classification": 0.4638,
+      "n_pd": 159,
+      "n_healthy": 54
+    },
+    "lag1_autocorr": {
+      "ks_statistic": 0.1953,
+      "ks_pvalue": 0.092318,
+      "cohens_d": 0.3558,
+      "auc_pd_classification": 0.5816,
+      "n_pd": 159,
+      "n_healthy": 54
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "emotions": {
+    "Angry": {
+      "emotion_code": "A",
+      "n_users": 23,
+      "n_iki_observations": 2265,
+      "mean_iki": 281.16,
+      "std_iki": 387.43,
+      "entropy": 1.9307,
+      "lag1_autocorr": 0.0814
+    },
+    "Calm": {
+      "emotion_code": "C",
+      "n_users": 28,
+      "n_iki_observations": 2513,
+      "mean_iki": 428.98,
+      "std_iki": 1042.98,
+      "entropy": 2.1515,
+      "lag1_autocorr": 0.1436
+    },
+    "Happy": {
+      "emotion_code": "H",
+      "n_users": 32,
+      "n_iki_observations": 3897,
+      "mean_iki": 369.23,
+      "std_iki": 899.3,
+      "entropy": 2.0911,
+      "lag1_autocorr": 0.0895
+    },
+    "Neutral": {
+      "emotion_code": "N",
+      "n_users": 81,
+      "n_iki_observations": 15651,
+      "mean_iki": 372.5,
+      "std_iki": 1019.96,
+      "entropy": 1.9868,
+      "lag1_autocorr": 0.1205
+    },
+    "Sad": {
+      "emotion_code": "S",
+      "n_users": 29,
+      "n_iki_observations": 3827,
+      "mean_iki": 339.69,
+      "std_iki": 484.13,
+      "entropy": 2.0511,
+      "lag1_autocorr": 0.061
+    }
+  },
+  "pairwise_ks": {
+    "Angry_vs_Calm": {
+      "ks_statistic": 0.4612,
+      "ks_pvalue": 0.009295,
+      "cohens_d": -0.7083
+    },
+    "Angry_vs_Happy": {
+      "ks_statistic": 0.2065,
+      "ks_pvalue": 0.617948,
+      "cohens_d": -0.4254
+    },
+    "Angry_vs_Neutral": {
+      "ks_statistic": 0.4058,
+      "ks_pvalue": 0.005481,
+      "cohens_d": -0.5959
+    },
+    "Angry_vs_Sad": {
+      "ks_statistic": 0.3943,
+      "ks_pvalue": 0.037054,
+      "cohens_d": -0.3689
+    },
+    "Calm_vs_Happy": {
+      "ks_statistic": 0.308,
+      "ks_pvalue": 0.117539,
+      "cohens_d": 0.3814
+    },
+    "Calm_vs_Neutral": {
+      "ks_statistic": 0.1601,
+      "ks_pvalue": 0.660748,
+      "cohens_d": 0.2774
+    },
+    "Calm_vs_Sad": {
+      "ks_statistic": 0.3264,
+      "ks_pvalue": 0.096184,
+      "cohens_d": 0.6028
+    },
+    "Happy_vs_Neutral": {
+      "ks_statistic": 0.2604,
+      "ks_pvalue": 0.089089,
+      "cohens_d": -0.1776
+    },
+    "Happy_vs_Sad": {
+      "ks_statistic": 0.3244,
+      "ks_pvalue": 0.081438,
+      "cohens_d": 0.2374
+    },
+    "Neutral_vs_Sad": {
+      "ks_statistic": 0.2299,
+      "ks_pvalue": 0.209077,
+      "cohens_d": 0.4193
+    }
+  },
+  "arousal_hypothesis": {
+    "confirmed": false,
+    "angry_mean_std_iki": 384.46,
+    "neutral_mean_std_iki": 807.61,
+    "angry_std_vs_neutral_std": 0.476
+  }
+}

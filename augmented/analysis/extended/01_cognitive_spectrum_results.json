@@ -1,0 +1,59 @@
+{
+  "accuracy_mean": 0.9534,
+  "accuracy_std": 0.0045,
+  "cv_folds": 5,
+  "per_class_f1": {
+    "composition": 0.4046,
+    "mixed": 0.043,
+    "password": 0.3316,
+    "transcription": 0.5421
+  },
+  "confusion_matrix": {
+    "classes": [
+      "composition",
+      "mixed",
+      "password",
+      "transcription"
+    ],
+    "matrix": [
+      [
+        5035,
+        2,
+        630,
+        49
+      ],
+      [
+        43,
+        303,
+        636,
+        0
+      ],
+      [
+        38,
+        226,
+        20071,
+        65
+      ],
+      [
+        14056,
+        12573,
+        79314,
+        62780
+      ]
+    ]
+  },
+  "feature_importance": {
+    "mean_iki_ms": 0.312111,
+    "std_iki_ms": 1.002724,
+    "iki_entropy_bits": 0.404271,
+    "lag1_autocorr": 0.23741,
+    "revision_density": 0.471774
+  },
+  "n_samples_per_class": {
+    "transcription": 168723,
+    "password": 20400,
+    "composition": 5716,
+    "mixed": 982
+  },
+  "n_total": 195821
+}

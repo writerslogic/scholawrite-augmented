@@ -1,0 +1,52 @@
+{
+  "synthesizers": {
+    "GAUSSIAN": {
+      "n_iki_values": 3214457,
+      "mean_iki": 317.69,
+      "entropy": 2.0577,
+      "lag1_autocorr": 0.1788,
+      "ks_statistic": 0.2546,
+      "cohens_d": 0.491,
+      "wasserstein": 93.1105
+    },
+    "HISTOGRAM": {
+      "n_iki_values": 6379158,
+      "mean_iki": 311.31,
+      "entropy": 2.0042,
+      "lag1_autocorr": 0.1619,
+      "ks_statistic": 0.224,
+      "cohens_d": 0.4681,
+      "wasserstein": 91.6129
+    },
+    "LCBM": {
+      "n_iki_values": 3214464,
+      "mean_iki": 317.83,
+      "entropy": 2.0323,
+      "lag1_autocorr": 0.1785,
+      "ks_statistic": 0.2536,
+      "cohens_d": 0.4993,
+      "wasserstein": 94.3306
+    },
+    "UNIFORM": {
+      "n_iki_values": 3157387,
+      "mean_iki": 278.19,
+      "entropy": 1.8833,
+      "lag1_autocorr": 0.1364,
+      "ks_statistic": 0.2646,
+      "cohens_d": 0.5537,
+      "wasserstein": 109.6316
+    }
+  },
+  "ranking": [
+    "HISTOGRAM",
+    "LCBM",
+    "GAUSSIAN",
+    "UNIFORM"
+  ],
+  "human_baseline": {
+    "n_sessions": 4992,
+    "mean_iki": 415.91,
+    "entropy": 2.487,
+    "lag1_autocorr": 0.0031
+  }
+}
