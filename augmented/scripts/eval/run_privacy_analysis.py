@@ -24,7 +24,7 @@ from pathlib import Path
 from statistics import mean, stdev
 from typing import Any, Dict, List, Tuple
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scholawrite.causal_core import IrreversibleProcessEngine, LexicalIntention
 from scholawrite.embodied import EmbodiedScholar

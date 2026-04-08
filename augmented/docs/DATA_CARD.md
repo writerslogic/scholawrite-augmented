@@ -77,7 +77,7 @@ This dataset inherits the ScholaWrite terms (Hugging Face). In particular:
 - Run metadata in `data/augmented/run_manifest.json`.
 
 ## 12) Citation
-Include the ScholaWrite citation plus this dataset's citation:
+Include the ScholaWrite citation:
 
 ```bibtex
 @inproceedings{wang2025scholawrite,
@@ -87,13 +87,6 @@ Include the ScholaWrite citation plus this dataset's citation:
   year      = {2025}
 }
 
-@article{condrey2026scholawrite-augmented,
-  title   = {Process Integrity Without Origin Labels: Cognitive Simulation for Hybrid Writing Verification},
-  author  = {Condrey, David},
-  journal = {ACL Findings},
-  year    = {2026},
-  url     = {https://github.com/writerslogic/scholawrite-augmented}
-}
 ```
 
 ## 13) Terminology Contract

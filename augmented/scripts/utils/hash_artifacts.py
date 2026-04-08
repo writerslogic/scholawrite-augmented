@@ -1,8 +1,4 @@
-"""
-Purpose: scripts/hash_artifacts.py
-Dependencies: hashlib, json, argparse, pathlib.
-Outputs: Forensic checksums and run manifest.
-"""
+"""Generate SHA-256 checksums for data artifacts and write a JSON manifest."""
 from __future__ import annotations
 
 import argparse

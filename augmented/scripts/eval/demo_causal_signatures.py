@@ -1,15 +1,7 @@
-"""
-Purpose: scripts/demo_causal_signatures.py
-Generate compelling visualization of causal signature evolution for ScholaWrite-Augmented.
+"""Visualize causal signature evolution across document revision histories.
 
-This demo creates a visual artifact showing:
-1. Metabolic state evolution (glucose depletion) across a document's revision history
-2. Causal signatures at each injection point (repair locality, resource coupling)
-3. Trajectory state transitions with boundary erosion
-4. The key differentiator: process signatures that cannot be spoofed by content manipulation
-
-Dependencies: scholawrite.*, matplotlib, argparse
-Output: Interactive HTML visualization and/or terminal output
+Outputs terminal and/or interactive HTML showing glucose depletion, repair locality,
+resource coupling, and trajectory state transitions.
 """
 from __future__ import annotations
 

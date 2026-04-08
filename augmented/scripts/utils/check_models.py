@@ -1,7 +1,4 @@
-"""
-Purpose: scripts/check_models.py
-Outputs: Async validation of model availability on OpenRouter.
-"""
+"""Validate model availability on the OpenRouter API."""
 from __future__ import annotations
 
 import argparse

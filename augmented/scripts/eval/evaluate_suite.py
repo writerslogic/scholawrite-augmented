@@ -1,7 +1,6 @@
-"""
-Purpose: scripts/evaluate_suite.py
-Dependencies: scholawrite.metrics, json, argparse.
-Outputs: Forensic evaluation reports for Causal Process Simulation.
+"""Evaluate model predictions against the causal process gold subset.
+
+Computes process fidelity F1 and span IoU metrics.
 """
 from __future__ import annotations
 

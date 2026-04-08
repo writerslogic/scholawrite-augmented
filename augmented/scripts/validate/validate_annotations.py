@@ -1,7 +1,7 @@
-"""
-Purpose: scripts/validate_annotations.py
-Dependencies: scholawrite.annotations, scholawrite.io.
-Outputs: Mandatory Forensic Integrity Validation for Causal Traces.
+"""Validate forensic integrity of augmented documents.
+
+Checks span boundaries, trajectory consistency, earned ambiguity,
+and optionally prompt leakage and span content.
 """
 from __future__ import annotations
 

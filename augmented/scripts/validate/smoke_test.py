@@ -21,27 +21,21 @@ def run(cmd: str) -> bool:
 def main() -> int:
     print_banner("End-to-End Smoke Test")
 
-    # 1. Ingest Small Split
     if not run("uv run python scripts/ingest_seed.py --input data/seed/raw/hf_scholawrite --output data/seed/normalized/smoke.jsonl --split test_small"):
         return 1
 
-    # 2. Generate Injections (Placeholder provider)
     if not run("uv run python scripts/generate_injections.py --input data/seed/normalized/smoke.jsonl --output data/injections/smoke.jsonl --provider placeholder"):
         return 1
 
-    # 3. Build Augmented (No OpenRouter for smoke test)
     if not run("uv run python scripts/build_augmented_dataset.py --seed-docs data/seed/normalized/smoke.jsonl --injections data/injections/smoke.jsonl --output-dir data/augmented/smoke"):
         return 1
 
-    # 4. Generate Anomalies
     if not run("uv run python scripts/generate_anomalies.py --input data/augmented/smoke/documents.jsonl --output data/augmented/smoke/anomalies.jsonl"):
         return 1
 
-    # 5. Run Baselines (including Causal Coupling AUC)
     if not run("uv run python scripts/run_baselines.py --input data/augmented/smoke/anomalies.jsonl"):
         return 1
 
-    # 6. Validate Annotations (Forensic integrity checks)
     if not run("uv run python scripts/validate_annotations.py --input data/augmented/smoke/anomalies.jsonl"):
         return 1
 

@@ -1,8 +1,4 @@
-"""
-Purpose: scripts/iaa_compute.py
-Dependencies: json, argparse, pathlib.
-Outputs: Inter-annotator agreement metrics (Kappa, IoU).
-"""
+"""Compute inter-annotator agreement metrics (Cohen's Kappa) for trajectory state annotations."""
 from __future__ import annotations
 
 import argparse

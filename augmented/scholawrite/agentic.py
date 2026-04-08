@@ -242,7 +242,6 @@ async def _generate_scholarly_content_with_retry(
     config = load_meta_commentary_config()
     errors = []
 
-    # Default cognitive state if not provided
     if state is None:
         state = CognitiveState(
             minute=30,

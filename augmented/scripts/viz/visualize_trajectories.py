@@ -1,8 +1,4 @@
-"""
-Purpose: scripts/visualize_trajectories.py
-Dependencies: scholawrite.io, scholawrite.visualization, argparse.
-Outputs: Forensic visualization of process-coupled trajectories.
-"""
+"""Generate HTML, TeX, or terminal visualizations of augmented document trajectories."""
 from __future__ import annotations
 
 import argparse

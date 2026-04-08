@@ -536,10 +536,8 @@ def _bootstrap_auc(
     y_score_arr = np.array(y_score)
     n = len(y_true_arr)
 
-    # Point estimate
     point_auc = auc(list(y_true_arr), list(y_score_arr))
 
-    # Bootstrap resampling
     rng = np.random.default_rng(seed=42)
     boot_aucs = []
     for _ in range(n_bootstrap):
@@ -672,14 +670,12 @@ class AdversarialEvaluator:
         sample_text = " ".join(_ACADEMIC_WORDS * 3)
         traces_by_tier: Dict[str, List[List[CausalEvent]]] = {}
 
-        # Naive
         naive: List[List[CausalEvent]] = []
         for i in range(n_samples):
             gen = ForgedTraceGenerator(seed=self.seed + 1000 + i)
             naive.append(gen.generate_naive_forgery(sample_text, n_events=n_events))
         traces_by_tier[TIER_NAIVE] = naive
 
-        # Statistical
         stat: List[List[CausalEvent]] = []
         for i in range(n_samples):
             gen = ForgedTraceGenerator(seed=self.seed + 2000 + i)
@@ -687,7 +683,6 @@ class AdversarialEvaluator:
             stat.append(gen.generate_statistical_forgery(sample_text, template))
         traces_by_tier[TIER_STATISTICAL] = stat
 
-        # Reverse-engineered
         rev: List[List[CausalEvent]] = []
         for i in range(n_samples):
             gen = ForgedTraceGenerator(seed=self.seed + 3000 + i)
@@ -697,7 +692,6 @@ class AdversarialEvaluator:
             rev.append(trace)
         traces_by_tier[TIER_REVERSE_ENGINEERED] = rev
 
-        # Expert
         expert: List[List[CausalEvent]] = []
         for i in range(n_samples):
             gen = ForgedTraceGenerator(seed=self.seed + 4000 + i)
@@ -729,14 +723,12 @@ class AdversarialEvaluator:
 
         signal_names = list(CONSCIOUSNESS_WEIGHTS.keys())
 
-        # Generate authentic traces
         authentic_traces: List[List[CausalEvent]] = []
         for i in range(n_samples):
             authentic_traces.append(
                 _generate_authentic_trace(seed=self.seed + i, n_events=n_events)
             )
 
-        # Generate forged traces for all tiers
         traces_by_tier = self._generate_tier_traces(
             n_samples, n_events, authentic_traces,
         )
@@ -897,7 +889,6 @@ class AdversarialEvaluator:
             trace = _generate_authentic_trace(seed=self.seed + i, n_events=n_events)
             authentic_traces.append(trace)
 
-        # Generate all adversary tiers
         traces_by_tier = self._generate_tier_traces(n_samples, n_events, authentic_traces)
 
         # Legacy evaluation (5 core features)
@@ -1033,7 +1024,6 @@ class AdversarialEvaluator:
                 )
                 authentic_traces.append(trace)
 
-            # Generate forged traces for all tiers
             traces_by_tier = self._generate_tier_traces(
                 n_samples, n_events, authentic_traces,
             )

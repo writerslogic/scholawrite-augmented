@@ -118,15 +118,9 @@ Examples:
             async with semaphore:
                 m = random.choice(models) if models else "placeholder"
                 rev = doc.revisions[-1]
-                
-                # --- Forensic Seed Generation ---
-                # We execute ONE causal intention to ensure birth trace existence
                 engine = IrreversibleProcessEngine(initial_glucose=1.0, discipline=profile.discipline if profile else "general_academic")
                 intent = LexicalIntention(target="This approach", syntactic_depth=2.0, lexical_rarity=0.1, cognitive_cost=0.01)
                 text = engine.execute(intent)
-                
-                # Note: LLM expansion for openrouter provider could be added here
-                # using build_contextual_prompt() from scholawrite.prompts
                 
                 span = create_injection_span(doc.doc_id, rev.revision_id, char_pos, InjectionLevel.CONTEXTUAL, text, ordinal, m)
                 

@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scholawrite.adversarial import AdversarialEvaluator, ALL_TIERS
 

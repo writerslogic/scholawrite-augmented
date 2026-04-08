@@ -279,11 +279,9 @@ def main() -> int:
     print()
     print(info("Fitting simulation parameters..."))
 
-    # Fit glucose depletion curve
     depletion_rate, r_squared = fit_glucose_curve(metrics["slowdown_curves"])
     print(success(f"GLUCOSE_DEPLETION_RATE = {depletion_rate:.6f} (R² = {r_squared:.3f})"))
 
-    # Estimate fatigue divisor
     fatigue_divisor = estimate_fatigue_divisor(
         metrics["inter_revision_intervals_ms"],
         metrics["production_rates"]

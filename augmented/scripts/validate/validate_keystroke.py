@@ -19,10 +19,9 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 def _out(*args: object, **kwargs: object) -> None:
-    """Write to stdout (CLI output, not debug logging)."""
     sys.stdout.write(" ".join(str(a) for a in args) + kwargs.get("end", "\n"))
 
 

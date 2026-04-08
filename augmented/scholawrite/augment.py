@@ -28,7 +28,6 @@ from .agentic import run_causal_agentic_loop
 from .injection import detect_prompt_leakage
 import logging
 
-# Set up logger for leakage detection warnings
 _leakage_logger = logging.getLogger("scholawrite.augment.leakage")
 _logger = logging.getLogger(__name__)
 
@@ -412,14 +411,12 @@ async def build_augmented_async(
                     fol = erode_context_deterministically(rev_text[pos:pos+500], state.context_clarity, f"{state.biometric_salt}:fol")
                     m1, m2 = span_rng.sample(models, 2) if models and len(models) >= 2 else (target_model, target_model)
 
-                    # Check cache before making LLM calls
                     context_hash = compute_provenance_hash(f"{pre}:{current_text}:{fol}")[:16]
                     cache_key = LLMCache.make_key(doc.doc_id, inj_id, rev_idx, context_hash)
                     cached_result = cache.get(cache_key)
 
                     if cached_result:
                         _logger.debug("Cache hit: %s at rev %d", inj_id[:8], rev_idx)
-                        # Parse cached result (stored as JSON)
                         try:
                             cached_data = json.loads(cached_result)
                             new_text = cached_data["text"]
@@ -435,7 +432,6 @@ async def build_augmented_async(
                         _logger.info("Irreversible Process Edit: %s at rev %d", inj_id[:8], rev_idx)
                         new_text, trace, sigs, causal_id, gen_meta = await run_causal_agentic_loop(client, [m1, m2], abstract, pre, current_text, fol, state, profile, f"{doc.doc_id}:{inj_id}:{rev_idx}", doc.doc_id, doc.revisions[rev_idx].revision_id, ordinal, author)
 
-                        # Save to cache for future runs
                         cache_data = json.dumps({
                             "text": new_text,
                             "trace": [asdict(e) if hasattr(e, '__dataclass_fields__') else e for e in trace],
@@ -445,14 +441,12 @@ async def build_augmented_async(
                         })
                         cache.save(cache_key, cache_data)
 
-                    # Check for prompt leakage in generated text
                     is_clean, leakage_patterns = check_and_log_leakage(
                         new_text,
                         context_id=f"{inj_id}:rev{rev_idx}",
                         mode=LeakageFilterMode.WARN,
                     )
                     if not is_clean:
-                        # Log detailed leakage info but continue (WARN mode)
                         _leakage_logger.warning(
                             f"  [LEAKAGE WARNING] Generated text for {inj_id[:8]} contains "
                             f"{len(leakage_patterns)} LLM artifact(s). Patterns: {leakage_patterns}"

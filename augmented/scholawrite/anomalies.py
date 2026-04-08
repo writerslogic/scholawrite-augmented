@@ -67,8 +67,6 @@ def generate_anomalies(docs: Sequence[AugmentedDocument]) -> List[AugmentedDocum
             for span in rev.annotations:
                 if not span.label.is_injection(): continue
 
-                # 1. Causal Anomaly Detection
-                # Validates that injection signatures fall within human baselines
                 sigs = compute_causal_signatures(span.causal_trace)
                 label = None
 

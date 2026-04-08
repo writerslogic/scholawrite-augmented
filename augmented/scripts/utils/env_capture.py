@@ -1,7 +1,4 @@
-"""
-Purpose: scripts/env_capture.py
-Outputs: Comprehensive environment capture for provenance.
-"""
+"""Capture environment information for reproducibility and provenance tracking."""
 from __future__ import annotations
 
 import argparse

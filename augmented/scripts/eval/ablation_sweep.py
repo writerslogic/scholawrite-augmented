@@ -12,15 +12,13 @@ import json
 import sys
 from pathlib import Path
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scholawrite.config import SimulationConfig, get_sim_config
 from scholawrite.causal_core import IrreversibleProcessEngine, LexicalIntention
 from scholawrite.embodied import EmbodiedScholar
 
 
-# Parameters to sweep and their ranges
 SWEEP_RANGES = {
     "glucose_lexical_starvation": [0.45, 0.55, 0.65, 0.75, 0.85],
     "syntactic_collapse_base": [3.0, 3.5, 4.0, 4.5, 5.0],
@@ -48,7 +46,6 @@ def _make_test_intentions(n: int = 50) -> list[LexicalIntention]:
 
 def run_single_config(config: SimulationConfig) -> dict:
     """Run the engine with a config and return signature stats."""
-    # Monkey-patch the config for this run
     import scholawrite.config as cfg_mod
     cfg_mod.get_sim_config.cache_clear()
     original = cfg_mod.get_sim_config
