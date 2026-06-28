@@ -1,18 +1,27 @@
-<p align="center">
-  <h1 align="center">ScholaWrite</h1>
-  <p align="center"><b>A Dataset of End-to-End Scholarly Writing Process</b></p>
-  <p align="center">
-    <a href="https://arxiv.org/abs/2502.02904v4">Paper</a> &bull;
-    <a href="https://minnesotanlp.github.io/scholawrite/">Project Page</a> &bull;
-    <a href="https://huggingface.co/datasets/minnesotanlp/scholawrite">Dataset</a>
-  </p>
+<div align="center">
+
+
+## ScholaWrite: A Dataset of End-to-End Scholarly Writing Process
+
+
+**Khanh Chi Le · Linghe Wang · Minhwa Lee · Ross Volkov · Luan Tuyen Chau · Dongyeop Kang**  
+University of Minnesota
+
+<p>
+  <a href="https://arxiv.org/abs/2502.02904"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2605.00557-b31b1b.svg"></a>
+  <a href="https://minnesotanlp.github.io/scholawrite/"><img alt="Website" src="https://img.shields.io/badge/Website-ScholaWrite-2f7d6b.svg"></a>
+  <a href="https://huggingface.co/datasets/minnesotanlp/scholawrite"><img alt="Code" src="https://img.shields.io/badge/Code-GitHub-24292f.svg"></a>
+  <a href="https://huggingface.co/datasets/minnesotanlp/scholawrite"><img alt="Hugging Face" src="https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-ffcc4d.svg"></a>
 </p>
 
----
+</div>
 
 ## Abstract
 
-Writing is a cognitively active task involving continuous decision-making, heavy use of working memory, and frequent switching between multiple activities. Scholarly writing is particularly complex as it requires authors to coordinate many pieces of multiform knowledge while meeting high academic standards. To understand writers' cognitive thinking process, one should fully decode the *end-to-end writing data* (from scratch to final manuscript) and understand their complex cognitive mechanisms in scientific writing. We introduce **ScholaWrite**, the first-of-its-kind keystroke logs of an end-to-end scholarly writing process, with thorough annotations of cognitive writing intentions behind each keystroke. Our dataset includes LaTeX-based keystroke data from five preprints with nearly 62K total text changes and annotations across 4 months of paper writing. Our dataset shows promising usability and applications for the future development of AI writing assistants for the research environment, which necessitate complex methods beyond LLM prompting, and supports the cognitive thinking process of scientists.
+Writing is a cognitively demanding activity that requires constant decision-making, heavy reliance on working memory, and frequent shifts between tasks of different goals. To build writing assistants that truly align with writers’ cognition, it is necessary to capture and analyze the complete thought process behind how writers transform ideas into final texts. We present **ScholaWrite**, the first dataset of end-to-end scholarly writing, tracing the multi-month journey from initial drafts to final manuscripts. The dataset traces nearly 62K LATEX-based edits from five computer science preprints over four months and is enriched with fine-grained annotations of cognitive writing intentions. We demonstrate the value of ScholaWrite through three complementary contributions: 
+- (1) analysis of real-world writing behavior reveals that scholarly writing is highly non-linear and multiintentional, blending rapid drafting bursts with cognitively sustained writing sessions; 
+- (2) evaluations of current large language models show that they struggle to provide meaningful support throughout the human writing process; and
+- (3) models finetuned on SCHOLAWRITE demonstrate improved alignment with human writing workflows. SCHOLAWRITE underscores the value of capturing scientists’ cognitive writing process and provides actionable insights and resources for the development of future writing assistants.
 
 ## Repository Structure
 
@@ -22,6 +31,7 @@ Writing is a cognitively active task involving continuous decision-making, heavy
 | `scholawrite_finetune/` | Fine-tuning scripts for BERT, RoBERTa, and Llama-8B-Instruct |
 | `gpt4o/` | GPT-4o inference for iterative writing and intention prediction |
 | `meta_inference/` | Llama-8B-Instruct baseline inference |
+| `experiments/` | Notebooks for LLM output generation and evaluation (session-level and intent-conditioned), research question analysis, and zero-shot vs. ScholaWrite fine-tuned model comparisons |
 | `eval_tool/` | Web interface for human evaluation of model outputs |
 | `analysis/` | Evaluation metrics, cosine similarity, lexical diversity, and figure generation |
 | `augmented/` | AI-generated content detection benchmarks (ScholaWrite-Augmented) |
@@ -178,20 +188,19 @@ Output structure: `<output_dir>/<seed>/generation/` and `<output_dir>/<seed>/int
 ## Citation
 
 ```bibtex
-@misc{le2025scholawritedatasetendtoendscholarly,
-      title={ScholaWrite: A Dataset of End-to-End Scholarly Writing Process},
-      author={Khanh Chi Le and Linghe Wang and Minhwa Lee and Ross Volkov and Luan Tuyen Chau and Dongyeop Kang},
-      year={2025},
-      eprint={2502.02904},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2502.02904},
+@inproceedings{le2026scholawrite,
+  title={ScholaWrite: A Dataset of End-to-End Scholarly Writing Process},
+  author={Khanh Chi Le and Linghe Wang and Minhwa Lee and Ross Volkov and Luan Tuyen Chau and Dongyeop Kang},
+  year={2026},
+  booktitle={Proceedings of the 64rd Annual Meeting of the Association for Computational Linguistics (ACL 2026)},
+  note={To appear},
+  url={https://arxiv.org/abs/2502.02904},
 }
 ```
 
 ## Code Contributors
 
-[Linghe Wang](https://github.com/Linghe-Wang), [Ross Volkov](https://github.com/rvolkov1), [Minhwa Lee](https://github.com/mimn97)
+[Linghe Wang](https://github.com/Linghe-Wang), [Ross Volkov](https://github.com/rvolkov1), [Minhwa Lee](https://github.com/mimn97), [Khanh Chi Le](https://github.com/chile2706)
 
 ## License
 
