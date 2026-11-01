@@ -330,7 +330,7 @@ The current framework supports exploratory evaluation and leaves several open pr
 - **Privileged-channel detection**: if the adversary cannot observe the raw keylog, what minimum channel bandwidth is required for reliable detection? The information-theoretic bound analysis is a starting point but not a full answer.
 - **Multimodal process signals**: the current signals are keystroke-timing only. Eye-tracking, clipboard events, and pause structure could add independent channels that are harder to jointly forge.
 - **Cross-language validation**: all current data is English. The cognitive calibration parameters (pause-burst ratio, IKI distributions) may not transfer to languages with different orthographic demands.
-- **Dataset release refresh**: the gated Hugging Face release of 2026-01-29 (snapshot `d473c26d`) predates the April 2026 framework expansion and ships without checksums or a run manifest; a refreshed card, checksums, run manifest, and a Zenodo DOI remain to be published.
+- **Dataset release refresh**: the gated Hugging Face release of 2026-01-29 (snapshot `d473c26d`) predates the April 2026 framework expansion and ships without checksums or a run manifest; the card was corrected on 2026-11-01 (UTC), and checksums, a run manifest, and a Zenodo DOI remain to be published.
 - **Real human baseline**: the archived commercial-detector pilot includes four human seed texts, but process-trace evaluations use simulated reference traces. Validation of the complete detection stack on consenting human participants remains necessary.
 
 ---

@@ -13,7 +13,7 @@ The accompanying manuscript, *ScholaWrite-Augmented: Revision-Level Benchmarks f
 ### Release history
 
 - 2026-01-21: written derivative-release permission from Dongyeop Kang ([terms](augmented/docs/ATTRIBUTION_AND_LICENSE.md)).
-- 2026-01-29: public release of this fork (first commit `cc3a6eb`) and of the gated Hugging Face dataset [`Writerslogic/scholawrite-augmented`](https://huggingface.co/datasets/Writerslogic/scholawrite-augmented) (snapshot `d473c26d`; card last modified 2026-01-29). The dataset has not been rebuilt since; its card still carries an earlier working title and a venue field that do not describe a publication.
+- 2026-01-29: public release of this fork (first commit `cc3a6eb`) and of the gated Hugging Face dataset [`Writerslogic/scholawrite-augmented`](https://huggingface.co/datasets/Writerslogic/scholawrite-augmented) (data snapshot `d473c26d`). The data files have not been rebuilt since; the card was corrected on 2026-11-01 (UTC) to name this manuscript, its unpublished status, and the published ScholaWrite citation.
 - 2026-04-03: `augmented/` merged into `minnesotanlp/scholawrite` (PR #1).
 - 2026-04-05 to 2026-04-08: fork-only framework expansion (adversarial framework, external loaders, extended analyses, test suite); not part of the 2026-01-29 dataset snapshot.
 - 2026-04-25: PR #5 (process attestation analysis pipeline) opened upstream; still open.
