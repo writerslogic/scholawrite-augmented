@@ -88,7 +88,7 @@ Lexical retrieval = glucose * (1 - visual_fatigue * penalty). At mid-session (vi
 
 ## Timing model (calibrated to KLiCKe, 2026-10-31)
 
-**Scope.** KLiCKe is a corpus of student argumentative essays typed in a browser editor. It is not scholarly LaTeX. The model below is calibrated to KLiCKe keystroke timing and says nothing about other writing tasks, editors or populations.
+**Scope.** KLiCKe (Tian, Crossley, and Van Waes, 2025) is a corpus of about 5,000 argumentative texts by adult writers in the United States, L1 and L2, collected with a web-based keystroke logger. It is not scholarly LaTeX. The model below is calibrated to KLiCKe keystroke timing and says nothing about other writing tasks, editors or populations.
 
 **Selection.** `SimulationConfig.timing_model` (also in `configs/simulation_config.json`):
 

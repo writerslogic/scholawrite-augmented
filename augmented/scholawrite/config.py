@@ -91,8 +91,8 @@ class SimulationConfig:
 
     # Keystroke timing model (EmbodiedScholar.calculate_latency).
     # "lognormal_iid": the legacy channel above (default; outputs unchanged).
-    # "klicke_ar1": calibrated to KLiCKe keystroke timing (student argumentative essays typed in a
-    #   browser editor). Each scholar draws one TRAIN writer row from
+    # "klicke_ar1": calibrated to KLiCKe keystroke timing (argumentative texts by adult US
+    #   writers). Each scholar draws one TRAIN writer row from
     #   configs/klicke_writer_params_train.json, then log IKI = mu_w + timing_offset + AR(1) share
     #   + white noise, pauses as a mixture, scaled by the deterministic cognitive term. Its randomness
     #   comes from a separate RNG seeded from sha256(author_id, timing_seed), never the legacy one.

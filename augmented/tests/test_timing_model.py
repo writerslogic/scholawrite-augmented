@@ -1,4 +1,4 @@
-"""Tests for timing_model="klicke_ar1": keystroke timing calibrated to KLiCKe (essay typing, not scholarly LaTeX)."""
+"""Tests for timing_model="klicke_ar1": keystroke timing calibrated to KLiCKe (argumentative-text typing, not scholarly LaTeX)."""
 
 from __future__ import annotations
 

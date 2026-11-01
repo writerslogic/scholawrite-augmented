@@ -188,7 +188,7 @@ def main(argv=None) -> int:
     payload = {
         "meta": {
             "description": "Writer-level timing parameters of the KLiCKe TRAIN split for timing_model='klicke_ar1'.",
-            "scope": "KLiCKe is student argumentative essays typed in a browser editor, not scholarly LaTeX.",
+            "scope": "KLiCKe is argumentative texts by adult writers in the United States (L1 and L2) typed in a web-based keystroke logger, not scholarly LaTeX.",
             "built_by": "analysis/calibration/build_writer_params.py",
             "split": "TRAIN = even index of the id-sorted eligible writers (measure_gap.split_writers); "
             "no writer ids and no held-out values are stored",

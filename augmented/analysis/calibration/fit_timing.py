@@ -356,7 +356,7 @@ def main(argv=None) -> int:
     result = {
         "meta": {
             "script": "analysis/calibration/fit_timing.py",
-            "scope": "calibrated to KLiCKe keystroke timing (student argumentative essays), fitted on TRAIN writers only",
+            "scope": "calibrated to KLiCKe keystroke timing (argumentative texts by adult US writers), fitted on TRAIN writers only",
             "python": platform.python_version(),
             "numpy": np.__version__,
             "scipy": scipy.__version__,
