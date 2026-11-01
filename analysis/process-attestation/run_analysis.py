@@ -2,11 +2,16 @@
 """
 Cognitive Process Signatures in Keystroke Data: Empirical Validation
 ====================================================================
-Single-script pipeline demonstrating that cognitive process signatures
-retain discriminative power in keystroke timing data.
+Single-script pipeline for exploratory timing statistics in ScholaWrite revision
+events and the KLiCKe keystroke corpus, with a simulated retype attack and a
+leave-one-writer-out classifier. Results are descriptive; they do not by
+themselves validate cognitive process signatures.
 
-Validates claims from the process-attestation paper against ScholaWrite
-(HuggingFace) and KLiCKe (Kaggle) keystroke corpora.
+ScholaWrite (HuggingFace) records text-change events, so its intervals are
+inter-event intervals (mean gap of several seconds), not inter-keystroke
+intervals. KLiCKe (Kaggle) is keystroke-level. Entropy values are plug-in
+estimates on 5 ms-quantized intervals and shift by one bit per halving or
+doubling of the bin width.
 
 Pipeline stages:
   1. Environment check (auto-download KLiCKe if missing)
@@ -26,12 +31,9 @@ Author: David Condrey
 
 import json
 import logging
-import math
-import os
 import random
 import sys
 import time
-from collections import defaultdict
 from pathlib import Path
 
 # Suppress HTTP noise before importing HuggingFace libraries
@@ -159,7 +161,7 @@ def cliffs_delta(a, b):
     """Cliff's delta effect size."""
     from scipy import stats
     u_stat, _ = stats.mannwhitneyu(a, b, alternative="two-sided")
-    return float(1 - (2 * u_stat) / (len(a) * len(b)))
+    return float((2 * u_stat) / (len(a) * len(b)) - 1)
 
 
 def progress(i, total, every=500, label=""):
@@ -277,8 +279,8 @@ def stage_environment_check():
             mod = __import__(module)
             version = getattr(mod, "__version__", "unknown")
             log.info(f"  {pip_name:20s} {version} (optional)")
-        except ImportError:
-            log.info(f"  {pip_name:20s} not installed (optional, for Kaggle auto-download)")
+        except ImportError as e:
+            log.info(f"  {pip_name:20s} not importable ({e}) (optional, for Kaggle auto-download)")
 
     klicke_format, has_klicke = _detect_klicke_format()
 
@@ -303,7 +305,8 @@ def stage_environment_check():
             train_logs = kaggle_dir / "train_logs.csv"
             if not train_logs.exists():
                 train_logs = SCRIPT_DIR / "train_logs.csv"
-            n_lines = sum(1 for _ in open(train_logs)) - 1
+            with open(train_logs) as fh:
+                n_lines = sum(1 for _ in fh) - 1
             log.info(f"\n  KLiCKe data: FOUND (Kaggle format, ~{n_lines:,} events in train_logs.csv)")
             train_scores = kaggle_dir / "train_scores.csv"
             if not train_scores.exists():
@@ -316,7 +319,7 @@ def stage_environment_check():
         log.info("       (you will be prompted for Kaggle credentials)")
         log.info("    2. Download manually from:")
         log.info("       https://www.kaggle.com/competitions/linking-writing-processes-to-writing-quality/data")
-        log.info(f"       Place train_logs.csv and train_scores.csv in:")
+        log.info("       Place train_logs.csv and train_scores.csv in:")
         log.info(f"       {SCRIPT_DIR / 'linking-writing-processes-to-writing-quality' / ''}")
         log.info("    3. Or place the original KLiCKe corpus at:")
         local_csv_dir = (SCRIPT_DIR / "klicke" / "Files" / "WritingTask"
@@ -338,6 +341,7 @@ def stage_scholawrite():
     import pandas as pd
     from scipy import stats
     from scipy.stats import wilcoxon
+
     from datasets import load_dataset
 
     log.info("\n" + "=" * 72)
@@ -363,9 +367,11 @@ def stage_scholawrite():
     results["n_projects"] = int(df_all["project"].nunique())
     results["n_authors"] = int(df_all["author"].nunique())
 
-    # --- 2b. Compute IKI ---
-    log.info("\n  [2b] Computing Inter-Keystroke Intervals (IKI)...")
+    # --- 2b. Compute inter-event intervals ---
+    log.info("\n  [2b] Computing inter-event intervals between consecutive recorded text changes...")
     df_all = df_all.sort_values(["project", "author", "timestamp"]).reset_index(drop=True)
+    # ScholaWrite rows are text-change events, not keystrokes; the column keeps the
+    # iki_ms name for compatibility, but the mean gap is on the order of seconds.
     df_all["iki_ms"] = df_all.groupby(["project", "author"])["timestamp"].diff()
     valid_iki = filter_valid_iki(df_all["iki_ms"])
 
@@ -401,7 +407,7 @@ def stage_scholawrite():
                 window_entropies.append({
                     "project": proj, "author": author,
                     "entropy_bits": compute_entropy_bits(w_ikis),
-                    "n_keystrokes": len(w_ikis),
+                    "n_events": len(w_ikis),
                     "mean_iki": np.mean(w_ikis),
                 })
             t_start = t_end
@@ -413,12 +419,14 @@ def stage_scholawrite():
     log.info(f"  Per-window entropy:   mean={df_entropy['entropy_bits'].mean():.2f}, "
              f"median={df_entropy['entropy_bits'].median():.2f}, "
              f"std={df_entropy['entropy_bits'].std():.2f} bits")
-    log.info(f"  Population per-IKI entropy: {overall_entropy:.2f} bits")
-    log.info(f"  Accumulated per checkpoint (50 keys): {50 * overall_entropy:.1f} bits")
+    log.info(f"  Population per-interval entropy ({QUANTIZATION_MS} ms bins): {overall_entropy:.2f} bits")
+    log.info(f"  50 x per-interval entropy (independence upper bound): {50 * overall_entropy:.1f} bits")
     log.info(f"  Windows above 3.0-bit threshold: "
              f"{(df_entropy['entropy_bits'] > 3.0).sum()}/{len(df_entropy)} "
              f"({100 * (df_entropy['entropy_bits'] > 3.0).mean():.1f}%)")
 
+    results["interval_definition"] = "inter-event interval between recorded text changes (not keystrokes)"
+    results["entropy_quantization_ms"] = QUANTIZATION_MS
     results["entropy_per_iki_bits"] = float(overall_entropy)
     results["entropy_per_checkpoint_bits"] = float(50 * overall_entropy)
     results["entropy_window_mean"] = float(df_entropy["entropy_bits"].mean())
@@ -426,14 +434,14 @@ def stage_scholawrite():
     # --- 2d. Cognitive Load Correlation (CLC) ---
     log.info("\n  [2d] Computing Cognitive Load Correlation (CLC)...")
 
-    COGNITIVE_LOAD_SW = {
-        "Idea Generation": 3, "Structural": 3, "Claim Making": 3,
-        "Fluency": 2, "Coherence": 2, "Clarity": 2, "Audience": 2,
-        "Scientific Accuracy": 2,
-        "Text Production": 1, "Object Insertion": 1, "Citation Integration": 1,
-        "Formatting": 1, "Cross-referencing": 1, "Syntax": 1, "Jargon Usage": 1,
-    }
-    df_all["cog_load"] = df_all["label"].map(COGNITIVE_LOAD_SW).fillna(1)
+    # Cognitive-load level from the dataset's own high-level category (an earlier
+    # label-name map used names absent from the dataset, so ~10% of events,
+    # including PLANNING labels, silently received the lowest load).
+    COGNITIVE_LOAD_SW = {"PLANNING": 3, "REVISION": 2, "IMPLEMENTATION": 1}
+    unmapped = sorted(set(df_all["high-level"].dropna().unique()) - set(COGNITIVE_LOAD_SW))
+    if unmapped or df_all["high-level"].isna().any():
+        raise ValueError(f"ScholaWrite high-level categories without a load mapping: {unmapped}")
+    df_all["cog_load"] = df_all["high-level"].map(COGNITIVE_LOAD_SW).astype(float)
 
     clc_values = []
     for (proj, author), group in df_all.groupby(["project", "author"]):
@@ -476,7 +484,8 @@ def stage_scholawrite():
     all_valid = df_all.dropna(subset=["iki_ms"]).copy()
     all_valid = all_valid[(all_valid["iki_ms"] > IKI_MIN) & (all_valid["iki_ms"] < IKI_MAX)]
     overall_rho, overall_pval = stats.spearmanr(all_valid["cog_load"], all_valid["iki_ms"])
-    log.info(f"\n  Overall CLC (all data): rho={overall_rho:.4f}, p={overall_pval:.2e}")
+    log.info(f"\n  Overall CLC (events pooled across authors; descriptive, p ignores author clustering): "
+             f"rho={overall_rho:.4f}, p={overall_pval:.2e}")
 
     results["clc_overall_rho"] = float(overall_rho)
     results["clc_overall_pval"] = float(overall_pval)
@@ -487,7 +496,7 @@ def stage_scholawrite():
 
     # Per-author CLC with Wilcoxon signed-rank test
     per_author_rho = []
-    for author, group in all_valid.groupby("author"):
+    for _author, group in all_valid.groupby("author"):
         if len(group) >= 20 and group["cog_load"].std() > 0:
             r, p = stats.spearmanr(group["cog_load"], group["iki_ms"])
             if not np.isnan(r):
@@ -500,29 +509,9 @@ def stage_scholawrite():
         results["clc_per_author_median_rho"] = float(np.median(per_author_rho))
         results["clc_per_author_wilcoxon_p"] = float(w_pval)
 
-    # --- 2e. Composition vs transcription discrimination ---
-    log.info("\n  [2e] Composition vs. Transcription Discrimination...")
-    high_load = df_clc[df_clc["rho"] > 0.15]
-    low_load = df_clc[df_clc["rho"] <= 0.0]
-
-    log.info(f"  Composition-like windows (rho>0.15):  {len(high_load):,}")
-    log.info(f"  Transcription-like windows (rho<=0):  {len(low_load):,}")
-
-    if len(high_load) > 0 and len(low_load) > 0:
-        mean_comp = high_load["rho"].mean()
-        mean_trans = low_load["rho"].mean()
-        pooled_std = np.sqrt((high_load["rho"].std()**2 + low_load["rho"].std()**2) / 2)
-        sw_cohens_d = (mean_comp - mean_trans) / pooled_std if pooled_std > 0 else 0
-        u_stat, u_pval = stats.mannwhitneyu(
-            high_load["rho"], low_load["rho"], alternative="greater"
-        )
-        log.info(f"  Mean rho (composition):   {mean_comp:.4f}")
-        log.info(f"  Mean rho (transcription): {mean_trans:.4f}")
-        log.info(f"  Cohen's d:    {sw_cohens_d:.3f}")
-        log.info(f"  Mann-Whitney U={u_stat:.1f}, p={u_pval:.2e}")
-
-        results["disc_cohens_d"] = float(sw_cohens_d)
-        results["disc_mann_whitney_p"] = float(u_pval)
+    # Note: an earlier 2e step split windows by their own CLC value (rho > 0.15 vs
+    # rho <= 0) and reported an effect size on rho; that contrast was tautological
+    # and has been removed.
 
     # --- 2f. IKI by cognitive operation type ---
     log.info("\n  [2f] IKI Distribution by Cognitive Operation Type...")
@@ -538,8 +527,7 @@ def stage_scholawrite():
     if len(demanding) > 0 and len(simple) > 0:
         ratio = demanding.mean() / simple.mean()
         d_stat, d_pval = stats.mannwhitneyu(demanding, simple, alternative="greater")
-        d_pooled = np.sqrt((demanding.std()**2 + simple.std()**2) / 2)
-        cohens_d_hl = (demanding.mean() - simple.mean()) / d_pooled if d_pooled > 0 else 0
+        cohens_d_hl = cohens_d(demanding, simple)
 
         log.info(f"\n  Demanding/Simple IKI ratio: {ratio:.2f}x")
         log.info(f"  Mann-Whitney p: {d_pval:.2e}")
@@ -575,14 +563,24 @@ def _load_klicke_data(klicke_format):
         n_files = len(csv_files)
         log.info(f"  Found {n_files} writer files")
 
+        n_failed = 0
         for i, f in enumerate(csv_files):
             progress(i, n_files, every=1000, label="files: ")
             try:
-                df = pd.read_csv(f)
+                try:
+                    df = pd.read_csv(f)
+                except UnicodeDecodeError:
+                    # A few per-writer CSVs carry Windows-1252 bytes in the text
+                    # column, which this analysis never reads.
+                    df = pd.read_csv(f, encoding="cp1252")
                 df["writer_id"] = f.stem
                 all_rows.append(df)
-            except Exception:
-                pass
+            except Exception as e:
+                n_failed += 1
+                log.warning(f"  Skipping {f.name}: {type(e).__name__}: {e}")
+        if not all_rows:
+            raise RuntimeError(f"No KLiCKe CSV files could be read from {CSV_DIR}")
+        log.info(f"  Loaded {len(all_rows)}/{n_files} writer files ({n_failed} skipped)")
 
         df_all = pd.concat(all_rows, ignore_index=True)
         return df_all, SCORES_FILE
@@ -618,8 +616,8 @@ def _load_klicke_data(klicke_format):
 def stage_klicke(klicke_format):
     """Analyze KLiCKe corpus keystroke logs.
 
-    Returns (results, df_all, writer_valid, df_wclc, writer_clc_proxy,
-             df_writer_features, df_window_features) where the last two
+    Returns (results, df_all, writer_valid, df_writer_features, df_window_features)
+    where the last two
     are pre-computed per-writer and per-window features for Stage 6."""
     import numpy as np
     import pandas as pd
@@ -646,7 +644,7 @@ def stage_klicke(klicke_format):
         log.info(f"    {act}: {count:,} ({100 * count / len(df_all):.1f}%)")
 
     # --- 3b. Compute IKI ---
-    log.info(f"\n  [3b] Computing IKI...")
+    log.info("\n  [3b] Computing IKI...")
     df_all = df_all.sort_values(["writer_id", "DownTime"]).reset_index(drop=True)
     df_all["iki_ms"] = df_all.groupby("writer_id")["DownTime"].diff()
 
@@ -670,11 +668,10 @@ def stage_klicke(klicke_format):
              f"pop_median={per_writer['mean'].median():.1f}")
 
     # --- 3c. Entropy ---
-    log.info(f"\n  [3c] Computing entropy...")
+    log.info("\n  [3c] Computing entropy...")
     overall_entropy = compute_entropy_bits(valid_iki)
-    log.info(f"  Population per-IKI entropy: {overall_entropy:.2f} bits")
-    log.info(f"  Accumulated per checkpoint (50 keys): {50 * overall_entropy:.1f} bits")
-    log.info(f"  Paper claim >=205 bits: {'VALIDATED' if 50 * overall_entropy >= 205 else 'NOT MET'}")
+    log.info(f"  Population per-IKI entropy ({QUANTIZATION_MS} ms bins): {overall_entropy:.2f} bits")
+    log.info(f"  50 x per-IKI entropy (independence upper bound): {50 * overall_entropy:.1f} bits")
 
     results["entropy_per_iki_bits"] = float(overall_entropy)
     results["entropy_per_checkpoint_bits"] = float(50 * overall_entropy)
@@ -746,7 +743,7 @@ def stage_klicke(klicke_format):
              f"({100 * (df_winent['entropy_bits'] > 3.0).mean():.1f}%)")
 
     # --- 3d. CLC ---
-    log.info(f"\n  [3d] Computing CLC...")
+    log.info("\n  [3d] Computing CLC...")
     overall_rho, overall_pval = stats.spearmanr(writer_valid["cog_load"], writer_valid["iki_ms"])
     log.info(f"  Overall CLC: rho={overall_rho:.4f}, p={overall_pval:.2e}")
 
@@ -765,36 +762,8 @@ def stage_klicke(klicke_format):
     results["clc_pct_positive"] = float(100 * (df_wclc["rho"] > 0.0).mean())
     results["clc_pct_significant"] = float(100 * (df_wclc["pval"] < 0.05).mean())
 
-    # CLC proxy for retype simulation: per-writer mean/var correlation across 30s windows
-    writer_clc_proxy = {}
-    for wid, group in writer_valid.groupby("writer_id"):
-        group = group.sort_values("DownTime")
-        timestamps = group["DownTime"].values
-        ikis = group["iki_ms"].values
-        if len(timestamps) < 30:
-            continue
-        window_means, window_vars = [], []
-        t_start = timestamps[0]
-        while t_start < timestamps[-1]:
-            t_end = t_start + WINDOW_SIZE_MS
-            mask = (timestamps >= t_start) & (timestamps < t_end)
-            w_ikis = ikis[mask]
-            w_ikis = w_ikis[~np.isnan(w_ikis)]
-            w_ikis = w_ikis[(w_ikis > IKI_MIN) & (w_ikis < IKI_MAX)]
-            if len(w_ikis) >= 5:
-                window_means.append(np.mean(w_ikis))
-                window_vars.append(np.var(w_ikis))
-            t_start = t_end
-        if len(window_means) >= 3:
-            try:
-                rho, _ = stats.spearmanr(window_means, window_vars)
-                if not np.isnan(rho):
-                    writer_clc_proxy[wid] = rho
-            except Exception:
-                pass
-
     # --- 3e. IKI by activity ---
-    log.info(f"\n  [3e] IKI by activity type:")
+    log.info("\n  [3e] IKI by activity type:")
     for act in ["Input", "Remove/Cut", "Nonproduction"]:
         subset = writer_valid[writer_valid["Activity"] == act]["iki_ms"]
         if len(subset) > 0:
@@ -805,15 +774,14 @@ def stage_klicke(klicke_format):
     simple = writer_valid[writer_valid["Activity"] == "Input"]["iki_ms"]
     if len(demanding) > 0 and len(simple) > 0:
         ratio = demanding.mean() / simple.mean()
-        d_pooled = np.sqrt((demanding.std()**2 + simple.std()**2) / 2)
-        cd = (demanding.mean() - simple.mean()) / d_pooled if d_pooled > 0 else 0
+        cd = cohens_d(demanding, simple)
         log.info(f"\n    Demanding/Simple ratio: {ratio:.2f}x, Cohen's d: {cd:.3f}")
         results["iki_ratio_demanding_simple"] = float(ratio)
         results["iki_cohens_d_activity"] = float(cd)
 
     # --- 3f. Quality score correlation ---
     if SCORES_FILE.exists():
-        log.info(f"\n  [3f] Quality score correlation...")
+        log.info("\n  [3f] Quality score correlation...")
         scores = pd.read_csv(SCORES_FILE, encoding="latin-1")
         scores.columns = [c.strip() for c in scores.columns]
         if "id" in scores.columns and "ID" not in scores.columns:
@@ -847,7 +815,7 @@ def stage_klicke(klicke_format):
                         log.info(f"    {col:15s} vs Score: rho={rho:.4f}, p={pval:.2e} (n={len(valid_m)})")
 
     # --- 3g. Pre-compute sliding-window composition vs transcription features for Stage 6 ---
-    log.info(f"\n  [3g] Pre-computing composition vs transcription windows for Stage 6...")
+    log.info("\n  [3g] Pre-computing composition vs transcription windows for Stage 6...")
     WINDOW_KEYS = 50
     STEP_KEYS = 25
     MIN_VALID_FOR_WINDOWS = 60
@@ -867,7 +835,7 @@ def stage_klicke(klicke_format):
 
         # Vectorized: compute all window start indices
         n_events = len(grp)
-        starts = list(range(0, n_events - WINDOW_KEYS, STEP_KEYS))
+        starts = list(range(0, n_events - WINDOW_KEYS + 1, STEP_KEYS))
         for start in starts:
             end = start + WINDOW_KEYS
             w_acts = activities[start:end]
@@ -902,8 +870,7 @@ def stage_klicke(klicke_format):
     log.info(f"  Pre-computed {len(df_window_features)} windows "
              f"(composition={n_comp}, transcription={n_trans})")
 
-    return (results, df_all, writer_valid, df_wclc, writer_clc_proxy,
-            df_writer_features, df_window_features)
+    return (results, df_all, writer_valid, df_writer_features, df_window_features)
 
 
 # ============================================================================
@@ -914,7 +881,6 @@ def stage_retype_simulation(df_all):
     """Simulate four adversarial retype strategies against genuine sessions."""
     import numpy as np
     import pandas as pd
-    from scipy import stats
 
     log.info("\n" + "=" * 72)
     log.info("STAGE 4: Adversarial Retype Simulation")
@@ -1007,29 +973,34 @@ def stage_retype_simulation(df_all):
         feat.update({"writer_id": wid, "session_type": "genuine", "label": 0})
         records.append(feat)
 
+        # Forged sessions keep the genuine session's length and activity sequence
+        # (a retyper reproduces the same edit operations), so clc_proxy is computed
+        # identically for both classes instead of being fixed at 0 for forgeries.
+        n_sess = len(g_ikis)
+
         # Attack 1: Constant-rate
-        const_ikis = np.full(SESSION_LEN, np.median(ikis_full))
-        feat = extract_features(const_ikis)
+        const_ikis = np.full(n_sess, np.median(ikis_full))
+        feat = extract_features(const_ikis, g_acts)
         feat.update({"writer_id": wid, "session_type": "attack_constant", "label": 1})
         records.append(feat)
 
         # Attack 2: IID sampling
-        iid_ikis = np.random.choice(ikis_full, size=SESSION_LEN, replace=True)
-        feat = extract_features(iid_ikis)
+        iid_ikis = np.random.choice(ikis_full, size=n_sess, replace=True)
+        feat = extract_features(iid_ikis, g_acts)
         feat.update({"writer_id": wid, "session_type": "attack_iid", "label": 1})
         records.append(feat)
 
         # Attack 3: Cross-writer sampling
         donor = random.choice([w2 for w2 in all_wids if w2 != wid])
         donor_ikis = writer_data[donor]["ikis"] if donor in writer_data else ikis_full
-        cross_ikis = np.random.choice(donor_ikis, size=SESSION_LEN, replace=True)
-        feat = extract_features(cross_ikis)
+        cross_ikis = np.random.choice(donor_ikis, size=n_sess, replace=True)
+        feat = extract_features(cross_ikis, g_acts)
         feat.update({"writer_id": wid, "session_type": "attack_cross", "label": 1})
         records.append(feat)
 
         # Attack 4: Markov-chain retype
-        markov_ikis = markov_retype(ikis_full, SESSION_LEN)
-        feat = extract_features(markov_ikis)
+        markov_ikis = markov_retype(ikis_full, n_sess)
+        feat = extract_features(markov_ikis, g_acts)
         feat.update({"writer_id": wid, "session_type": "attack_markov", "label": 1})
         records.append(feat)
 
@@ -1068,7 +1039,11 @@ def stage_retype_simulation(df_all):
 
 def stage_roc_classification(df_sessions):
     """Leave-one-writer-out logistic regression classification.
-    Receives df_sessions directly from Stage 4 (no CSV read)."""
+    Receives df_sessions directly from Stage 4 (no CSV read).
+
+    AUC, EER, and operating points are computed on the pooled out-of-fold scores
+    of the per-writer models. Each attack is evaluated twice: with the full
+    feature set and without clc_proxy (the no-CLC control)."""
     import numpy as np
     import pandas as pd
     from sklearn.linear_model import LogisticRegression
@@ -1085,7 +1060,86 @@ def stage_roc_classification(df_sessions):
 
     feature_cols = ["entropy", "autocorr_lag1", "iki_mean", "iki_std",
                     "iki_log_var", "pause_freq", "clc_proxy"]
+    feature_cols_no_clc = [c for c in feature_cols if c != "clc_proxy"]
     attack_types = ["attack_constant", "attack_iid", "attack_cross", "attack_markov"]
+
+    def evaluate(df_eval, cols):
+        """Pooled out-of-fold scores from leave-one-writer-out logistic regression."""
+        writers = df_eval["writer_id"].unique()
+        y_true_all, y_score_all, y_pred_all = [], [], []
+        fold_coefs = []
+
+        for w in writers:
+            test = df_eval[df_eval["writer_id"] == w]
+            train = df_eval[df_eval["writer_id"] != w]
+            if (len(test) == 0 or len(train[train["label"] == 0]) == 0
+                    or len(train[train["label"] == 1]) == 0):
+                continue
+
+            scaler = StandardScaler()
+            X_train_s = scaler.fit_transform(train[cols].values)
+            X_test_s = scaler.transform(test[cols].values)
+
+            clf = LogisticRegression(max_iter=1000, random_state=42)
+            clf.fit(X_train_s, train["label"].values)
+
+            y_true_all.extend(test["label"].values.tolist())
+            y_score_all.extend(clf.predict_proba(X_test_s)[:, 1].tolist())
+            y_pred_all.extend(clf.predict(X_test_s).tolist())
+            fold_coefs.append(clf.coef_[0].copy())
+
+        y_true_all = np.array(y_true_all)
+        y_score_all = np.array(y_score_all)
+        y_pred_all = np.array(y_pred_all)
+
+        auc = roc_auc_score(y_true_all, y_score_all)
+        fpr, tpr, _thresholds = roc_curve(y_true_all, y_score_all)
+        fnr = 1 - tpr
+        eer_idx = np.argmin(np.abs(fpr - fnr))
+        eer = (fpr[eer_idx] + fnr[eer_idx]) / 2
+
+        # Label 1 = forged, so fnr is the false-acceptance rate (forgery passed as
+        # genuine) and fpr is the false-rejection rate (genuine flagged). Report the
+        # FRR at the first ROC point whose FAR is at or below the target.
+        operating_points = {}
+        for target_far in [0.01, 0.05, 0.10]:
+            ok = np.where(fnr <= target_far)[0]
+            idx = int(ok[0]) if len(ok) else len(fpr) - 1
+            operating_points[f"FRR_at_{int(target_far * 100)}pct_FAR"] = round(float(fpr[idx]), 4)
+
+        # FPR-targeted operating points: the empirical FPR grid has resolution
+        # 1/n_negatives, so only targets at or above that resolution are reported,
+        # using the highest TPR whose FPR does not exceed the target.
+        n_neg = int((y_true_all == 0).sum())
+        fpr_targets = {}
+        for target_fpr in [0.01, 0.05, 0.10]:
+            if n_neg == 0 or target_fpr < 1.0 / n_neg:
+                continue
+            ok = np.where(fpr <= target_fpr)[0]
+            idx = ok[np.argmax(tpr[ok])]
+            fpr_targets[f"TPR_at_{target_fpr:.0%}_FPR"] = round(float(tpr[idx]), 4)
+            fpr_targets[f"FPR_actual_at_{target_fpr:.0%}_FPR"] = round(float(fpr[idx]), 4)
+
+        tp = int(((y_true_all == 1) & (y_pred_all == 1)).sum())
+        fp = int(((y_true_all == 0) & (y_pred_all == 1)).sum())
+        tn = int(((y_true_all == 0) & (y_pred_all == 0)).sum())
+        fn = int(((y_true_all == 1) & (y_pred_all == 0)).sum())
+        accuracy = (tp + tn) / len(y_true_all) if len(y_true_all) > 0 else 0
+        majority_baseline = max(int((y_true_all == 1).sum()), n_neg) / len(y_true_all) if len(y_true_all) else 0
+
+        result = {
+            "features": list(cols),
+            "n_genuine": n_neg,
+            "n_forged": int((y_true_all == 1).sum()),
+            "auc": round(float(auc), 4),
+            "eer": round(float(eer), 4),
+            "accuracy_at_0_5": round(float(accuracy), 4),
+            "majority_class_accuracy": round(float(majority_baseline), 4),
+            "operating_points": operating_points,
+            "fpr_operating_points": fpr_targets,
+            "confusion_matrix": {"tp": tp, "fp": fp, "tn": tn, "fn": fn},
+        }
+        return result, fold_coefs
 
     results = {}
 
@@ -1098,71 +1152,23 @@ def stage_roc_classification(df_sessions):
             df_eval = pd.concat([df[df["session_type"] == "genuine"],
                                  df[df["session_type"] == attack]])
 
-        writers = df_eval["writer_id"].unique()
-        y_true_all, y_score_all, y_pred_all = [], [], []
-        fold_coefs = []
-
-        for w in writers:
-            test = df_eval[df_eval["writer_id"] == w]
-            train = df_eval[df_eval["writer_id"] != w]
-            if (len(test) == 0 or len(train[train["label"] == 0]) == 0
-                    or len(train[train["label"] == 1]) == 0):
-                continue
-
-            X_train = train[feature_cols].values
-            y_train = train["label"].values
-            X_test = test[feature_cols].values
-            y_test = test["label"].values
-
-            scaler = StandardScaler()
-            X_train_s = scaler.fit_transform(X_train)
-            X_test_s = scaler.transform(X_test)
-
-            clf = LogisticRegression(max_iter=1000, random_state=42)
-            clf.fit(X_train_s, y_train)
-
-            y_score = clf.predict_proba(X_test_s)[:, 1]
-            y_pred = clf.predict(X_test_s)
-
-            y_true_all.extend(y_test.tolist())
-            y_score_all.extend(y_score.tolist())
-            y_pred_all.extend(y_pred.tolist())
-            fold_coefs.append(clf.coef_[0].copy())
-
-        y_true_all = np.array(y_true_all)
-        y_score_all = np.array(y_score_all)
-        y_pred_all = np.array(y_pred_all)
-
-        auc = roc_auc_score(y_true_all, y_score_all)
-        fpr, tpr, thresholds = roc_curve(y_true_all, y_score_all)
-        fnr = 1 - tpr
-        eer_idx = np.argmin(np.abs(fpr - fnr))
-        eer = (fpr[eer_idx] + fnr[eer_idx]) / 2
-
-        operating_points = {}
-        for target_frr in [0.01, 0.05, 0.10]:
-            idx = np.argmin(np.abs(fnr - target_frr))
-            operating_points[f"FAR_at_{int(target_frr * 100)}pct_FRR"] = round(float(fpr[idx]), 4)
-
-        tp = int(((y_true_all == 1) & (y_pred_all == 1)).sum())
-        fp = int(((y_true_all == 0) & (y_pred_all == 1)).sum())
-        tn = int(((y_true_all == 0) & (y_pred_all == 0)).sum())
-        fn = int(((y_true_all == 1) & (y_pred_all == 0)).sum())
-        accuracy = (tp + tn) / len(y_true_all) if len(y_true_all) > 0 else 0
-
-        result = {
-            "auc": round(auc, 4),
-            "eer": round(eer, 4),
-            "accuracy": round(accuracy, 4),
-            "operating_points": operating_points,
-            "confusion_matrix": {"tp": tp, "fp": fp, "tn": tn, "fn": fn},
-        }
+        result, fold_coefs = evaluate(df_eval, feature_cols)
+        result_no_clc, _ = evaluate(df_eval, feature_cols_no_clc)
+        result["no_clc"] = {k: result_no_clc[k] for k in ("auc", "eer", "accuracy_at_0_5")}
         results[attack] = result
 
-        log.info(f"    AUC:      {auc:.4f}")
-        log.info(f"    EER:      {eer:.4f}")
-        log.info(f"    Accuracy: {accuracy:.4f}")
-        log.info(f"    FAR@5%FRR: {operating_points.get('FAR_at_5pct_FRR', 'N/A')}")
+        log.info(f"    AUC:      {result['auc']:.4f}   (without clc_proxy: {result_no_clc['auc']:.4f})")
+        log.info(f"    EER:      {result['eer']:.4f}   (without clc_proxy: {result_no_clc['eer']:.4f})")
+        log.info(f"    Accuracy@0.5: {result['accuracy_at_0_5']:.4f} "
+                 f"(majority-class baseline {result['majority_class_accuracy']:.4f})")
+        log.info(f"    FRR@5%FAR: {result['operating_points'].get('FRR_at_5pct_FAR', 'N/A')}")
+        if result["fpr_operating_points"]:
+            log.info("    FPR-targeted operating points (highest TPR at or below target FPR):")
+            for target_fpr in [0.01, 0.05, 0.10]:
+                tpr_key = f"TPR_at_{target_fpr:.0%}_FPR"
+                if tpr_key in result["fpr_operating_points"]:
+                    log.info(f"      TPR @ {target_fpr:.0%} FPR: "
+                             f"{result['fpr_operating_points'][tpr_key]:.4f}")
 
         if attack == "all_attacks" and fold_coefs:
             mean_coefs = np.mean(fold_coefs, axis=0)
@@ -1190,10 +1196,9 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
         df_window_features: Per-window composition/transcription features from
             Stage 3 (label, clc_rho, entropy).
     """
-    import numpy as np
-    import pandas as pd
-    from scipy import stats
     import matplotlib
+    import numpy as np
+    from scipy import stats
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
@@ -1220,7 +1225,7 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
     df_windows = df_window_features
     n_comp = (df_windows["label"] == "composition").sum()
     n_trans = (df_windows["label"] == "transcription").sum()
-    log.info(f"\n  [6a] Using pre-computed features from Stage 3")
+    log.info("\n  [6a] Using pre-computed features from Stage 3")
     log.info(f"  Writers with complete features: {len(df_feat)}")
     log.info(f"  Windows: {len(df_windows)} (composition={n_comp}, transcription={n_trans})")
 
@@ -1243,7 +1248,7 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
     ax.set_ylabel("Number of Writers")
     ax.set_title("Per-Writer Cognitive-Load Correlation Distribution")
     ax.legend(frameon=False)
-    fig.savefig(fig_dir / "fig_clc_distribution.pdf")
+    fig.savefig(fig_dir / "fig_clc_distribution.pdf", metadata={"CreationDate": None})
     fig.savefig(fig_dir / "fig_clc_distribution.png")
     plt.close(fig)
     log.info("    Saved figures/fig_clc_distribution.{pdf,png}")
@@ -1273,7 +1278,7 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
     ax.set_yticklabels(labels)
     ax.set_title(f"Cross-Domain Correlation Matrix (N={len(df_feat):,} Writers)", pad=12)
     fig.colorbar(cax, ax=ax, fraction=0.046, pad=0.04, label=r"Spearman $\rho$")
-    fig.savefig(fig_dir / "fig_correlation_matrix.pdf")
+    fig.savefig(fig_dir / "fig_correlation_matrix.pdf", metadata={"CreationDate": None})
     fig.savefig(fig_dir / "fig_correlation_matrix.png")
     plt.close(fig)
     log.info("    Saved figures/fig_correlation_matrix.{pdf,png}")
@@ -1311,7 +1316,7 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
 
     fig.suptitle("Composition vs Transcription-like Windows", y=1.02, fontsize=12)
     fig.tight_layout()
-    fig.savefig(fig_dir / "fig_clc_composition_vs_transcription.pdf")
+    fig.savefig(fig_dir / "fig_clc_composition_vs_transcription.pdf", metadata={"CreationDate": None})
     fig.savefig(fig_dir / "fig_clc_composition_vs_transcription.png")
     plt.close(fig)
     log.info("    Saved figures/fig_clc_composition_vs_transcription.{pdf,png}")
@@ -1354,6 +1359,32 @@ def stage_effect_sizes_and_figures(df_writer_features, df_window_features):
         log.info(f"    Cliff's d:  {cld:.4f}")
         log.info(f"    Mann-Whitney p: {mw_p:.4e}")
 
+    # Window labels and the CLC variable are both functions of the activity column,
+    # windows overlap by 50%, and windows are nested within writers, so the
+    # window-level tests above overstate independence. Writer-level paired
+    # contrast: per writer, mean CLC over composition windows minus mean CLC over
+    # transcription windows (writers with both window types).
+    if {"writer_id", "label", "clc_rho"}.issubset(df_window_features.columns):
+        per_writer = (df_window_features.groupby(["writer_id", "label"])["clc_rho"]
+                      .mean().unstack("label").dropna(subset=["composition", "transcription"]))
+        diffs = (per_writer["composition"] - per_writer["transcription"]).values
+        if len(diffs) >= 10:
+            w_stat, w_p = stats.wilcoxon(diffs)
+            effects["clc_writer_level"] = {
+                "n_writers_with_both_modes": int(len(diffs)),
+                "mean_difference_composition_minus_transcription": round(float(diffs.mean()), 4),
+                "median_difference": round(float(np.median(diffs)), 4),
+                "sd_difference": round(float(diffs.std(ddof=1)), 4),
+                "paired_cohens_d": round(float(diffs.mean() / diffs.std(ddof=1)), 4) if diffs.std(ddof=1) > 0 else 0.0,
+                "pct_writers_negative": round(float(100 * (diffs < 0).mean()), 2),
+                "wilcoxon_p": float(f"{w_p:.4e}"),
+                "note": "labels and CLC both derive from the activity column; the contrast is partly definitional",
+            }
+            log.info("\n  CLC writer-level paired contrast (composition - transcription):")
+            log.info(f"    writers: {len(diffs)}, mean diff: {diffs.mean():.4f}, "
+                     f"paired d: {effects['clc_writer_level']['paired_cohens_d']:.4f}, "
+                     f"Wilcoxon p: {w_p:.2e}")
+
     results["effect_sizes"] = effects
     return results
 
@@ -1376,27 +1407,20 @@ def stage_summary(all_results):
     roc = all_results.get("roc", {})
     eff = all_results.get("effects", {}).get("effect_sizes", {})
 
-    # ScholaWrite entropy (standalone, no comparison to 1.82)
+    # ScholaWrite entropy
     sw_ent = sw.get("entropy_per_iki_bits")
     if sw_ent is not None:
-        status = "CLOSE" if abs(sw_ent - 10.4) < 2.0 else "DIFFERS"
-        log.info(f"  ScholaWrite entropy:      {sw_ent:.2f} bits (paper claim: ~10.4 bits) [{status}]")
+        log.info(f"  ScholaWrite inter-event interval entropy: {sw_ent:.2f} bits "
+                 f"({sw.get('entropy_quantization_ms', QUANTIZATION_MS)} ms bins; text-change events, not keystrokes)")
 
-    # ScholaWrite within-dataset Cohen's d (composition-like vs transcription-like)
-    sw_cd = sw.get("disc_cohens_d")
-    if sw_cd is not None:
-        log.info(f"  ScholaWrite within-dataset Cohen's d: {sw_cd:.2f} "
-                 f"(high-CLC vs low-CLC windows; not comparable to KLiCKe comp/trans)")
-
-    # KLiCKe CLC Cohen's d -- THIS is the metric comparable to the paper claim of 1.82
+    # KLiCKe CLC Cohen's d (signed)
     if "clc" in eff:
         clc_d = eff["clc"].get("cohens_d")
         if clc_d is not None:
-            # Use absolute value since sign depends on metric direction
-            abs_d = abs(clc_d)
-            status = "CLOSE" if abs(abs_d - 1.82) < 1.0 else "DIFFERS"
-            log.info(f"  KLiCKe CLC Cohen's d:     {clc_d:.4f} (|d|={abs_d:.2f}, "
-                     f"paper claim: ~1.82) [{status}] ({eff['clc'].get('magnitude', '')})")
+            direction = ("transcription-like windows have HIGHER CLC" if clc_d < 0
+                         else "composition-like windows have higher CLC")
+            log.info(f"  KLiCKe CLC Cohen's d:     {clc_d:.4f} (composition minus transcription; "
+                     f"{direction}; {eff['clc'].get('magnitude', '')})")
 
     if "entropy" in eff:
         ent_d = eff["entropy"].get("cohens_d")
@@ -1408,8 +1432,8 @@ def stage_summary(all_results):
     if all_atk:
         auc_val = all_atk.get("auc")
         if auc_val is not None:
-            status = "CLOSE" if abs(auc_val - 0.78) < 0.15 else "DIFFERS"
-            log.info(f"  Classification AUC:       {auc_val:.4f} (paper claim: ~0.78) [{status}]")
+            log.info(f"  Classification AUC:       {auc_val:.4f} "
+                     f"(without clc_proxy: {all_atk.get('no_clc', {}).get('auc', float('nan')):.4f})")
         eer_val = all_atk.get("eer")
         if eer_val is not None:
             log.info(f"  EER:                      {eer_val:.4f}")
@@ -1429,7 +1453,7 @@ def stage_summary(all_results):
         log.info(f"    Mean IKI:         {kl.get('iki_mean_ms', 0):.1f} ms")
         log.info(f"    Entropy/IKI:      {kl.get('entropy_per_iki_bits', 0):.2f} bits")
         log.info(f"    Per-writer CLC:   mean rho={kl.get('clc_per_writer_mean_rho', 0):.4f}")
-        log.info(f"    Positive CLC:     {kl.get('clc_pct_positive', 0):.1f}%%")
+        log.info(f"    Positive CLC:     {kl.get('clc_pct_positive', 0):.1f}%")
 
     # Save results
     output_path = SCRIPT_DIR / "analysis_results.json"
@@ -1469,7 +1493,7 @@ def _recompute_features_from_raw(df_klicke, writer_valid):
         })
     df_wf = pd.DataFrame(writer_records).dropna()
 
-    log.info(f"\n  Recomputing sliding windows from raw data...")
+    log.info("\n  Recomputing sliding windows from raw data...")
     window_records = []
     for i, (wid, grp) in enumerate(writer_valid.groupby("writer_id")):
         progress(i, writer_valid["writer_id"].nunique(), every=1000, label="recompute windows: ")
@@ -1479,7 +1503,7 @@ def _recompute_features_from_raw(df_klicke, writer_valid):
         activities = grp["Activity"].values
         ikis = grp["iki_ms"].values
         cogs = grp["Activity"].map(COGNITIVE_LOAD).fillna(1).values
-        for start in range(0, len(grp) - WINDOW_KEYS, STEP_KEYS):
+        for start in range(0, len(grp) - WINDOW_KEYS + 1, STEP_KEYS):
             end = start + WINDOW_KEYS
             w_acts = activities[start:end]
             n_input = np.sum(w_acts == "Input")
@@ -1507,6 +1531,7 @@ def _recompute_features_from_raw(df_klicke, writer_valid):
 
 def main():
     import argparse
+
     import numpy as np
 
     parser = argparse.ArgumentParser(description="Process attestation analysis pipeline")
@@ -1536,7 +1561,7 @@ def main():
     if has_klicke:
         # Stage 3: KLiCKe Analysis (also pre-computes features for Stage 6)
         t0 = time.time()
-        (klicke_results, df_klicke, writer_valid, df_wclc, writer_clc_proxy,
+        (klicke_results, df_klicke, writer_valid,
          df_writer_features, df_window_features) = stage_klicke(klicke_format)
         all_results["klicke"] = klicke_results
         log.info(f"\n  Stage 3 completed in {time.time() - t0:.1f}s")

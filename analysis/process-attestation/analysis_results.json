@@ -1,0 +1,302 @@
+{
+  "scholawrite": {
+    "total_events": 61504,
+    "n_projects": 5,
+    "n_authors": 8,
+    "valid_ikis": 55066,
+    "iki_mean_ms": 3969.0161805833,
+    "iki_median_ms": 1272.0,
+    "iki_std_ms": 7764.352159510079,
+    "interval_definition": "inter-event interval between recorded text changes (not keystrokes)",
+    "entropy_quantization_ms": 5,
+    "entropy_per_iki_bits": 10.43972961324458,
+    "entropy_per_checkpoint_bits": 521.986480662229,
+    "entropy_window_mean": 3.7918285289876485,
+    "clc_overall_rho": 0.08104775123611599,
+    "clc_overall_pval": 6.608601185124473e-81,
+    "clc_window_mean_rho": 0.17873418703278163,
+    "clc_windows_total": 435,
+    "clc_windows_above_015": 258,
+    "clc_pct_above_015": 59.310344827586206,
+    "clc_per_author_median_rho": 0.061859016331414426,
+    "clc_per_author_wilcoxon_p": 0.1484375,
+    "iki_ratio_demanding_simple": 1.7052655153149696,
+    "iki_cohens_d_highlevel": 0.2955774756147294
+  },
+  "klicke": {
+    "n_writers": 4992,
+    "total_events": 16982157,
+    "valid_ikis": 16908861,
+    "iki_mean_ms": 412.2244663907285,
+    "iki_median_ms": 153.0,
+    "entropy_per_iki_bits": 6.890308531090079,
+    "entropy_per_checkpoint_bits": 344.51542655450396,
+    "clc_overall_rho": -0.11641590913934154,
+    "clc_per_writer_mean_rho": -0.007368492111222773,
+    "clc_per_writer_median_rho": 0.035068067120665604,
+    "clc_pct_positive": 56.22996794871795,
+    "clc_pct_significant": 87.47996794871796,
+    "iki_ratio_demanding_simple": 2.5771634731923285,
+    "iki_cohens_d_activity": 0.26531931474154896
+  },
+  "retype": {
+    "n_writers": 500,
+    "total_sessions": 2500,
+    "genuine_sessions": 500,
+    "forged_sessions": 2000
+  },
+  "roc": {
+    "attack_constant": {
+      "features": [
+        "entropy",
+        "autocorr_lag1",
+        "iki_mean",
+        "iki_std",
+        "iki_log_var",
+        "pause_freq",
+        "clc_proxy"
+      ],
+      "n_genuine": 500,
+      "n_forged": 500,
+      "auc": 0.998,
+      "eer": 0.001,
+      "accuracy_at_0_5": 0.999,
+      "majority_class_accuracy": 0.5,
+      "operating_points": {
+        "FRR_at_1pct_FAR": 0.002,
+        "FRR_at_5pct_FAR": 0.002,
+        "FRR_at_10pct_FAR": 0.002
+      },
+      "fpr_operating_points": {
+        "TPR_at_1%_FPR": 1.0,
+        "FPR_actual_at_1%_FPR": 0.002,
+        "TPR_at_5%_FPR": 1.0,
+        "FPR_actual_at_5%_FPR": 0.002,
+        "TPR_at_10%_FPR": 1.0,
+        "FPR_actual_at_10%_FPR": 0.002
+      },
+      "confusion_matrix": {
+        "tp": 500,
+        "fp": 1,
+        "tn": 499,
+        "fn": 0
+      },
+      "no_clc": {
+        "auc": 0.998,
+        "eer": 0.001,
+        "accuracy_at_0_5": 0.999
+      }
+    },
+    "attack_iid": {
+      "features": [
+        "entropy",
+        "autocorr_lag1",
+        "iki_mean",
+        "iki_std",
+        "iki_log_var",
+        "pause_freq",
+        "clc_proxy"
+      ],
+      "n_genuine": 500,
+      "n_forged": 500,
+      "auc": 0.8207,
+      "eer": 0.231,
+      "accuracy_at_0_5": 0.762,
+      "majority_class_accuracy": 0.5,
+      "operating_points": {
+        "FRR_at_1pct_FAR": 0.872,
+        "FRR_at_5pct_FAR": 0.582,
+        "FRR_at_10pct_FAR": 0.454
+      },
+      "fpr_operating_points": {
+        "TPR_at_1%_FPR": 0.0,
+        "FPR_actual_at_1%_FPR": 0.0,
+        "TPR_at_5%_FPR": 0.186,
+        "FPR_actual_at_5%_FPR": 0.05,
+        "TPR_at_10%_FPR": 0.51,
+        "FPR_actual_at_10%_FPR": 0.1
+      },
+      "confusion_matrix": {
+        "tp": 420,
+        "fp": 158,
+        "tn": 342,
+        "fn": 80
+      },
+      "no_clc": {
+        "auc": 0.8014,
+        "eer": 0.265,
+        "accuracy_at_0_5": 0.712
+      }
+    },
+    "attack_cross": {
+      "features": [
+        "entropy",
+        "autocorr_lag1",
+        "iki_mean",
+        "iki_std",
+        "iki_log_var",
+        "pause_freq",
+        "clc_proxy"
+      ],
+      "n_genuine": 500,
+      "n_forged": 500,
+      "auc": 0.8059,
+      "eer": 0.253,
+      "accuracy_at_0_5": 0.749,
+      "majority_class_accuracy": 0.5,
+      "operating_points": {
+        "FRR_at_1pct_FAR": 0.87,
+        "FRR_at_5pct_FAR": 0.668,
+        "FRR_at_10pct_FAR": 0.5
+      },
+      "fpr_operating_points": {
+        "TPR_at_1%_FPR": 0.0,
+        "FPR_actual_at_1%_FPR": 0.0,
+        "TPR_at_5%_FPR": 0.154,
+        "FPR_actual_at_5%_FPR": 0.05,
+        "TPR_at_10%_FPR": 0.508,
+        "FPR_actual_at_10%_FPR": 0.1
+      },
+      "confusion_matrix": {
+        "tp": 411,
+        "fp": 162,
+        "tn": 338,
+        "fn": 89
+      },
+      "no_clc": {
+        "auc": 0.7838,
+        "eer": 0.28,
+        "accuracy_at_0_5": 0.697
+      }
+    },
+    "attack_markov": {
+      "features": [
+        "entropy",
+        "autocorr_lag1",
+        "iki_mean",
+        "iki_std",
+        "iki_log_var",
+        "pause_freq",
+        "clc_proxy"
+      ],
+      "n_genuine": 500,
+      "n_forged": 500,
+      "auc": 0.973,
+      "eer": 0.084,
+      "accuracy_at_0_5": 0.92,
+      "majority_class_accuracy": 0.5,
+      "operating_points": {
+        "FRR_at_1pct_FAR": 0.434,
+        "FRR_at_5pct_FAR": 0.106,
+        "FRR_at_10pct_FAR": 0.068
+      },
+      "fpr_operating_points": {
+        "TPR_at_1%_FPR": 0.614,
+        "FPR_actual_at_1%_FPR": 0.01,
+        "TPR_at_5%_FPR": 0.852,
+        "FPR_actual_at_5%_FPR": 0.05,
+        "TPR_at_10%_FPR": 0.946,
+        "FPR_actual_at_10%_FPR": 0.098
+      },
+      "confusion_matrix": {
+        "tp": 462,
+        "fp": 42,
+        "tn": 458,
+        "fn": 38
+      },
+      "no_clc": {
+        "auc": 0.9716,
+        "eer": 0.084,
+        "accuracy_at_0_5": 0.915
+      }
+    },
+    "all_attacks": {
+      "features": [
+        "entropy",
+        "autocorr_lag1",
+        "iki_mean",
+        "iki_std",
+        "iki_log_var",
+        "pause_freq",
+        "clc_proxy"
+      ],
+      "n_genuine": 500,
+      "n_forged": 2000,
+      "auc": 0.8602,
+      "eer": 0.2265,
+      "accuracy_at_0_5": 0.8432,
+      "majority_class_accuracy": 0.8,
+      "operating_points": {
+        "FRR_at_1pct_FAR": 0.838,
+        "FRR_at_5pct_FAR": 0.544,
+        "FRR_at_10pct_FAR": 0.356
+      },
+      "fpr_operating_points": {
+        "TPR_at_1%_FPR": 0.365,
+        "FPR_actual_at_1%_FPR": 0.01,
+        "TPR_at_5%_FPR": 0.4985,
+        "FPR_actual_at_5%_FPR": 0.05,
+        "TPR_at_10%_FPR": 0.579,
+        "FPR_actual_at_10%_FPR": 0.1
+      },
+      "confusion_matrix": {
+        "tp": 1929,
+        "fp": 321,
+        "tn": 179,
+        "fn": 71
+      },
+      "no_clc": {
+        "auc": 0.8502,
+        "eer": 0.2438,
+        "accuracy_at_0_5": 0.8324
+      }
+    },
+    "feature_importance": {
+      "entropy": 0.8909,
+      "autocorr_lag1": 0.9152,
+      "iki_mean": 0.7753,
+      "iki_std": 1.512,
+      "iki_log_var": 1.0743,
+      "pause_freq": 0.1909,
+      "clc_proxy": 0.3746
+    }
+  },
+  "effects": {
+    "effect_sizes": {
+      "n_composition_windows": 121822,
+      "n_transcription_windows": 397516,
+      "entropy": {
+        "composition_mean": 4.2463,
+        "composition_sd": 0.9059,
+        "transcription_mean": 4.8351,
+        "transcription_sd": 0.2945,
+        "cohens_d": -1.1574,
+        "glass_delta": -1.9997,
+        "cliffs_delta": -0.4305,
+        "mann_whitney_p": 0.0,
+        "magnitude": "large"
+      },
+      "clc": {
+        "composition_mean": -0.1978,
+        "composition_sd": 0.3813,
+        "transcription_mean": 0.2274,
+        "transcription_sd": 0.1637,
+        "cohens_d": -1.8193,
+        "glass_delta": -2.5976,
+        "cliffs_delta": -0.6532,
+        "mann_whitney_p": 0.0,
+        "magnitude": "large"
+      },
+      "clc_writer_level": {
+        "n_writers_with_both_modes": 4858,
+        "mean_difference_composition_minus_transcription": -0.3699,
+        "median_difference": -0.3998,
+        "sd_difference": 0.2249,
+        "paired_cohens_d": -1.6445,
+        "pct_writers_negative": 93.87,
+        "wilcoxon_p": 0.0,
+        "note": "labels and CLC both derive from the activity column; the contrast is partly definitional"
+      }
+    }
+  }
+}
