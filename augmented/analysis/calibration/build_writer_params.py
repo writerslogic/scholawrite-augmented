@@ -21,6 +21,7 @@ Per TRAIN writer, with valid IKIs defined exactly as in measure_gap (min_iki < I
 Usage (from the package root `augmented/`):
     uv run --extra dev python analysis/calibration/build_writer_params.py
 """
+
 from __future__ import annotations
 
 import argparse
@@ -41,10 +42,20 @@ sys.path.insert(0, str(SCRIPT_DIR))
 import measure_gap as mg  # noqa: E402  (sibling script; shares loading, filtering and the split)
 
 DEFAULT_OUT = PACKAGE_ROOT / "configs" / "klicke_writer_params_train.json"
-COLUMNS = ["mu", "sigma", "rho", "p_pause", "pause_mu", "pause_sigma",
-           "pause_log_mean", "pause_log_sd", "n_pauses", "n_windows"]
+COLUMNS = [
+    "mu",
+    "sigma",
+    "rho",
+    "p_pause",
+    "pause_mu",
+    "pause_sigma",
+    "pause_log_mean",
+    "pause_log_sd",
+    "n_pauses",
+    "n_windows",
+]
 MIN_PAUSES_FOR_FIT = 20  # fewer observed pauses: use the pooled TRAIN pause law
-ALPHA_MAX = 6.0          # |(a - mu) / sigma| bound of the pause fit; hitting it counts as "clamped"
+ALPHA_MAX = 6.0  # |(a - mu) / sigma| bound of the pause fit; hitting it counts as "clamped"
 SIGMA_BOUNDS = (0.2, 6.0)
 
 
@@ -69,7 +80,9 @@ def fit_truncated_log_normal(y: np.ndarray, a: float, b: float, start=None):
         sigma = math.exp(log_sigma)
         mu = a - alpha * sigma
         ss = s2 - 2.0 * mu * s1 + n * mu * mu
-        return n * (log_sigma + _log_mass((a - mu) / sigma, (b - mu) / sigma)) + 0.5 * ss / (sigma * sigma)
+        return n * (log_sigma + _log_mass((a - mu) / sigma, (b - mu) / sigma)) + 0.5 * ss / (
+            sigma * sigma
+        )
 
     bounds = [(-ALPHA_MAX, ALPHA_MAX), (math.log(SIGMA_BOUNDS[0]), math.log(SIGMA_BOUNDS[1]))]
     if start is None:
@@ -78,28 +91,42 @@ def fit_truncated_log_normal(y: np.ndarray, a: float, b: float, start=None):
     res = minimize(nll, np.asarray(start, dtype=np.float64), method="L-BFGS-B", bounds=bounds)
     alpha, log_sigma = res.x
     sigma = math.exp(log_sigma)
-    clamped = bool(abs(alpha) >= ALPHA_MAX - 1e-6 or log_sigma <= bounds[1][0] + 1e-6 or log_sigma >= bounds[1][1] - 1e-6)
+    clamped = bool(
+        abs(alpha) >= ALPHA_MAX - 1e-6
+        or log_sigma <= bounds[1][0] + 1e-6
+        or log_sigma >= bounds[1][1] - 1e-6
+    )
     return a - alpha * sigma, sigma, clamped
 
 
-def writer_row(v: np.ndarray, pause_ms: float, window: int, a: float, b: float, pooled, counters) -> list:
+def writer_row(
+    v: np.ndarray, pause_ms: float, window: int, a: float, b: float, pooled, counters
+) -> list:
     nonpause = v[v <= pause_ms]
     pauses = v[v > pause_ms]
     L = np.log(nonpause)
     Lp = np.log(pauses)
     if len(pauses) >= MIN_PAUSES_FOR_FIT:
         pooled_alpha = (a - pooled[0]) / pooled[1]
-        mu_p, sigma_p, clamped = fit_truncated_log_normal(Lp, a, b, start=(pooled_alpha, math.log(pooled[1])))
+        mu_p, sigma_p, clamped = fit_truncated_log_normal(
+            Lp, a, b, start=(pooled_alpha, math.log(pooled[1]))
+        )
         counters["mle"] += 1
         counters["clamped"] += int(clamped)
     else:
         mu_p, sigma_p = pooled
         counters["pooled_fallback"] += 1
     return [
-        float(L.mean()), float(L.std(ddof=1)), mg._pearson(L[:-1], L[1:]),
-        float(len(pauses) / len(v)), mu_p, sigma_p,
-        float(Lp.mean()) if len(Lp) else float("nan"), float(Lp.std(ddof=1)) if len(Lp) > 1 else float("nan"),
-        int(len(pauses)), int(len(v) // window),
+        float(L.mean()),
+        float(L.std(ddof=1)),
+        mg._pearson(L[:-1], L[1:]),
+        float(len(pauses) / len(v)),
+        mu_p,
+        sigma_p,
+        float(Lp.mean()) if len(Lp) else float("nan"),
+        float(Lp.std(ddof=1)) if len(Lp) > 1 else float("nan"),
+        int(len(pauses)),
+        int(len(v) // window),
     ]
 
 
@@ -117,7 +144,9 @@ def load_train_sequences(klicke_dir: Path, min_iki: float, max_iki: float, min_v
 
 def parse_args(argv=None):
     d = mg.parse_args([])  # measure_gap's defaults are the single source of the filter settings
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument("--klicke-dir", type=Path, default=d.klicke_dir)
     p.add_argument("--out", type=Path, default=DEFAULT_OUT)
     p.add_argument("--min-iki", type=float, default=d.min_iki)
@@ -134,7 +163,9 @@ def main(argv=None) -> int:
     if not any(args.klicke_dir.glob("*.csv")):
         print(f"no KLiCKe CSVs in {args.klicke_dir}", file=sys.stderr)
         return 2
-    train_ids, train, n_files = load_train_sequences(args.klicke_dir, args.min_iki, args.max_iki, args.min_valid)
+    train_ids, train, n_files = load_train_sequences(
+        args.klicke_dir, args.min_iki, args.max_iki, args.min_valid
+    )
 
     a, b = math.log(args.pause_ms), math.log(args.max_iki)
     pooled_pauses = np.log(np.concatenate([v[v > args.pause_ms] for v in train.values()]))
@@ -142,11 +173,16 @@ def main(argv=None) -> int:
     pooled = (pooled_mu, pooled_sigma)
 
     counters = {"mle": 0, "clamped": 0, "pooled_fallback": 0}
-    rows = [writer_row(train[w], args.pause_ms, args.window, a, b, pooled, counters) for w in train_ids]
+    rows = [
+        writer_row(train[w], args.pause_ms, args.window, a, b, pooled, counters) for w in train_ids
+    ]
     arr = np.array(rows, dtype=np.float64)
     bad = ~np.isfinite(arr)
     if bad.any():
-        print(f"non-finite entries in columns {sorted({COLUMNS[j] for j in np.argwhere(bad)[:, 1]})}", file=sys.stderr)
+        print(
+            f"non-finite entries in columns {sorted({COLUMNS[j] for j in np.argwhere(bad)[:, 1]})}",
+            file=sys.stderr,
+        )
         return 1
 
     payload = {
@@ -155,7 +191,7 @@ def main(argv=None) -> int:
             "scope": "KLiCKe is student argumentative essays typed in a browser editor, not scholarly LaTeX.",
             "built_by": "analysis/calibration/build_writer_params.py",
             "split": "TRAIN = even index of the id-sorted eligible writers (measure_gap.split_writers); "
-                     "no writer ids and no held-out values are stored",
+            "no writer ids and no held-out values are stored",
             "train_writers_sha256": hashlib.sha256("\n".join(train_ids).encode()).hexdigest(),
             "n_writers": len(rows),
             "iki_filter_ms": [args.min_iki, args.max_iki],
@@ -167,25 +203,40 @@ def main(argv=None) -> int:
                 "rho": "lag-1 Pearson autocorrelation of log IKI over the non-pause sequence (pauses removed, order kept)",
                 "p_pause": "share of valid IKIs above pause_threshold_ms",
                 "pause_mu, pause_sigma": "parameters of the normal on log IKI before truncation to "
-                                         "[pause_threshold_ms, iki_filter_ms[1]); doubly truncated normal MLE of the observed pauses",
+                "[pause_threshold_ms, iki_filter_ms[1]); doubly truncated normal MLE of the observed pauses",
                 "pause_log_mean, pause_log_sd": "observed mean and sd (ddof=1) of log pauses (reference only)",
                 "n_pauses": "number of observed pauses",
                 "n_windows": "valid IKIs // window; the simulator draws a row with probability proportional to it",
             },
-            "pooled_pause_fit": {"pause_mu": pooled_mu, "pause_sigma": pooled_sigma, "clamped": pooled_clamped,
-                                 "n_pauses": int(len(pooled_pauses))},
-            "pause_fit_counts": {**counters, "min_pauses_for_fit": MIN_PAUSES_FOR_FIT,
-                                 "alpha_max": ALPHA_MAX, "sigma_bounds": list(SIGMA_BOUNDS)},
+            "pooled_pause_fit": {
+                "pause_mu": pooled_mu,
+                "pause_sigma": pooled_sigma,
+                "clamped": pooled_clamped,
+                "n_pauses": int(len(pooled_pauses)),
+            },
+            "pause_fit_counts": {
+                **counters,
+                "min_pauses_for_fit": MIN_PAUSES_FOR_FIT,
+                "alpha_max": ALPHA_MAX,
+                "sigma_bounds": list(SIGMA_BOUNDS),
+            },
         },
         "columns": COLUMNS,
-        "rows": [[int(x) if COLUMNS[j] in ("n_pauses", "n_windows") else round(float(x), 6)
-                  for j, x in enumerate(r)] for r in rows],
+        "rows": [
+            [
+                int(x) if COLUMNS[j] in ("n_pauses", "n_windows") else round(float(x), 6)
+                for j, x in enumerate(r)
+            ]
+            for r in rows
+        ],
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, separators=(",", ":")) + "\n")
 
-    print(f"TRAIN writers: {len(rows)} of {n_files} files; pooled pause fit "
-          f"mu={pooled_mu:.4f} sigma={pooled_sigma:.4f} clamped={pooled_clamped}")
+    print(
+        f"TRAIN writers: {len(rows)} of {n_files} files; pooled pause fit "
+        f"mu={pooled_mu:.4f} sigma={pooled_sigma:.4f} clamped={pooled_clamped}"
+    )
     print(f"per-writer pause fits: {counters}")
     for j, name in enumerate(COLUMNS):
         q = np.percentile(arr[:, j], [10, 50, 90])

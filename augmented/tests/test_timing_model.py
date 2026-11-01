@@ -1,4 +1,5 @@
 """Tests for timing_model="klicke_ar1": keystroke timing calibrated to KLiCKe (essay typing, not scholarly LaTeX)."""
+
 from __future__ import annotations
 
 import json
@@ -30,7 +31,14 @@ def _single_row_table(row, lo_ms=2000.0, hi_ms=60000.0):
 
 
 def _row(**kw):
-    base = {"mu": 5.5, "sigma": 0.6, "rho": 0.4, "p_pause": 0.04, "pause_mu": 7.0, "pause_sigma": 1.5}
+    base = {
+        "mu": 5.5,
+        "sigma": 0.6,
+        "rho": 0.4,
+        "p_pause": 0.04,
+        "pause_mu": 7.0,
+        "pause_sigma": 1.5,
+    }
     return embodied._WriterTiming(**{**base, **kw})
 
 
@@ -39,21 +47,31 @@ class TestConfig:
         assert SimulationConfig().timing_model == "lognormal_iid"
         assert get_sim_config().timing_model == "lognormal_iid"
 
-    @pytest.mark.parametrize("kwargs", [
-        {"timing_model": "klicke_ar2"},
-        {"timing_ar_share": 1.01},
-        {"timing_ar_share": -0.01},
-        {"timing_rho_scale": -0.5},
-        {"timing_sigma_scale": 0.0},
-    ])
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"timing_model": "klicke_ar2"},
+            {"timing_ar_share": 1.01},
+            {"timing_ar_share": -0.01},
+            {"timing_rho_scale": -0.5},
+            {"timing_sigma_scale": 0.0},
+        ],
+    )
     def test_invalid_timing_settings_are_rejected(self, kwargs):
         with pytest.raises(ValueError):
             SimulationConfig(**kwargs)
 
     def test_json_defaults_match_the_dataclass(self):
         cfg, dataclass_default = get_sim_config(), SimulationConfig()
-        for name in ("timing_model", "timing_seed", "timing_offset", "timing_rho_scale",
-                     "timing_sigma_scale", "timing_ar_share", "timing_pause_modulated"):
+        for name in (
+            "timing_model",
+            "timing_seed",
+            "timing_offset",
+            "timing_rho_scale",
+            "timing_sigma_scale",
+            "timing_ar_share",
+            "timing_pause_modulated",
+        ):
             assert getattr(cfg, name) == getattr(dataclass_default, name), name
 
 
@@ -64,13 +82,18 @@ class TestWriterTable:
         assert (lo_ms, hi_ms) == (2000.0, 60000.0)
         assert all(b > a for a, b in zip(cumulative, cumulative[1:])) and cumulative[0] > 0
         for r in rows:
-            assert all(math.isfinite(v) for v in (r.mu, r.sigma, r.rho, r.p_pause, r.pause_mu, r.pause_sigma))
+            assert all(
+                math.isfinite(v)
+                for v in (r.mu, r.sigma, r.rho, r.p_pause, r.pause_mu, r.pause_sigma)
+            )
             assert r.sigma > 0 and r.pause_sigma > 0 and 0.0 < r.p_pause < 0.5
 
     def test_rows_are_drawn_in_proportion_to_their_window_counts(self, monkeypatch):
         rows = (_row(mu=5.0), _row(mu=6.0))
         # cumulative weights (1, 4): the rows weigh 1 and 3
-        monkeypatch.setattr(embodied, "_timing_writer_table", lambda: (rows, (1.0, 4.0), 2000.0, 60000.0))
+        monkeypatch.setattr(
+            embodied, "_timing_writer_table", lambda: (rows, (1.0, 4.0), 2000.0, 60000.0)
+        )
         cfg = _use_klicke(monkeypatch)
         heavy = np.mean([embodied._KlickeTiming(f"w{i}", cfg).row.mu == 6.0 for i in range(4000)])
         assert abs(heavy - 0.75) < 0.03
@@ -94,12 +117,22 @@ print(json.dumps(out))
 
     def _fresh_process(self, hash_seed: str, timing_seed: int = 0):
         env = {**os.environ, "PYTHONHASHSEED": hash_seed}
-        proc = subprocess.run([sys.executable, "-c", self._CODE % timing_seed], cwd=PACKAGE_ROOT, env=env,
-                              capture_output=True, text=True, check=True, timeout=120)
+        proc = subprocess.run(
+            [sys.executable, "-c", self._CODE % timing_seed],
+            cwd=PACKAGE_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=120,
+        )
         return json.loads(proc.stdout)
 
     def test_same_author_gives_the_same_latencies_in_fresh_processes(self, monkeypatch):
-        first, second = self._fresh_process("0"), self._fresh_process("987654")  # different hash() randomisation
+        first, second = (
+            self._fresh_process("0"),
+            self._fresh_process("987654"),
+        )  # different hash() randomisation
         assert first == second and len(set(first)) > 100
 
         _use_klicke(monkeypatch)
@@ -125,7 +158,9 @@ class TestStreams:
             scholar.consume_resources(1, 1.0)
         assert scholar._rng.getstate() == state
 
-    def test_timing_stream_is_independent_of_cognitive_state_and_scales_relative_to_the_reference(self, monkeypatch):
+    def test_timing_stream_is_independent_of_cognitive_state_and_scales_relative_to_the_reference(
+        self, monkeypatch
+    ):
         """Same author -> same draws. Depth 1 / glucose 1 is the reference (factor 1); other states scale it."""
         _use_klicke(monkeypatch)
         reference = embodied.EmbodiedScholar("author_mod", initial_glucose=1.0)
@@ -163,9 +198,16 @@ class TestModel:
         (pauses do not advance the AR state, so the non-pause subsequence is the AR chain) and the pause share is p_pause."""
         row = _row()
         monkeypatch.setattr(embodied, "_timing_writer_table", lambda: _single_row_table(row))
-        cfg = _use_klicke(monkeypatch, timing_offset=0.0, timing_rho_scale=1.0, timing_sigma_scale=1.0,
-                          timing_ar_share=0.6)
-        scholar = embodied.EmbodiedScholar(author_id, initial_glucose=1.0)  # glucose never consumed: modulation is constant
+        cfg = _use_klicke(
+            monkeypatch,
+            timing_offset=0.0,
+            timing_rho_scale=1.0,
+            timing_sigma_scale=1.0,
+            timing_ar_share=0.6,
+        )
+        scholar = embodied.EmbodiedScholar(
+            author_id, initial_glucose=1.0
+        )  # glucose never consumed: modulation is constant
         lat = np.array([scholar.calculate_latency(3.0) for _ in range(5000)])
         paused = lat >= 2000.0
         x = np.log(lat[~paused])
@@ -175,22 +217,31 @@ class TestModel:
         assert abs(paused.mean() - row.p_pause) < 0.015
 
     def test_variance_split_between_ar_and_white_noise(self, monkeypatch):
-        row = _row(sigma=0.4, rho=0.0, p_pause=0.001)  # rho 0: all variance is i.i.d. whatever the share
+        row = _row(
+            sigma=0.4, rho=0.0, p_pause=0.001
+        )  # rho 0: all variance is i.i.d. whatever the share
         monkeypatch.setattr(embodied, "_timing_writer_table", lambda: _single_row_table(row))
         _use_klicke(monkeypatch, timing_offset=0.0, timing_sigma_scale=1.5, timing_ar_share=0.3)
         scholar = embodied.EmbodiedScholar("author_var", initial_glucose=1.0)
         lat = np.array([scholar.calculate_latency(1.0) for _ in range(20000)])
-        x = np.log(lat[lat < 2000.0])  # modulation at depth 1 / glucose 1 is exactly 1; the 50 ms floor is 2.7 sd out
+        x = np.log(
+            lat[lat < 2000.0]
+        )  # modulation at depth 1 / glucose 1 is exactly 1; the 50 ms floor is 2.7 sd out
         assert x.std() == pytest.approx(1.5 * row.sigma, rel=0.05)
 
-    @pytest.mark.parametrize("pause_mu,pause_sigma", [(-24.0, 6.0), (3.0, 3.0), (7.0, 1.5), (9.0, 0.3), (12.0, 0.5)])
+    @pytest.mark.parametrize(
+        "pause_mu,pause_sigma", [(-24.0, 6.0), (3.0, 3.0), (7.0, 1.5), (9.0, 0.3), (12.0, 0.5)]
+    )
     def test_pause_draws_stay_inside_the_pause_window(self, monkeypatch, pause_mu, pause_sigma):
         row = _row(pause_mu=pause_mu, pause_sigma=pause_sigma)
         monkeypatch.setattr(embodied, "_timing_writer_table", lambda: _single_row_table(row))
         cfg = _use_klicke(monkeypatch)
         timing = embodied._KlickeTiming("author_pause", cfg)
         rng = random.Random(1)
-        draws = [timing._pause_ms(u) for u in (0.0, 1e-12, 0.5, 1.0 - 1e-12) + tuple(rng.random() for _ in range(2000))]
+        draws = [
+            timing._pause_ms(u)
+            for u in (0.0, 1e-12, 0.5, 1.0 - 1e-12) + tuple(rng.random() for _ in range(2000))
+        ]
         assert min(draws) >= 2000.0 - 1e-6 and max(draws) < 60000.0
 
     def test_real_table_latencies_are_floored_and_rounded(self, monkeypatch):

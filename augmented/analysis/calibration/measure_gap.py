@@ -31,6 +31,7 @@ Options added for the timing-model calibration:
                                 --out, with the pre-registered rule evaluated. At most
                                 MAX_HELDOUT_LOOKS entries are accepted per file; TS is the shell's `date`.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -50,8 +51,15 @@ from scipy.stats import ks_2samp
 SCRIPT_DIR = Path(__file__).resolve().parent
 PACKAGE_ROOT = SCRIPT_DIR.parents[1]  # augmented/
 DEFAULT_KLICKE_DIR = (
-    PACKAGE_ROOT / "data" / "external" / "klicke" / "Files" / "WritingTask" / "WritingTask"
-    / "keystrokelogs" / "csv"
+    PACKAGE_ROOT
+    / "data"
+    / "external"
+    / "klicke"
+    / "Files"
+    / "WritingTask"
+    / "WritingTask"
+    / "keystrokelogs"
+    / "csv"
 )
 
 
@@ -61,7 +69,9 @@ def import_simulator(root: Path):
     sys.path.insert(0, str(root))
     for name in [m for m in sys.modules if m == "scholawrite" or m.startswith("scholawrite.")]:
         del sys.modules[name]
-    return importlib.import_module("scholawrite.causal_core"), importlib.import_module("scholawrite.embodied")
+    return importlib.import_module("scholawrite.causal_core"), importlib.import_module(
+        "scholawrite.embodied"
+    )
 
 
 def _rel(p: Path) -> str:
@@ -78,12 +88,38 @@ def _rel(p: Path) -> str:
 
 # Verbatim copy of adversarial._ACADEMIC_WORDS (main:augmented/scholawrite/adversarial.py:43-50).
 _ACADEMIC_WORDS = [
-    "The", "methodology", "establishes", "a", "robust", "baseline",
-    "for", "comparative", "analysis", "of", "emerging", "patterns",
-    "in", "empirical", "research", "paradigm", "framework", "this",
-    "study", "demonstrates", "that", "underlying", "assumptions",
-    "remain", "foundational", "to", "subsequent", "investigations",
-    "however", "nevertheless", "consequently", "furthermore",
+    "The",
+    "methodology",
+    "establishes",
+    "a",
+    "robust",
+    "baseline",
+    "for",
+    "comparative",
+    "analysis",
+    "of",
+    "emerging",
+    "patterns",
+    "in",
+    "empirical",
+    "research",
+    "paradigm",
+    "framework",
+    "this",
+    "study",
+    "demonstrates",
+    "that",
+    "underlying",
+    "assumptions",
+    "remain",
+    "foundational",
+    "to",
+    "subsequent",
+    "investigations",
+    "however",
+    "nevertheless",
+    "consequently",
+    "furthermore",
 ]
 
 
@@ -114,11 +150,13 @@ def resolve_trace_generator(causal_core, embodied):
     try:
         adversarial = importlib.import_module("scholawrite.adversarial")
     except ImportError:
+
         def _fn(seed: int, n_events: int):
             trace = _ported_generate_authentic_trace(seed, n_events, causal_core, embodied)
             lat = [round(e.latency_ms, 2) for e in trace]  # CausalEvent.latency_ms rounding
             glu = [e.glucose_before for e in trace]
             return lat, glu
+
         return (
             "ported _generate_authentic_trace (scholawrite.adversarial absent in this package; "
             "source main:augmented/scholawrite/adversarial.py:462-495)",
@@ -162,7 +200,9 @@ def apply_sim_overrides(causal_core, embodied, overrides: dict, base=None):
     return cfg
 
 
-def generate_simulator_sequences(n_traces: int, n_events: int, seed_base: int, causal_core, embodied):
+def generate_simulator_sequences(
+    n_traces: int, n_events: int, seed_base: int, causal_core, embodied
+):
     desc, gen = resolve_trace_generator(causal_core, embodied)
     seqs, glucose_floor_idx, lengths = [], [], []
     for i in range(n_traces):
@@ -178,6 +218,7 @@ def generate_simulator_sequences(n_traces: int, n_events: int, seed_base: int, c
 # ---------------------------------------------------------------------------
 # KLiCKe loading
 # ---------------------------------------------------------------------------
+
 
 def load_writer_iki(path: Path, min_iki: float, max_iki: float):
     """Return (n_events, valid_iki_ms, used_cp1252) for one writer file."""
@@ -257,8 +298,13 @@ def _plugin_entropy_bits(bins: np.ndarray) -> np.ndarray:
 
 
 METRICS = [
-    "mean_iki_ms", "median_iki_ms", "sd_log_iki", "lag1_autocorr_log",
-    "pause_fraction", "burst_count", "entropy_bits_5ms",
+    "mean_iki_ms",
+    "median_iki_ms",
+    "sd_log_iki",
+    "lag1_autocorr_log",
+    "pause_fraction",
+    "burst_count",
+    "entropy_bits_5ms",
 ]
 
 # Pre-registered decision rule for the calibrated simulator on held-out KLiCKe windows:
@@ -269,8 +315,9 @@ DECISION_KS_MAX = 0.10
 MAX_HELDOUT_LOOKS = 3
 
 
-def window_metrics(seqs, window: int, pause_ms: float, burst_ms: float,
-                   burst_min_run: int, bin_ms: float):
+def window_metrics(
+    seqs, window: int, pause_ms: float, burst_ms: float, burst_min_run: int, bin_ms: float
+):
     """Cut each sequence into consecutive non-overlapping windows (remainder dropped)
     and compute the per-window metrics. Returns dict metric -> 1-D array."""
     rows = []
@@ -325,6 +372,7 @@ def writer_params(x: np.ndarray, pause_ms: float) -> dict:
 # Summaries
 # ---------------------------------------------------------------------------
 
+
 def _clean(v):
     """Make a nested result JSON-safe: numpy scalars -> python, NaN -> null."""
     if isinstance(v, (np.floating, float)):
@@ -343,13 +391,28 @@ def quartiles(v: np.ndarray) -> dict:
     n_nan = int(np.isnan(v).sum())
     vv = v[~np.isnan(v)]
     if len(vv) == 0:
-        return {"n": 0, "n_nan": n_nan, "q25": None, "median": None, "q75": None, "iqr": None,
-                "mean": None, "min": None, "max": None}
+        return {
+            "n": 0,
+            "n_nan": n_nan,
+            "q25": None,
+            "median": None,
+            "q75": None,
+            "iqr": None,
+            "mean": None,
+            "min": None,
+            "max": None,
+        }
     q25, q50, q75 = np.percentile(vv, [25, 50, 75])
     return {
-        "n": int(len(vv)), "n_nan": n_nan,
-        "q25": float(q25), "median": float(q50), "q75": float(q75), "iqr": float(q75 - q25),
-        "mean": float(vv.mean()), "min": float(vv.min()), "max": float(vv.max()),
+        "n": int(len(vv)),
+        "n_nan": n_nan,
+        "q25": float(q25),
+        "median": float(q50),
+        "q75": float(q75),
+        "iqr": float(q75 - q25),
+        "mean": float(vv.mean()),
+        "min": float(vv.min()),
+        "max": float(vv.max()),
     }
 
 
@@ -366,6 +429,7 @@ def percentiles_10_50_90(v: np.ndarray) -> dict:
 # Held-out look log
 # ---------------------------------------------------------------------------
 
+
 def load_prior_heldout_runs(path: Path) -> list:
     """The `heldout_runs` already logged in `path` (empty when the file is absent)."""
     if not path.exists():
@@ -379,7 +443,9 @@ def load_prior_heldout_runs(path: Path) -> list:
     return runs
 
 
-def heldout_log_entry(index, args, overrides, sim_cfg, metrics_out, n_klicke_windows, n_ks, n_sim_windows) -> dict:
+def heldout_log_entry(
+    index, args, overrides, sim_cfg, metrics_out, n_klicke_windows, n_ks, n_sim_windows
+) -> dict:
     ks = {m: metrics_out[m]["ks_D"] for m in METRICS}
     worst = max(ks[m] for m in DECISION_METRICS)
     return {
@@ -389,17 +455,27 @@ def heldout_log_entry(index, args, overrides, sim_cfg, metrics_out, n_klicke_win
         "note": args.run_note,
         "command_args": {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(args).items()},
         "sim_overrides": overrides,
-        "timing_config": {k: v for k, v in dataclasses.asdict(sim_cfg).items() if k.startswith("timing_")},
+        "timing_config": {
+            k: v for k, v in dataclasses.asdict(sim_cfg).items() if k.startswith("timing_")
+        },
         "latency_log_normal_sigma": sim_cfg.latency_log_normal_sigma,
         "n_klicke_windows": int(n_klicke_windows),
         "n_klicke_windows_ks": int(n_ks),
         "n_sim_windows": int(n_sim_windows),
         "ks_D": ks,
-        "metrics": {m: {"klicke": {q: metrics_out[m]["klicke"][q] for q in ("q25", "median", "q75")},
-                        "simulator": {q: metrics_out[m]["simulator"][q] for q in ("q25", "median", "q75")}}
-                    for m in METRICS},
-        "rule": {"metrics": DECISION_METRICS, "ks_max": DECISION_KS_MAX,
-                 "max_decision_D": worst, "pass": bool(worst <= DECISION_KS_MAX)},
+        "metrics": {
+            m: {
+                "klicke": {q: metrics_out[m]["klicke"][q] for q in ("q25", "median", "q75")},
+                "simulator": {q: metrics_out[m]["simulator"][q] for q in ("q25", "median", "q75")},
+            }
+            for m in METRICS
+        },
+        "rule": {
+            "metrics": DECISION_METRICS,
+            "ks_max": DECISION_KS_MAX,
+            "max_decision_D": worst,
+            "pass": bool(worst <= DECISION_KS_MAX),
+        },
     }
 
 
@@ -407,16 +483,27 @@ def heldout_log_entry(index, args, overrides, sim_cfg, metrics_out, n_klicke_win
 # Main
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument("--klicke-dir", type=Path, default=DEFAULT_KLICKE_DIR)
-    p.add_argument("--simulator-root", type=Path, default=PACKAGE_ROOT,
-                   help="directory containing the `scholawrite` package to measure (default: working tree)")
+    p.add_argument(
+        "--simulator-root",
+        type=Path,
+        default=PACKAGE_ROOT,
+        help="directory containing the `scholawrite` package to measure (default: working tree)",
+    )
     p.add_argument("--out", type=Path, default=SCRIPT_DIR / "gap_current_simulator.json")
-    p.add_argument("--writer-params-out", type=Path, default=SCRIPT_DIR / "klicke_writer_params.json")
+    p.add_argument(
+        "--writer-params-out", type=Path, default=SCRIPT_DIR / "klicke_writer_params.json"
+    )
     p.add_argument("--min-iki", type=float, default=10.0, help="keep IKI > this (ms)")
     p.add_argument("--max-iki", type=float, default=60000.0, help="keep IKI < this (ms)")
-    p.add_argument("--min-valid", type=int, default=200, help="writers need >= this many valid IKIs")
+    p.add_argument(
+        "--min-valid", type=int, default=200, help="writers need >= this many valid IKIs"
+    )
     p.add_argument("--max-heldout-writers", type=int, default=1500)
     p.add_argument("--window", type=int, default=50)
     p.add_argument("--pause-ms", type=float, default=2000.0)
@@ -426,18 +513,37 @@ def parse_args(argv=None):
     p.add_argument("--n-traces", type=int, default=1000)
     p.add_argument("--n-events", type=int, default=200)
     p.add_argument("--sim-seed-base", type=int, default=10000)
-    p.add_argument("--ks-max", type=int, default=20000, help="subsample KLiCKe windows to this for KS")
+    p.add_argument(
+        "--ks-max", type=int, default=20000, help="subsample KLiCKe windows to this for KS"
+    )
     p.add_argument("--seed", type=int, default=0, help="seed for writer and window subsampling")
     p.add_argument("--max-files", type=int, default=0, help="debug: load only the first N files")
-    p.add_argument("--split", choices=("heldout", "train"), default="heldout",
-                   help="KLiCKe half compared against the simulator (default heldout)")
-    p.add_argument("--sim-override", action="append", default=[], metavar="KEY=VALUE",
-                   help="override a SimulationConfig field for the simulator side (repeatable)")
-    p.add_argument("--candidate-id", default=None,
-                   help="log this heldout run in the `heldout_runs` list of --out")
-    p.add_argument("--run-timestamp", default=None,
-                   help="timestamp string from the shell, e.g. \"$(date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ)\"")
-    p.add_argument("--run-note", default="", help="free-text reason stored with a logged heldout run")
+    p.add_argument(
+        "--split",
+        choices=("heldout", "train"),
+        default="heldout",
+        help="KLiCKe half compared against the simulator (default heldout)",
+    )
+    p.add_argument(
+        "--sim-override",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="override a SimulationConfig field for the simulator side (repeatable)",
+    )
+    p.add_argument(
+        "--candidate-id",
+        default=None,
+        help="log this heldout run in the `heldout_runs` list of --out",
+    )
+    p.add_argument(
+        "--run-timestamp",
+        default=None,
+        help='timestamp string from the shell, e.g. "$(date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ)"',
+    )
+    p.add_argument(
+        "--run-note", default="", help="free-text reason stored with a logged heldout run"
+    )
     return p.parse_args(argv)
 
 
@@ -455,8 +561,10 @@ def main(argv=None) -> int:
         return 2
     prior_runs = load_prior_heldout_runs(args.out) if args.candidate_id is not None else []
     if len(prior_runs) >= MAX_HELDOUT_LOOKS:
-        print(f"{args.out} already logs {len(prior_runs)} heldout runs (cap {MAX_HELDOUT_LOOKS}); refusing",
-              file=sys.stderr)
+        print(
+            f"{args.out} already logs {len(prior_runs)} heldout runs (cap {MAX_HELDOUT_LOOKS}); refusing",
+            file=sys.stderr,
+        )
         return 2
 
     # ---- KLiCKe: load every writer ---------------------------------------
@@ -473,7 +581,9 @@ def main(argv=None) -> int:
             print(f"  loaded {i + 1}/{len(files)} files ({time.time() - t0:.0f}s)", file=sys.stderr)
     t_load = time.time() - t0
 
-    eligible, train_ids, heldout_ids = split_writers({w: len(v) for w, (_, v) in writers.items()}, args.min_valid)
+    eligible, train_ids, heldout_ids = split_writers(
+        {w: len(v) for w, (_, v) in writers.items()}, args.min_valid
+    )
     split_of = dict.fromkeys(train_ids, "train")
     split_of.update(dict.fromkeys(heldout_ids, "heldout"))
 
@@ -481,8 +591,13 @@ def main(argv=None) -> int:
     table = []
     for w in eligible:
         n_ev, v = writers[w]
-        row = {"writer_id": w, "split": split_of[w], "n_events": n_ev, "n_valid_iki": int(len(v)),
-               "n_windows": int(len(v) // args.window)}
+        row = {
+            "writer_id": w,
+            "split": split_of[w],
+            "n_events": n_ev,
+            "n_valid_iki": int(len(v)),
+            "n_windows": int(len(v) // args.window),
+        }
         row.update(writer_params(v, args.pause_ms))
         table.append(row)
     train_rows = [r for r in table if r["split"] == "train"]
@@ -509,9 +624,12 @@ def main(argv=None) -> int:
     # ---- simulator reference traces ----------------------------------------
     t1 = time.time()
     sim_desc, sim_raw, sim_lengths, floor_idx = generate_simulator_sequences(
-        args.n_traces, args.n_events, args.sim_seed_base, causal_core, embodied)
+        args.n_traces, args.n_events, args.sim_seed_base, causal_core, embodied
+    )
     t_sim = time.time() - t1
-    sim_seqs = [filter_valid(x, args.min_iki, args.max_iki) for x in sim_raw]  # same filter as KLiCKe
+    sim_seqs = [
+        filter_valid(x, args.min_iki, args.max_iki) for x in sim_raw
+    ]  # same filter as KLiCKe
     sim_all = np.concatenate(sim_raw)
     sim_unique_sequences = len({tuple(x.tolist()) for x in sim_raw})
     sim_dropped_by_filter = int(sum(len(a) - len(b) for a, b in zip(sim_raw, sim_seqs)))
@@ -523,8 +641,9 @@ def main(argv=None) -> int:
 
     rng_ks = np.random.default_rng(args.seed)
     n_k = len(km["mean_iki_ms"])
-    ks_idx = (rng_ks.choice(n_k, size=args.ks_max, replace=False) if n_k > args.ks_max
-              else np.arange(n_k))
+    ks_idx = (
+        rng_ks.choice(n_k, size=args.ks_max, replace=False) if n_k > args.ks_max else np.arange(n_k)
+    )
     metrics_out = {}
     for m in METRICS:
         k_all, s_all = km[m], sm[m]
@@ -533,8 +652,12 @@ def main(argv=None) -> int:
         s_ks = s_all[~np.isnan(s_all)]
         if len(k_ks) and len(s_ks):
             res = ks_2samp(k_ks, s_ks)
-            ks = {"ks_D": float(res.statistic), "ks_p": float(res.pvalue),
-                  "n_klicke": int(len(k_ks)), "n_sim": int(len(s_ks))}
+            ks = {
+                "ks_D": float(res.statistic),
+                "ks_p": float(res.pvalue),
+                "n_klicke": int(len(k_ks)),
+                "n_sim": int(len(s_ks)),
+            }
         else:
             ks = {"ks_D": None, "ks_p": None, "n_klicke": int(len(k_ks)), "n_sim": int(len(s_ks))}
         metrics_out[m] = {"klicke": quartiles(k_all), "simulator": quartiles(s_all), **ks}
@@ -556,12 +679,15 @@ def main(argv=None) -> int:
             "sim_overrides": overrides,
             "iki_filter": f"{args.min_iki} < IKI < {args.max_iki} ms, applied to both populations",
             "split_rule": "eligible writers (>= min_valid valid IKIs) sorted by file name; "
-                          "even index -> train, odd index -> heldout",
+            "even index -> train, odd index -> heldout",
             "sd_convention": "ddof=1 for sd_log_iki, sigma_w, pause_log_sd",
             "lag1_convention": "Pearson r between log IKI[t] and log IKI[t+1] (NaN when variance is 0)",
             "window_rule": "consecutive non-overlapping windows of `window` IKIs; remainder dropped",
-            "runtime_s": {"load_klicke": round(t_load, 1), "simulate": round(t_sim, 1),
-                          "total": round(time.time() - t0, 1)},
+            "runtime_s": {
+                "load_klicke": round(t_load, 1),
+                "simulate": round(t_sim, 1),
+                "total": round(time.time() - t0, 1),
+            },
         },
         "klicke": {
             "n_files": len(files),
@@ -580,13 +706,20 @@ def main(argv=None) -> int:
             "n_events_requested": args.n_events,
             "events_per_trace": {"min": int(min(sim_lengths)), "max": int(max(sim_lengths))},
             "n_windows": int(len(sm["mean_iki_ms"])),
-            "latency_ms": {"min": float(sim_all.min()), "max": float(sim_all.max()),
-                           "mean": float(sim_all.mean()), "n_unique_values": int(len(np.unique(sim_all)))},
+            "latency_ms": {
+                "min": float(sim_all.min()),
+                "max": float(sim_all.max()),
+                "mean": float(sim_all.mean()),
+                "n_unique_values": int(len(np.unique(sim_all))),
+            },
             "n_unique_sequences": sim_unique_sequences,
             "n_latencies_dropped_by_iki_filter": sim_dropped_by_filter,
             "glucose_floor_reached_fraction": len(sim_glucose_floor) / max(1, args.n_traces),
-            "glucose_floor_first_event_index": percentiles_10_50_90(np.array(sim_glucose_floor, dtype=np.float64))
-            if sim_glucose_floor else None,
+            "glucose_floor_first_event_index": percentiles_10_50_90(
+                np.array(sim_glucose_floor, dtype=np.float64)
+            )
+            if sim_glucose_floor
+            else None,
         },
         "window_metrics": metrics_out,
         "writer_params_train_percentiles": train_pct,
@@ -594,39 +727,61 @@ def main(argv=None) -> int:
     }
 
     if args.candidate_id is not None:
-        result["heldout_runs"] = prior_runs + [heldout_log_entry(
-            len(prior_runs) + 1, args, overrides, sim_cfg, metrics_out, n_k, len(ks_idx), len(sm["mean_iki_ms"]))]
+        result["heldout_runs"] = prior_runs + [
+            heldout_log_entry(
+                len(prior_runs) + 1,
+                args,
+                overrides,
+                sim_cfg,
+                metrics_out,
+                n_k,
+                len(ks_idx),
+                len(sm["mean_iki_ms"]),
+            )
+        ]
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w") as fh:
         json.dump(_clean(result), fh, indent=2)
     with open(args.writer_params_out, "w") as fh:
-        json.dump(_clean({
-            "meta": {
-                "iki_filter": result["meta"]["iki_filter"],
-                "split_rule": result["meta"]["split_rule"],
-                "sd_convention": result["meta"]["sd_convention"],
-                "pause_definition": f"IKI > {args.pause_ms} ms",
-                "rho_w": "lag-1 Pearson autocorrelation of log IKI over the writer's whole valid sequence",
-                "n_writers": len(table),
-            },
-            "writers": table,
-        }), fh, indent=1)
+        json.dump(
+            _clean(
+                {
+                    "meta": {
+                        "iki_filter": result["meta"]["iki_filter"],
+                        "split_rule": result["meta"]["split_rule"],
+                        "sd_convention": result["meta"]["sd_convention"],
+                        "pause_definition": f"IKI > {args.pause_ms} ms",
+                        "rho_w": "lag-1 Pearson autocorrelation of log IKI over the writer's whole valid sequence",
+                        "n_writers": len(table),
+                    },
+                    "writers": table,
+                }
+            ),
+            fh,
+            indent=1,
+        )
 
     # ---- console summary ---------------------------------------------------
     print(f"\nSimulator latency path: {sim_desc}")
-    print(f"KLiCKe: {len(files)} files, {len(eligible)} eligible, train={len(train_ids)}, "
-          f"heldout={len(heldout_ids)}; compared against {args.split} (used {len(eval_used)}), "
-          f"windows={n_k} (KS n={len(ks_idx)})")
-    print(f"Simulator: {args.n_traces} traces x {args.n_events} events, windows={len(sm['mean_iki_ms'])}, "
-          f"latency range [{sim_all.min():.2f}, {sim_all.max():.2f}] ms, "
-          f"unique sequences={sim_unique_sequences}")
+    print(
+        f"KLiCKe: {len(files)} files, {len(eligible)} eligible, train={len(train_ids)}, "
+        f"heldout={len(heldout_ids)}; compared against {args.split} (used {len(eval_used)}), "
+        f"windows={n_k} (KS n={len(ks_idx)})"
+    )
+    print(
+        f"Simulator: {args.n_traces} traces x {args.n_events} events, windows={len(sm['mean_iki_ms'])}, "
+        f"latency range [{sim_all.min():.2f}, {sim_all.max():.2f}] ms, "
+        f"unique sequences={sim_unique_sequences}"
+    )
     print("\n| metric | KLiCKe median [IQR] | simulator median [IQR] | KS D |")
     print("|---|---|---|---|")
     for m in METRICS:
         r = metrics_out[m]
         k, s = r["klicke"], r["simulator"]
-        print(f"| {m} | {k['median']:.4g} [{k['q25']:.4g}, {k['q75']:.4g}] | "
-              f"{s['median']:.4g} [{s['q25']:.4g}, {s['q75']:.4g}] | {r['ks_D']:.3f} |")
+        print(
+            f"| {m} | {k['median']:.4g} [{k['q25']:.4g}, {k['q75']:.4g}] | "
+            f"{s['median']:.4g} [{s['q25']:.4g}, {s['q75']:.4g}] | {r['ks_D']:.3f} |"
+        )
     print("\nTrain-writer parameter percentiles (p10 / p50 / p90):")
     for k in WRITER_PARAMS:
         p = train_pct[k]
