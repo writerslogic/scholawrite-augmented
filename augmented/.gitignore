@@ -40,3 +40,7 @@ uv.lock
 
 # Notebooks with outputs
 notebooks/
+
+# Prebuilt keystroke-recorder binaries are not tracked in git
+/tools/keystroke-recorder/bin/
+*.pkg
