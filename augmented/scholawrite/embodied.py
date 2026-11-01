@@ -5,12 +5,107 @@ import math
 import random
 import re
 import hashlib
+import statistics
+from bisect import bisect_right
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Optional
 from .schema import ResourceAllocation, CognitiveState
-from .config import get_academic_markers_flat, get_sim_config
+from .config import SimulationConfig, get_academic_markers_flat, get_sim_config, load_config
 
 __all__ = ["EmbodiedScholar", "erode_context_deterministically", "get_syntactic_demand", "get_embodied_state"]
+
+_NORMAL = statistics.NormalDist()
+_WRITER_PARAMS_CONFIG = "klicke_writer_params_train"
+_LATENCY_FLOOR_MS = 50.0
+_RHO_AR_MAX = 0.98
+
+
+@dataclass(frozen=True)
+class _WriterTiming:
+    """One KLiCKe TRAIN writer: non-pause log-IKI moments and the pause mixture."""
+    mu: float
+    sigma: float
+    rho: float
+    p_pause: float
+    pause_mu: float
+    pause_sigma: float
+
+
+@lru_cache(maxsize=1)
+def _timing_writer_table() -> tuple[tuple[_WriterTiming, ...], tuple[float, ...], float, float]:
+    """TRAIN writer rows, cumulative bootstrap weights, and the pause window [lo_ms, hi_ms).
+
+    Built by analysis/calibration/build_writer_params.py. A row is drawn with probability
+    proportional to its number of 50-IKI windows, the unit the calibration compares."""
+    data = load_config(_WRITER_PARAMS_CONFIG)
+    if not data:
+        raise FileNotFoundError(
+            f"timing_model='klicke_ar1' needs configs/{_WRITER_PARAMS_CONFIG}.json "
+            "(analysis/calibration/build_writer_params.py)"
+        )
+    col = {name: i for i, name in enumerate(data["columns"])}
+    rows, cumulative, total = [], [], 0.0
+    for r in data["rows"]:
+        rows.append(_WriterTiming(*(float(r[col[k]]) for k in _WriterTiming.__dataclass_fields__)))
+        total += float(r[col["n_windows"]])
+        cumulative.append(total)
+    if not rows or total <= 0.0:
+        raise ValueError(f"configs/{_WRITER_PARAMS_CONFIG}.json has no usable rows")
+    meta = data["meta"]
+    return tuple(rows), tuple(cumulative), float(meta["pause_threshold_ms"]), float(meta["iki_filter_ms"][1])
+
+
+class _KlickeTiming:
+    """State of timing_model='klicke_ar1' for one scholar.
+
+    Randomness comes only from ``self.rng``, seeded from sha256(author_id, timing_seed), so the legacy
+    ``EmbodiedScholar._rng`` stream is untouched. Four variates are drawn per event whatever the
+    parameter values, which keeps common random numbers across a parameter sweep.
+    """
+
+    def __init__(self, author_id: str, cfg: SimulationConfig):
+        self.cfg = cfg
+        digest = hashlib.sha256(f"{author_id}:timing:{cfg.timing_seed}".encode()).hexdigest()
+        self.rng = random.Random(int(digest, 16))
+        rows, cumulative, lo_ms, hi_ms = _timing_writer_table()
+        pick = bisect_right(cumulative, self.rng.random() * cumulative[-1])
+        self.row = rows[min(pick, len(rows) - 1)]
+
+        total_sd = cfg.timing_sigma_scale * self.row.sigma
+        self._s_ar = total_sd * math.sqrt(cfg.timing_ar_share)
+        self._s_wn = total_sd * math.sqrt(1.0 - cfg.timing_ar_share)
+        self._rho = min(_RHO_AR_MAX, max(0.0, cfg.timing_rho_scale * self.row.rho))
+        self._innovation_sd = math.sqrt(1.0 - self._rho ** 2)
+        self._z: float | None = None  # unit-variance AR(1); starts from its stationary law
+
+        # Pause durations: normal on log IKI truncated to [lo_ms, hi_ms), by inverse CDF.
+        a = (math.log(lo_ms) - self.row.pause_mu) / self.row.pause_sigma
+        b = (math.log(hi_ms) - self.row.pause_mu) / self.row.pause_sigma
+        self._reflect = a > 0.0  # keep the probabilities in the small tail where doubles are accurate
+        lo, hi = (_NORMAL.cdf(-b), _NORMAL.cdf(-a)) if self._reflect else (_NORMAL.cdf(a), _NORMAL.cdf(b))
+        self._p_lo, self._p_span = lo, hi - lo
+        self._hi_ms = hi_ms
+
+    def _pause_ms(self, u: float) -> float:
+        p = max(self._p_lo + u * self._p_span, 1e-300)
+        z = -_NORMAL.inv_cdf(p) if self._reflect else _NORMAL.inv_cdf(p)
+        return min(math.exp(self.row.pause_mu + self.row.pause_sigma * z), self._hi_ms - 0.01)
+
+    def latency_ms(self, modulation: float) -> float:
+        """One IKI. ``modulation`` = deterministic cognitive term / its value at depth 1, glucose 1."""
+        rng, row, cfg = self.rng, self.row, self.cfg
+        u_pause, eta, eps, u_len = rng.random(), rng.gauss(0.0, 1.0), rng.gauss(0.0, 1.0), rng.random()
+        if u_pause < row.p_pause:  # a pause leaves the AR state where it was
+            ms = self._pause_ms(u_len)
+            if cfg.timing_pause_modulated:
+                ms *= modulation
+        else:
+            self._z = eta if self._z is None else self._rho * self._z + self._innovation_sd * eta
+            log_base = row.mu + cfg.timing_offset + self._s_ar * self._z + self._s_wn * eps
+            ms = math.exp(log_base) * modulation
+        return round(max(_LATENCY_FLOOR_MS, ms), 2)
+
 
 class EmbodiedScholar:
     """
@@ -30,6 +125,7 @@ class EmbodiedScholar:
         self.total_tokens_produced = 0
         seed = int(hashlib.sha256(author_id.encode()).hexdigest()[:8], 16)
         self._rng = random.Random(seed)
+        self._timing = _KlickeTiming(author_id, self.config) if self.config.timing_model == "klicke_ar1" else None
 
     def consume_resources(self, tokens: int, syntactic_depth: float):
         """Irreversible metabolic depletion per token and complexity."""
@@ -63,9 +159,22 @@ class EmbodiedScholar:
             attention=round(min(1.0, attention), 3)
         )
 
+    def deterministic_latency(self, syntactic_depth: float, glucose: float | None = None) -> float:
+        """Noise-free cognitive latency term (ms) at the given depth and (default: current) glucose."""
+        g = self.glucose if glucose is None else glucose
+        return 115 + 90 * math.log(1 + syntactic_depth) * (1.12 - g)
+
     def calculate_latency(self, syntactic_depth: float) -> float:
-        """Mapping from state to keystroke latency (ms) with log-normal noise."""
-        deterministic = 115 + 90 * math.log(1 + syntactic_depth) * (1.12 - self.glucose)
+        """Mapping from state to keystroke latency (ms).
+
+        timing_model "lognormal_iid" (default): log-normal noise around the deterministic term, drawn
+        from the scholar's seeded RNG. "klicke_ar1": KLiCKe-calibrated AR(1) + pause mixture whose
+        level is scaled by the deterministic term relative to its value at depth 1, glucose 1.
+        """
+        if self._timing is not None:
+            reference = self.deterministic_latency(1.0, 1.0)
+            return self._timing.latency_ms(self.deterministic_latency(syntactic_depth) / reference)
+        deterministic = self.deterministic_latency(syntactic_depth)
         sigma = self.config.latency_log_normal_sigma
         if sigma <= 0.0:
             return round(deterministic, 2)

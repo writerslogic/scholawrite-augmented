@@ -26,6 +26,14 @@
     "max_tokens_base": 1536,
     "max_tokens_scale": 1536,
 
+    "timing_model": "lognormal_iid",
+    "timing_seed": 0,
+    "timing_offset": -0.8489,
+    "timing_rho_scale": 1.9102,
+    "timing_sigma_scale": 0.9622,
+    "timing_ar_share": 0.5862,
+    "timing_pause_modulated": false,
+
     "locality_human_min": 1.0,
     "locality_human_max": 3.5,
     "coupling_strong_threshold": 0.6,

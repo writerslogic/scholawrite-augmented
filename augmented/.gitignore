@@ -44,3 +44,6 @@ notebooks/
 # Prebuilt keystroke-recorder binaries are not tracked in git
 /tools/keystroke-recorder/bin/
 *.pkg
+
+# Per-writer KLiCKe table (writer ids); regenerate with analysis/calibration/measure_gap.py
+/analysis/calibration/klicke_writer_params.json

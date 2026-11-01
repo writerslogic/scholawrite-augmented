@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "script": "analysis/calibration/measure_gap.py",
+    "package_root": ".",
+    "klicke_dir": "data/external/klicke/Files/WritingTask/WritingTask/keystrokelogs/csv",
+    "simulator_latency_path": "scholawrite.adversarial._generate_authentic_trace",
+    "simulator_modules": {
+      "embodied": "scholawrite/embodied.py (git archive of fork main e06c4e7)",
+      "causal_core": "scholawrite/causal_core.py (git archive of fork main e06c4e7)"
+    },
+    "params": {
+      "klicke_dir": "data/external/klicke/Files/WritingTask/WritingTask/keystrokelogs/csv",
+      "simulator_root": "<scratch path removed>",
+      "out": "<scratch path removed>",
+      "writer_params_out": "<scratch path removed>",
+      "min_iki": 10.0,
+      "max_iki": 60000.0,
+      "min_valid": 200,
+      "max_heldout_writers": 1500,
+      "window": 50,
+      "pause_ms": 2000.0,
+      "burst_ms": 250.0,
+      "burst_min_run": 3,
+      "bin_ms": 5.0,
+      "n_traces": 1000,
+      "n_events": 200,
+      "sim_seed_base": 10000,
+      "ks_max": 20000,
+      "seed": 0,
+      "max_files": 0
+    },
+    "iki_filter": "10.0 < IKI < 60000.0 ms, applied to both populations",
+    "split_rule": "eligible writers (>= min_valid valid IKIs) sorted by file name; even index -> train, odd index -> heldout",
+    "sd_convention": "ddof=1 for sd_log_iki, sigma_w, pause_log_sd",
+    "lag1_convention": "Pearson r between log IKI[t] and log IKI[t+1] (NaN when variance is 0)",
+    "window_rule": "consecutive non-overlapping windows of `window` IKIs; remainder dropped",
+    "runtime_s": {
+      "load_klicke": 4.9,
+      "simulate": 1.0,
+      "total": 6.5
+    },
+    "note": "Legacy timing model (timing_model='lognormal_iid', log-normal iid latency noise) measured with the same script, seeds and held-out subsample on fork main e06c4e7, before the calibrated model was added. Replaces an earlier file that described a simulator without latency noise."
+  },
+  "klicke": {
+    "n_files": 4992,
+    "n_files_cp1252": 0,
+    "n_eligible_writers": 4992,
+    "n_train_writers": 2496,
+    "n_heldout_writers": 2496,
+    "n_heldout_writers_used": 1500,
+    "n_windows": 102147,
+    "n_windows_ks": 20000,
+    "valid_iki_total_heldout_used": 5144297
+  },
+  "simulator": {
+    "n_traces": 1000,
+    "n_events_requested": 200,
+    "events_per_trace": {
+      "min": 200,
+      "max": 200
+    },
+    "n_windows": 4000,
+    "latency_ms": {
+      "min": 50.0,
+      "max": 12911.67,
+      "mean": 264.94363269999997,
+      "n_unique_values": 60430
+    },
+    "n_unique_sequences": 1000,
+    "n_latencies_dropped_by_iki_filter": 0,
+    "glucose_floor_reached_fraction": 1.0,
+    "glucose_floor_first_event_index": {
+      "n": 1000,
+      "p10": 17.0,
+      "p50": 21.0,
+      "p90": 25.0
+    }
+  },
+  "window_metrics": {
+    "mean_iki_ms": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 188.32,
+        "median": 279.94,
+        "q75": 457.02,
+        "iqr": 268.7,
+        "mean": 395.39814580947075,
+        "min": 23.9,
+        "max": 14312.26
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 232.99075,
+        "median": 260.43809999999996,
+        "q75": 291.0358,
+        "iqr": 58.04505,
+        "mean": 264.9436327,
+        "min": 138.1044,
+        "max": 552.1317999999999
+      },
+      "ks_D": 0.33104999999999996,
+      "ks_p": 0.0,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    },
+    "median_iki_ms": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 117.0,
+        "median": 149.0,
+        "q75": 190.5,
+        "iqr": 73.5,
+        "mean": 160.23450027900967,
+        "min": 14.0,
+        "max": 9972.0
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 153.89875,
+        "median": 173.3275,
+        "q75": 194.575,
+        "iqr": 40.67624999999998,
+        "mean": 175.54845500000002,
+        "min": 89.75,
+        "max": 337.22
+      },
+      "ks_D": 0.32475000000000004,
+      "ks_p": 2.0906715579e-313,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    },
+    "sd_log_iki": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 0.6538784036527372,
+        "median": 0.8045504089821315,
+        "q75": 0.9897207699908461,
+        "iqr": 0.33584236633810893,
+        "mean": 0.8333268726117029,
+        "min": 0.0,
+        "max": 3.1520999136974517
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 0.792294304875143,
+        "median": 0.8434665973113211,
+        "q75": 0.8966754257698104,
+        "iqr": 0.10438112089466745,
+        "mean": 0.8449247243992705,
+        "min": 0.6062163257498223,
+        "max": 1.124284364160633
+      },
+      "ks_D": 0.31210000000000004,
+      "ks_p": 6.1800435567801115e-289,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    },
+    "lag1_autocorr_log": {
+      "klicke": {
+        "n": 102146,
+        "n_nan": 1,
+        "q25": -0.03899241896757945,
+        "median": 0.10630368883716976,
+        "q75": 0.3080429692618362,
+        "iqr": 0.34703538822941565,
+        "mean": 0.14542375590297713,
+        "min": -0.9424329579609048,
+        "max": 0.9520323713733433
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": -0.10688899331659557,
+        "median": -0.013113020116803637,
+        "q75": 0.088526456185933,
+        "iqr": 0.19541544950252857,
+        "mean": -0.008616134267209922,
+        "min": -0.46015441546948843,
+        "max": 0.4335162113050712
+      },
+      "ks_D": 0.29632272863643183,
+      "ks_p": 6.614765441548407e-260,
+      "n_klicke": 19999,
+      "n_sim": 4000
+    },
+    "pause_fraction": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 0.0,
+        "median": 0.02,
+        "q75": 0.04,
+        "iqr": 0.04,
+        "mean": 0.024816392062419847,
+        "min": 0.0,
+        "max": 0.74
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 0.0,
+        "median": 0.0,
+        "q75": 0.0,
+        "iqr": 0.0,
+        "mean": 0.0037350000000000005,
+        "min": 0.0,
+        "max": 0.06
+      },
+      "ks_D": 0.42310000000000003,
+      "ks_p": 0.0,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    },
+    "burst_count": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 3.0,
+        "median": 4.0,
+        "q75": 5.0,
+        "iqr": 2.0,
+        "mean": 4.108559233261868,
+        "min": 0.0,
+        "max": 11.0
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 4.0,
+        "median": 5.0,
+        "q75": 6.0,
+        "iqr": 2.0,
+        "mean": 4.75825,
+        "min": 0.0,
+        "max": 9.0
+      },
+      "ks_D": 0.17995000000000003,
+      "ks_p": 6.639313422140105e-95,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    },
+    "entropy_bits_5ms": {
+      "klicke": {
+        "n": 102147,
+        "n_nan": 0,
+        "q25": 4.540631000600121,
+        "median": 4.806370130156181,
+        "q75": 5.013660689688186,
+        "iqr": 0.4730296890880652,
+        "mean": 4.607849797474958,
+        "min": 0.0,
+        "max": 5.643856189774728
+      },
+      "simulator": {
+        "n": 4000,
+        "n_nan": 0,
+        "q25": 4.846370130156181,
+        "median": 4.981467880199451,
+        "q75": 5.093660689688187,
+        "iqr": 0.24729055953200607,
+        "mean": 4.963557243197773,
+        "min": 4.014118823749608,
+        "max": 5.563856189774727
+      },
+      "ks_D": 0.31195000000000006,
+      "ks_p": 1.1878039635548639e-288,
+      "n_klicke": 20000,
+      "n_sim": 4000
+    }
+  },
+  "writer_params_train_percentiles": {
+    "mu_w": {
+      "n": 2496,
+      "p10": 4.781313485412303,
+      "p50": 5.181462242026081,
+      "p90": 5.74847925700565
+    },
+    "sigma_w": {
+      "n": 2496,
+      "p10": 0.7901192040400694,
+      "p50": 0.9517401733457173,
+      "p90": 1.1315995598307345
+    },
+    "rho_w": {
+      "n": 2496,
+      "p10": 0.1271926672499706,
+      "p50": 0.31416965314913303,
+      "p90": 0.5385921919353506
+    },
+    "p_w": {
+      "n": 2496,
+      "p10": 0.012734348958098721,
+      "p50": 0.026933306955069024,
+      "p90": 0.05295428511498193
+    },
+    "pause_log_median": {
+      "n": 2496,
+      "p10": 8.10455238814636,
+      "p50": 8.321809914950812,
+      "p90": 8.651170740611436
+    },
+    "pause_log_sd": {
+      "n": 2496,
+      "p10": 0.6247417632171464,
+      "p50": 0.7871043197277816,
+      "p90": 0.9612183828670724
+    }
+  },
+  "writer_params_heldout_percentiles": {
+    "mu_w": {
+      "n": 2496,
+      "p10": 4.763316396685896,
+      "p50": 5.181307688183406,
+      "p90": 5.751008042968076
+    },
+    "sigma_w": {
+      "n": 2496,
+      "p10": 0.7891025970012158,
+      "p50": 0.941711391378683,
+      "p90": 1.136291468458841
+    },
+    "rho_w": {
+      "n": 2496,
+      "p10": 0.12730502256144244,
+      "p50": 0.305456672316072,
+      "p90": 0.5374655638979369
+    },
+    "p_w": {
+      "n": 2496,
+      "p10": 0.012620302027111164,
+      "p50": 0.02603701421341414,
+      "p90": 0.052914983479716
+    },
+    "pause_log_median": {
+      "n": 2496,
+      "p10": 8.113276872082718,
+      "p50": 8.32481416161843,
+      "p90": 8.642941173154426
+    },
+    "pause_log_sd": {
+      "n": 2496,
+      "p10": 0.6313714588177503,
+      "p50": 0.7858998409968379,
+      "p90": 0.9711141081636641
+    }
+  }
+}

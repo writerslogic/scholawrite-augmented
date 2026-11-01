@@ -15,11 +15,15 @@ __all__ = [
     "get_placeholder_text",
     "get_discourse_markers",
     "SimulationConfig",
+    "TIMING_MODELS",
     "get_sim_config",
     "CONFIG_DIR",
     "validate_configs",
     "snapshot_config",
 ]
+
+TIMING_MODELS = ("lognormal_iid", "klicke_ar1")
+
 
 @dataclass(frozen=True)
 class SimulationConfig:
@@ -85,11 +89,37 @@ class SimulationConfig:
     # Set to 0.0 for fully deterministic traces.
     latency_log_normal_sigma: float = 0.9
 
+    # Keystroke timing model (EmbodiedScholar.calculate_latency).
+    # "lognormal_iid": the legacy channel above (default; outputs unchanged).
+    # "klicke_ar1": calibrated to KLiCKe keystroke timing (student argumentative essays typed in a
+    #   browser editor). Each scholar draws one TRAIN writer row from
+    #   configs/klicke_writer_params_train.json, then log IKI = mu_w + timing_offset + AR(1) share
+    #   + white noise, pauses as a mixture, scaled by the deterministic cognitive term. Its randomness
+    #   comes from a separate RNG seeded from sha256(author_id, timing_seed), never the legacy one.
+    #   timing_offset / rho_scale / sigma_scale / ar_share were fitted by
+    #   analysis/calibration/fit_timing.py on TRAIN writers only (analysis/calibration/
+    #   fit_timing_result.json); see docs/COGNITIVE_CALIBRATION.md.
+    timing_model: str = "lognormal_iid"
+    timing_seed: int = 0
+    timing_offset: float = -0.8489
+    timing_rho_scale: float = 1.9102
+    timing_sigma_scale: float = 0.9622
+    timing_ar_share: float = 0.5862
+    timing_pause_modulated: bool = False
+
     # Forensic Signatures
     locality_human_min: float = 1.0
     locality_human_max: float = 3.5
     coupling_strong_threshold: float = 0.6
     min_trace_length_coupling: int = 10
+
+    def __post_init__(self) -> None:
+        if self.timing_model not in TIMING_MODELS:
+            raise ValueError(f"timing_model must be one of {TIMING_MODELS}, got {self.timing_model!r}")
+        if not 0.0 <= self.timing_ar_share <= 1.0:
+            raise ValueError(f"timing_ar_share must be in [0, 1], got {self.timing_ar_share}")
+        if self.timing_rho_scale < 0.0 or self.timing_sigma_scale <= 0.0:
+            raise ValueError("timing_rho_scale must be >= 0 and timing_sigma_scale > 0")
 
 @lru_cache(maxsize=1)
 def get_sim_config() -> SimulationConfig:

@@ -1,0 +1,493 @@
+{
+  "meta": {
+    "script": "analysis/calibration/fit_timing.py",
+    "scope": "calibrated to KLiCKe keystroke timing (student argumentative essays), fitted on TRAIN writers only",
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "stage1": {
+      "seed_base": 500000,
+      "n_traces": 1000,
+      "n_evaluations": 200,
+      "objective": "scaled squared differences of window median and IQR (scale = TRAIN IQR) for the four decision metrics, plus the mean of pause_fraction"
+    },
+    "stage2": {
+      "seed_base": 600000,
+      "n_traces": 3000,
+      "n_evaluations": 110,
+      "objective": "sum of squared KS D against all TRAIN windows, four decision metrics"
+    },
+    "optimizer": "restarted Nelder-Mead on (offset, ln rho_scale, ln sigma_scale, logit ar_share), common random numbers",
+    "n_events": 200,
+    "window": 50,
+    "n_train_writers": 2496,
+    "n_train_windows": 167115,
+    "workers": 8,
+    "rounded_to_decimals": 4,
+    "runtime_s": 171.1
+  },
+  "start": {
+    "timing_offset": -0.8,
+    "timing_rho_scale": 1.0,
+    "timing_sigma_scale": 1.0,
+    "timing_ar_share": 0.5
+  },
+  "stage1_params": {
+    "timing_model": "klicke_ar1",
+    "timing_offset": -0.9735,
+    "timing_rho_scale": 1.5861,
+    "timing_sigma_scale": 0.9353,
+    "timing_ar_share": 0.7706
+  },
+  "fitted": {
+    "timing_model": "klicke_ar1",
+    "timing_offset": -0.8489,
+    "timing_rho_scale": 1.9102,
+    "timing_sigma_scale": 0.9622,
+    "timing_ar_share": 0.5862
+  },
+  "stage1_loss": 0.06371854427611681,
+  "stage2_sum_D2": 0.018416340234567414,
+  "train_target": {
+    "mean_iki_ms": {
+      "median": 281.5,
+      "q25": 191.94,
+      "q75": 458.49,
+      "iqr": 266.55,
+      "mean": 402.01088065104864,
+      "n": 167115
+    },
+    "sd_log_iki": {
+      "median": 0.8070090355302076,
+      "q25": 0.654268088299881,
+      "q75": 0.9911542681197247,
+      "iqr": 0.3368861798198437,
+      "mean": 0.8349221969026431,
+      "n": 167115
+    },
+    "lag1_autocorr_log": {
+      "median": 0.10827750612245074,
+      "q25": -0.03796017338194482,
+      "q75": 0.30676712255753735,
+      "iqr": 0.34472729593948215,
+      "mean": 0.14668871184638732,
+      "n": 167110
+    },
+    "pause_fraction": {
+      "median": 0.02,
+      "q25": 0.0,
+      "q75": 0.04,
+      "iqr": 0.04,
+      "mean": 0.02524967836519762,
+      "n": 167115,
+      "p0": 0.4089040481105825
+    }
+  },
+  "quantile_residuals_in_train_iqr_units": {
+    "stage1": {
+      "mean_iki_ms": {
+        "median": -0.11086100168823854,
+        "iqr": 0.04077133746013874
+      },
+      "sd_log_iki": {
+        "median": -0.03533120173807929,
+        "iqr": -0.05492693389482023
+      },
+      "lag1_autocorr_log": {
+        "median": 0.1447375586189256,
+        "iqr": -0.155646788292094
+      },
+      "pause_fraction": {
+        "median": 0.0,
+        "iqr": 0.0
+      }
+    },
+    "fitted": {
+      "mean_iki_ms": {
+        "median": -0.015590320765334805,
+        "iqr": 0.08166479084599504
+      },
+      "sd_log_iki": {
+        "median": -0.004648490100805746,
+        "iqr": -0.11604046893528583
+      },
+      "lag1_autocorr_log": {
+        "median": 0.058744059200461086,
+        "iqr": -0.25645648490655454
+      },
+      "pause_fraction": {
+        "median": 0.0,
+        "iqr": 0.0
+      }
+    }
+  },
+  "pause_free_window_share": {
+    "train": 0.4089040481105825,
+    "fitted_sim": 0.333
+  },
+  "ks_D_vs_all_train_windows_by_simulation_sample": {
+    "700000": {
+      "stage1": {
+        "mean_iki_ms": 0.09611391107919695,
+        "sd_log_iki": 0.04728932920444007,
+        "lag1_autocorr_log": 0.12735150007357027,
+        "pause_fraction": 0.07590404811058249
+      },
+      "fitted": {
+        "mean_iki_ms": 0.03391407114861025,
+        "sd_log_iki": 0.050066862639499776,
+        "lag1_autocorr_log": 0.09416731494225358,
+        "pause_fraction": 0.07940404811058249
+      }
+    },
+    "800000": {
+      "stage1": {
+        "mean_iki_ms": 0.08304024922957245,
+        "sd_log_iki": 0.03383459743290551,
+        "lag1_autocorr_log": 0.10660900219968522,
+        "pause_fraction": 0.0889040481105825
+      },
+      "fitted": {
+        "mean_iki_ms": 0.0323090760853304,
+        "sd_log_iki": 0.04831401280555303,
+        "lag1_autocorr_log": 0.08938084196038543,
+        "pause_fraction": 0.0924040481105825
+      }
+    },
+    "900000": {
+      "stage1": {
+        "mean_iki_ms": 0.09739214762289444,
+        "sd_log_iki": 0.046966086228046544,
+        "lag1_autocorr_log": 0.12006133819108708,
+        "pause_fraction": 0.07490404811058249
+      },
+      "fitted": {
+        "mean_iki_ms": 0.03754358525566229,
+        "sd_log_iki": 0.052296420129850696,
+        "lag1_autocorr_log": 0.0900423972233858,
+        "pause_fraction": 0.07765404811058252
+      }
+    },
+    "10000": {
+      "stage1": {
+        "mean_iki_ms": 0.08659347604942705,
+        "sd_log_iki": 0.039900420369206824,
+        "lag1_autocorr_log": 0.10505889891777594,
+        "pause_fraction": 0.08865404811058253
+      },
+      "fitted": {
+        "mean_iki_ms": 0.030981158184483742,
+        "sd_log_iki": 0.04735938575232623,
+        "lag1_autocorr_log": 0.09405635509544608,
+        "pause_fraction": 0.09165404811058248
+      }
+    }
+  },
+  "window_position_diagnostic_reference_seeds": {
+    "mean_iki_ms": {
+      "window0": {
+        "n": 1000,
+        "n_nan": 0,
+        "q25": 170.23755,
+        "median": 263.3366,
+        "q75": 473.80025,
+        "iqr": 303.5627,
+        "mean": 373.9813876,
+        "min": 58.7584,
+        "max": 2555.6758
+      },
+      "windows1plus": {
+        "n": 3000,
+        "n_nan": 0,
+        "q25": 190.82334999999998,
+        "median": 292.1372,
+        "q75": 483.24835,
+        "iqr": 292.42500000000007,
+        "mean": 390.06339586666667,
+        "min": 51.66,
+        "max": 3356.940200000001
+      }
+    },
+    "sd_log_iki": {
+      "window0": {
+        "n": 1000,
+        "n_nan": 0,
+        "q25": 0.6770197683177389,
+        "median": 0.8380151100072817,
+        "q75": 0.987604905043918,
+        "iqr": 0.31058513672617905,
+        "mean": 0.8454248115711424,
+        "min": 0.2516089924013581,
+        "max": 1.6512297165318905
+      },
+      "windows1plus": {
+        "n": 3000,
+        "n_nan": 0,
+        "q25": 0.6765135989001583,
+        "median": 0.8176908840094448,
+        "q75": 0.9701237369301393,
+        "iqr": 0.29361013802998104,
+        "mean": 0.8307623530776646,
+        "min": 0.08010261115439382,
+        "max": 1.605785173963647
+      }
+    },
+    "lag1_autocorr_log": {
+      "window0": {
+        "n": 1000,
+        "n_nan": 0,
+        "q25": 0.021009911762714124,
+        "median": 0.1485293744338494,
+        "q75": 0.2848578105540087,
+        "iqr": 0.2638478987912946,
+        "mean": 0.16024648630857616,
+        "min": -0.3637724446772968,
+        "max": 0.7679123524569178
+      },
+      "windows1plus": {
+        "n": 3000,
+        "n_nan": 0,
+        "q25": -0.0026899628915890397,
+        "median": 0.1164510971480787,
+        "q75": 0.24799214747244494,
+        "iqr": 0.250682110364034,
+        "mean": 0.1288684304377148,
+        "min": -0.36493018987837234,
+        "max": 0.7462136582620227
+      }
+    },
+    "pause_fraction": {
+      "window0": {
+        "n": 1000,
+        "n_nan": 0,
+        "q25": 0.0,
+        "median": 0.02,
+        "q75": 0.04,
+        "iqr": 0.04,
+        "mean": 0.026699999999999998,
+        "min": 0.0,
+        "max": 0.18
+      },
+      "windows1plus": {
+        "n": 3000,
+        "n_nan": 0,
+        "q25": 0.0,
+        "median": 0.02,
+        "q75": 0.04,
+        "iqr": 0.04,
+        "mean": 0.027800000000000002,
+        "min": 0.0,
+        "max": 0.44
+      }
+    }
+  },
+  "drift_term": {
+    "added": false,
+    "four_parameter_fit_passes_train_gate_on_every_simulation_sample": true,
+    "rule": "timing_drift_sd / timing_drift_rho are only to be added if the four-parameter version cannot reach the TRAIN targets; here the TRAIN KS gate holds on all replicate samples, so they were not added"
+  },
+  "train_gap": {
+    "legacy": {
+      "mean_iki_ms": {
+        "klicke": {
+          "q25": 191.26,
+          "median": 281.52,
+          "q75": 458.2
+        },
+        "simulator": {
+          "q25": 232.99075,
+          "median": 260.43809999999996,
+          "q75": 291.0358
+        },
+        "ks_D": 0.33199999999999996
+      },
+      "median_iki_ms": {
+        "klicke": {
+          "q25": 119.0,
+          "median": 149.0,
+          "q75": 190.0
+        },
+        "simulator": {
+          "q25": 153.89875,
+          "median": 173.3275,
+          "q75": 194.575
+        },
+        "ks_D": 0.3154
+      },
+      "sd_log_iki": {
+        "klicke": {
+          "q25": 0.6525899057491068,
+          "median": 0.8055983156291814,
+          "q75": 0.9912211024677134
+        },
+        "simulator": {
+          "q25": 0.792294304875143,
+          "median": 0.8434665973113211,
+          "q75": 0.8966754257698104
+        },
+        "ks_D": 0.31195
+      },
+      "lag1_autocorr_log": {
+        "klicke": {
+          "q25": -0.03665001571369485,
+          "median": 0.11081327849660451,
+          "q75": 0.3109628267867003
+        },
+        "simulator": {
+          "q25": -0.10688899331659557,
+          "median": -0.013113020116803637,
+          "q75": 0.088526456185933
+        },
+        "ks_D": 0.30074999999999996
+      },
+      "pause_fraction": {
+        "klicke": {
+          "q25": 0.0,
+          "median": 0.02,
+          "q75": 0.04
+        },
+        "simulator": {
+          "q25": 0.0,
+          "median": 0.0,
+          "q75": 0.0
+        },
+        "ks_D": 0.42160000000000003
+      },
+      "burst_count": {
+        "klicke": {
+          "q25": 3.0,
+          "median": 4.0,
+          "q75": 5.0
+        },
+        "simulator": {
+          "q25": 4.0,
+          "median": 5.0,
+          "q75": 6.0
+        },
+        "ks_D": 0.1665
+      },
+      "entropy_bits_5ms": {
+        "klicke": {
+          "q25": 4.551272380112912,
+          "median": 4.806370130156182,
+          "q75": 4.998562939644918
+        },
+        "simulator": {
+          "q25": 4.846370130156181,
+          "median": 4.981467880199451,
+          "q75": 5.093660689688187
+        },
+        "ks_D": 0.3058
+      }
+    },
+    "fitted": {
+      "mean_iki_ms": {
+        "klicke": {
+          "q25": 191.26,
+          "median": 281.52,
+          "q75": 458.2
+        },
+        "simulator": {
+          "q25": 185.50294999999997,
+          "median": 286.1055,
+          "q75": 479.98864999999995
+        },
+        "ks_D": 0.02919999999999999
+      },
+      "median_iki_ms": {
+        "klicke": {
+          "q25": 119.0,
+          "median": 149.0,
+          "q75": 190.0
+        },
+        "simulator": {
+          "q25": 107.64250000000001,
+          "median": 141.4325,
+          "q75": 184.01625
+        },
+        "ks_D": 0.08745
+      },
+      "sd_log_iki": {
+        "klicke": {
+          "q25": 0.6525899057491068,
+          "median": 0.8055983156291814,
+          "q75": 0.9912211024677134
+        },
+        "simulator": {
+          "q25": 0.6765135989001583,
+          "median": 0.8239121401495264,
+          "q75": 0.9740139953283796
+        },
+        "ks_D": 0.0484
+      },
+      "lag1_autocorr_log": {
+        "klicke": {
+          "q25": -0.03665001571369485,
+          "median": 0.11081327849660451,
+          "q75": 0.3109628267867003
+        },
+        "simulator": {
+          "q25": 0.003466537408597075,
+          "median": 0.12503646784334244,
+          "q75": 0.25805931679336136
+        },
+        "ks_D": 0.09475
+      },
+      "pause_fraction": {
+        "klicke": {
+          "q25": 0.0,
+          "median": 0.02,
+          "q75": 0.04
+        },
+        "simulator": {
+          "q25": 0.0,
+          "median": 0.02,
+          "q75": 0.04
+        },
+        "ks_D": 0.09115000000000001
+      },
+      "burst_count": {
+        "klicke": {
+          "q25": 3.0,
+          "median": 4.0,
+          "q75": 5.0
+        },
+        "simulator": {
+          "q25": 3.0,
+          "median": 4.0,
+          "q75": 5.0
+        },
+        "ks_D": 0.04039999999999999
+      },
+      "entropy_bits_5ms": {
+        "klicke": {
+          "q25": 4.551272380112912,
+          "median": 4.806370130156182,
+          "q75": 4.998562939644918
+        },
+        "simulator": {
+          "q25": 4.4634651896016475,
+          "median": 4.838562939644918,
+          "q75": 5.078562939644918
+        },
+        "ks_D": 0.07965
+      }
+    }
+  },
+  "train_gate": {
+    "metrics": [
+      "mean_iki_ms",
+      "sd_log_iki",
+      "lag1_autocorr_log",
+      "pause_fraction"
+    ],
+    "ks_max": 0.1,
+    "ks_D": {
+      "mean_iki_ms": 0.02919999999999999,
+      "sd_log_iki": 0.0484,
+      "lag1_autocorr_log": 0.09475,
+      "pause_fraction": 0.09115000000000001
+    },
+    "pass": true
+  }
+}
