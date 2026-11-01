@@ -11,8 +11,8 @@ Create a reproducible, public benchmark for **process‑integrity analysis** in 
 - All release terms in `docs/ATTRIBUTION_AND_LICENSE.md` are binding.
 
 ## 3) Inputs
-- Seed dataset: ScholaWrite revisions (normalized via `scripts/ingest_seed.py`).
-- Local seed snapshot: `data/seed/raw/hf_snapshot` (Hugging Face download).
+- Seed dataset: ScholaWrite revisions (normalized via `scripts/pipeline/ingest_seed.py`).
+- Local seed snapshot: `data/seed/raw/hf_scholawrite` (Hugging Face download).
 - Injection generators: externally generated spans with recorded generator metadata.
 
 ## 4) Outputs (Canonical Artifacts)
@@ -53,16 +53,16 @@ Each annotation record must include:
 - `generator_class`, `prompt_hash`, `rng_seed`
 - `provenance_hash` (seed revision hash)
 
-Offsets are computed **after** normalization using `src/scholawrite/text.py`.
+Offsets are computed **after** normalization using `scholawrite/text.py`.
 
 ## 8) Augmentation Pipeline (Deterministic)
-1) Normalize seed data (`scripts/ingest_seed.py`).
-2) Generate raw injections (`scripts/generate_injections.py`).
-3) Apply trajectories and insertions (`scripts/build_augmented_dataset.py`).
+1) Normalize seed data (`scripts/pipeline/ingest_seed.py`).
+2) Generate raw injections (`scripts/pipeline/generate_injections.py`).
+3) Apply trajectories and insertions (`scripts/pipeline/build_augmented_dataset.py`).
 4) Run PII scan and redaction checks (see Section 11).
-5) Validate annotations (`scripts/validate_annotations.py`).
-6) Record checksums and manifests (`scripts/hash_artifacts.py`).
-7) Record failures (`scripts/record_failures.py`).
+5) Validate annotations (`scripts/validate/validate_annotations.py`).
+6) Record checksums and manifests (`scripts/utils/hash_artifacts.py`).
+7) Record failures (`scripts/utils/record_failures.py`).
 
 ## 9) Validation Rules
 - Offsets must map to exact text spans in normalized revisions.
@@ -70,9 +70,9 @@ Offsets are computed **after** normalization using `src/scholawrite/text.py`.
 - Ambiguity flags required for warm/assimilated trajectories.
 - Labels must be in `docs/LABEL_TAXONOMY.md`.
 - Trajectory states and ambiguity flags are validated using causal signature analysis
-  (see `validate_earned_ambiguity()` in `src/scholawrite/annotations.py`).
+  (see `validate_earned_ambiguity()` in `scholawrite/annotations.py`).
 
-Validation is enforced by `scripts/validate_annotations.py` and `scripts/lint_data.py`.
+Validation is enforced by `scripts/validate/validate_annotations.py` and `scripts/validate/lint_data.py`.
 
 ## 10) Failure Handling
 Any failed record is written to `data/augmented/failures.jsonl` with:

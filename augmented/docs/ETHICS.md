@@ -55,12 +55,12 @@ Mitigations:
 
 ## 7) Harm Evaluation
 
-The baselines and harm analysis (`src/scholawrite/harm.py`, `scripts/run_harm.py`) explicitly measure:
+The baselines and harm analysis (`scholawrite/harm.py`, `scripts/eval/run_harm.py`) explicitly measure:
 - False-positive rates disaggregated by relevant subgroups.
 - Potential for disparate impact if methods were deployed.
 - The gap between evidence and determination.
 
-Results are reported in `results/harm/` and discussed in the paper with appropriate caveats.
+Harm-analysis outputs are written to `results/harm/` when `scripts/eval/run_harm.py` is run on a built dataset; no harm-analysis results are preserved in this repository or reported in the manuscript.
 
 ## 8) Responsible Disclosure
 

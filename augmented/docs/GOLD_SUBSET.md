@@ -33,7 +33,7 @@ Annotations are stored as JSONL with one record per span:
 ## Workflow
 1) Sample candidate spans:
 ```bash
-uv run python scripts/prepare_gold_subset.py \
+uv run python scripts/pipeline/prepare_gold_subset.py \
   --input data/augmented/annotations.jsonl \
   --output data/gold/gold_candidates.jsonl \
   --size 200 \
@@ -43,7 +43,7 @@ uv run python scripts/prepare_gold_subset.py \
 3) Collect `gold_annotations.jsonl` from each annotator.
 4) Compute IAA:
 ```bash
-uv run python scripts/iaa_compute.py \
+uv run python scripts/validate/iaa_compute.py \
   --inputs data/gold/annotator_a.jsonl,data/gold/annotator_b.jsonl \
   --report data/gold/iaa_report.json
 ```

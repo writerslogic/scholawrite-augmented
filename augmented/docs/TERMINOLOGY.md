@@ -8,7 +8,7 @@
 This document defines the authoritative terminology for the **ScholaWrite-Augmented** project.  
 Its purpose is to prevent conceptual drift, misinterpretation, and inappropriate reuse by fixing a shared vocabulary centered on **process integrity and authorship defense**, rather than post-hoc attribution or AI detection.
 
-All dataset annotations, schemas, evaluation metrics, documentation, and paper claims **MUST** adhere to this contract.
+All dataset annotations, schemas, field names, metric names, and dataset documentation **MUST** adhere to this contract. The manuscript uses detection terminology only to name external detectors, prior work, and the archived document-level detector pilot, where the generation source is known by construction; no dataset label encodes origin.
 
 This document is normative, not descriptive.
 
@@ -115,14 +115,7 @@ Indeterminacy is a **valid and expected outcome**, not an error condition.
 
 ## 4. Prohibited Terminology (MUST NOT BE USED)
 
-The following terms are explicitly disallowed because they collapse process-level analysis into origin claims or invite punitive interpretation.
-
-These terms MUST NOT appear in:
-- dataset labels or fields
-- annotations
-- evaluation metrics
-- paper claims or conclusions
-- documentation outside of contextualized discussion of prior work
+The following terms MUST NOT be used as dataset labels, field names, annotation values, or metric names, and MUST NOT be used in this documentation to describe what the dataset establishes about a text's origin. They may appear when naming external detectors, prior literature, or the manuscript's document-level pilot.
 
 ❌ *AI-generated text*  
 ❌ *Human-written text*  

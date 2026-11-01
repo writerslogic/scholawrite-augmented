@@ -22,19 +22,20 @@ source_datasets:
 
 *Augmented content by [David Condrey](https://github.com/writerslogic).*
 
-The original [ScholaWrite](https://github.com/minnesotanlp/scholawrite) dataset captures human writing revisions but contains no synthetic insertions, no process-level annotations, and no adversarial evaluation framework. ScholaWrite-Augmented adds all of that. It injects synthetic text at three sophistication levels into the revision stream, tracks boundary erosion across revisions, and provides span-level annotations with explicit ambiguity flags — creating a benchmark for *process integrity* rather than origin classification.
+The original [ScholaWrite](https://github.com/minnesotanlp/scholawrite) dataset captures scholarly writing revisions and cognitive-intention annotations. ScholaWrite-Augmented adds synthetic insertion tools, insertion-specific annotations, and adversarial process evaluation. It injects synthetic text at three sophistication levels into the revision stream, tracks boundary erosion across revisions, and provides span-level annotations with explicit ambiguity flags — creating a benchmark for *process integrity* rather than origin classification.
 
-The augmentation is grounded in a cognitive simulation engine (`EmbodiedScholar`) that models metabolic depletion, fatigue, and syntactic demand to produce writing traces that are statistically calibrated against real keystroke data. A four-tier adversarial evaluation framework then stress-tests detection signals against adversaries of increasing knowledge, from naive to expert. The result is both a dataset and a proof: process-based detection has a hard boundary determined by observational privilege, not signal sophistication.
+The augmentation is grounded in a cognitive simulation engine (`EmbodiedScholar`) that models metabolic depletion, fatigue, and syntactic demand to produce synthetic writing traces. Its parameters draw on writing-process research and timing summaries; physiological validation remains incomplete. A four-tier adversarial evaluation framework then stress-tests detection signals against adversaries of increasing knowledge, from naive to expert. The framework supports experiments on the limits of process-based detection under different assumptions about adversarial access to the observed trace.
 
 **This dataset does NOT label origin (human vs AI).** It studies whether the observable revision process is consistent with iterative human authorship, or whether it exhibits evidence of process-inconsistent external insertion.
 
-Target venue: ACL Findings 2026.
+- **Manuscript:** *ScholaWrite-Augmented: Revision-Level Benchmarks for Hybrid Human-AI Writing Detection through Causal Process Simulation* (David Condrey, 2026). Unpublished manuscript; no venue or DOI.
+- **Release:** 2026-01-29 (snapshot `d473c26d`), not rebuilt since; framework code expanded in April 2026 is not reflected in this snapshot.
 
 ---
 
 ## Core Finding
 
-An expert adversary with full knowledge of the detection signals defeats all consciousness-correlate features (composite AUC 0.31 at n=50). This proves an impossibility boundary: derived features cannot detect informed adversaries. The paper frames this as the *observational privilege boundary* — process-based detection is only sound when the adversary cannot replay the observed process.
+Expert forgeries can reverse the ranking of the configured process score: the archived detector comparison below reports composite AUC 0.2911 at 30 traces per class. This is a result for a fixed score direction, not a proof that detection is impossible. In the separate 50-trace, 40-event ablation, the equal-weight composite has AUC 0.3544 while standalone free energy reaches 0.7900. These synthetic-trace experiments do not establish performance on genuine human composition.
 
 **Signal x Tier AUC matrix (n=30, events=40):**
 
@@ -46,7 +47,7 @@ An expert adversary with full knowledge of the detection signals defeats all con
 | GPTZero | 0.994 | 0.909 | 0.972 | 0.969 |
 | Originality.ai | 0.437 | 0.498 | 0.397 | 0.686 |
 
-GPTZero remains robust because it evaluates product-level text features; the expert adversary targets process signals specifically.
+In this synthetic-trace comparison, GPTZero ranks reference and expert-forged outputs with AUC 0.9689. A separate archived four-seed real-text pilot yields AUC 0.575 for ScholaWrite-finetuned LLaMA-8B outputs. The experiments use different inputs and must not be pooled or treated as equivalent.
 
 ---
 
@@ -75,8 +76,8 @@ GPTZero remains robust because it evaluates product-level text features; the exp
 ```bash
 git clone https://github.com/writerslogic/scholawrite-augmented.git
 cd scholawrite-augmented/augmented
-uv sync
-uv run python scripts/smoke_test.py
+uv sync --extra dev
+uv run python scripts/pipeline/build_augmented_dataset.py --help
 ```
 
 ### Loading the Dataset
@@ -104,29 +105,31 @@ with open("data/augmented/annotations.jsonl") as f:
 ### Library Usage
 
 ```python
-from scholawrite.io import load_seed
+from scholawrite.io import load_seed, read_augmented_jsonl
 from scholawrite.schema import AugmentedDocument
 from scholawrite.annotations import validate_annotations
-from scholawrite.metrics import compute_span_iou, compute_f1
+from scholawrite.metrics import span_iou, f1
 from scholawrite import detect
 
 # Simple detection
 print(detect("your text here"))
 
 # Load and validate
-seed_docs = load_seed("data/seed/normalized/")
-errors = validate_annotations("data/augmented/annotations.jsonl")
+seed_docs = load_seed("data/seed/raw/hf_scholawrite/")  # parquet snapshot directory
+docs = read_augmented_jsonl("data/augmented/documents.jsonl")  # list[AugmentedDocument]
+result = validate_annotations(docs)
+print(result.is_valid, len(result.errors))
 ```
 
 ### Reproduce Experiments
 
 ```bash
 bash scripts/run_all_experiments.sh        # full reproduction pipeline
-uv run python scripts/run_adversarial_eval.py
-uv run python scripts/run_detector_comparison.py  # requires GPTZERO_API_KEY, ORIGINALITY_API_KEY
-uv run python scripts/run_gradient_forger.py
-uv run python scripts/run_signal_ablation.py --signal-ablation
-uv run python scripts/run_baselines.py
+uv run python scripts/eval/run_adversarial_eval.py
+uv run python scripts/eval/run_detector_comparison.py  # requires GPTZERO_API_KEY, ORIGINALITY_API_KEY
+uv run python scripts/eval/run_gradient_forger.py
+uv run python scripts/eval/run_signal_ablation.py
+uv run python scripts/eval/run_baselines.py
 ```
 
 ---
@@ -141,7 +144,7 @@ The `EmbodiedScholar` engine models a stateful cognitive agent, not a prompt wra
 - **Cognitive mapping**: metabolic state mapped to LLM generation parameters (temperature, top_p, presence penalty) to emulate stylistic drift
 - **Syntactic demand**: cognitive load calculated from academic markers, token-granular execution
 
-### Consciousness-Correlate Signals (5 modules)
+### Consciousness-Correlate Signals (four signal modules plus a composite)
 
 | Module | Signal |
 |---|---|
@@ -149,7 +152,7 @@ The `EmbodiedScholar` engine models a stateful cognitive agent, not a prompt wra
 | `integrated_information.py` | Phi estimation, N_BINS sensitivity |
 | `temporal_binding.py` | Autocorrelation, regime switching |
 | `free_energy.py` | Prediction error, shape score, adaptation |
-| `consciousness_signatures.py` | Composite signal across all five |
+| `consciousness_signatures.py` | Weighted composite of six discriminative signals (causal DAG mass, causal concentration, cross-channel MI, decay type, free-energy shape, adaptation rate; weights in `_WEIGHTS`) |
 
 ### Adversarial Evaluation (4-tier hierarchy)
 
@@ -162,10 +165,10 @@ Defined in `adversarial.py`:
 
 ### Gradient Forgers (`gradient_forger.py`)
 
-- `GradientForger`: numerical gradient descent — 0% convergence (non-smooth objective)
-- `EvolutionaryForger`: CMA-ES-inspired — 20% convergence, loss ratio 0.38
+- `GradientForger`: numerical gradient descent against the composite score
+- `EvolutionaryForger`: CMA-ES-style search
 
-Optimization hardness without information-theoretic hardness: sequential computation finds solutions, parallel optimization does not (VDF analogy).
+No convergence statistics from these forgers are preserved in `results/`; run `uv run python scripts/eval/run_gradient_forger.py -o results/gradient_forger.json` before quoting any number.
 
 ---
 
@@ -192,9 +195,9 @@ augmented/
 ├── scripts/                   # Experiment runners (30+ scripts)
 │   ├── run_all_experiments.sh # Master reproduction pipeline (9 experiments)
 │   ├── run_all.sh             # Full pipeline rebuild
-│   └── smoke_test.py
+│   └── validate/smoke_test.py
 ├── analysis/
-│   ├── extended/              # 11 empirical + theoretical analyses (01-11)
+│   ├── extended/              # 15 exploratory analyses (01-15)
 │   └── hypotheses-tested/     # Falsified spectrum hypothesis + 6 strict-filter scripts
 ├── data/
 │   ├── seed/raw/hf_scholawrite/
@@ -254,13 +257,13 @@ augmented/
 
 ## Extended Analysis Suite
 
-Eleven analyses in `analysis/extended/` validate that process signals capture real cognitive phenomena:
+Fifteen exploratory analyses in `analysis/extended/` (01-15; 01-11 summarized below) test whether the process signals vary with external conditions; none establishes that the signals measure cognition.
 
 | # | Analysis | Key Result |
 |---|---|---|
 | 01 | Cognitive spectrum classifier | Composition > transcription > password regime detectable |
 | 02 | Synthesizer comparison | Grounds adversarial tier ranking in empirical forger proximity |
-| 03 | Parkinson's validation | AUC 0.58 — signals measure real motor/cognitive processes |
+| 03 | Parkinson's comparison | Best single signal (lag-1 autocorrelation) AUC 0.58, KS p = 0.09; mean IKI AUC 0.52, entropy AUC 0.46; no reliable separation |
 | 04 | Emotion dynamics | Entropy and IKI modulate systematically across 5 affect states |
 | 05 | Quality correlation | Spearman r with bootstrap CI; text-only detectors cannot match |
 | 06 | Authorship fingerprinting | Per-writer signal vectors form stable pairwise distance clusters |
@@ -270,7 +273,7 @@ Eleven analyses in `analysis/extended/` validate that process signals capture re
 | 10 | Channel capacity | AUC connected to Shannon bounds; monotonic degradation with adversarial knowledge |
 | 11 | Regime detection | Rolling IKI entropy reveals within-document composition vs. recall switches |
 
-Run all: `for f in analysis/extended/0*.py; do uv run python $f; done`
+Run all: `for f in analysis/extended/[0-9][0-9]_*.py; do uv run python "$f"; done`
 
 `analysis/hypotheses-tested/` archives the *spectrum hypothesis* (2026-04-07, FALSIFIED): the hypothesis predicted monotonic accuracy degradation from process-intrinsic to state-intrinsic tasks; the empirical pattern showed 3 non-monotonic reversals. Documented as required scientific practice.
 
@@ -278,13 +281,13 @@ Run all: `for f in analysis/extended/0*.py; do uv run python $f; done`
 
 ## Real Keystroke Data
 
-`~/.local/data/keystrokes.db` contains 637K events and 5K checkpoints from real writing sessions, directly validating the simulation (SYS-001, SYS-002). Analysis in `analysis/keystroke_recorder_analysis.py`.
+An archived recorder summary (`analysis/keystroke_recorder_results.json`) reports 14,997 keystrokes across 16 editor sessions with 103 CLC checkpoints (mean IKI 253.68 ms; session-level median CLC -0.0534, key `clc.session_median`; Wilcoxon p = 0.8552). The underlying recorder database is not distributed and was unavailable when the manuscript was audited, so these are preserved outputs, not rerun results. They do not validate the simulator; the manuscript's historical KS comparison reports the measured distributional gaps. The analysis script is `analysis/keystroke_recorder_analysis.py`.
 
 ---
 
 ## Information-Theoretic Bounds
 
-`scripts/run_info_theoretic_analysis.py` derives Fano's inequality bounds and critical trace length requirements. Analysis 10 connects empirical AUC to Shannon upper bounds.
+`scripts/eval/run_info_theoretic_analysis.py` derives Fano's inequality bounds and critical trace length requirements. Analysis 10 connects empirical AUC to Shannon upper bounds.
 
 ---
 
@@ -320,29 +323,57 @@ See [docs/ETHICS.md](docs/ETHICS.md) for full ethical considerations.
 
 ## Further Work
 
-The current framework establishes the impossibility boundary but leaves several open problems:
+The current framework supports exploratory evaluation and leaves several open problems:
 
-- **Larger-scale evaluation**: the adversarial AUC matrix was computed at n=30-50; bootstrap confidence intervals at n=100+ are needed before the result is paper-ready.
-- **Formal theorem**: the impossibility argument is stated informally. A rigorous reduction to a computational hardness assumption (e.g., VDF hardness) would strengthen the theoretical contribution.
+- **Larger-scale evaluation**: the adversarial AUC matrix was computed at n=30-50; bootstrap confidence intervals at n=100+ are needed before the result is reported as more than exploratory.
+- **Formal analysis**: no impossibility result is claimed. Whether informed-adversary forgery admits a reduction to a computational hardness assumption is an open question.
 - **Privileged-channel detection**: if the adversary cannot observe the raw keylog, what minimum channel bandwidth is required for reliable detection? The information-theoretic bound analysis is a starting point but not a full answer.
 - **Multimodal process signals**: the current signals are keystroke-timing only. Eye-tracking, clipboard events, and pause structure could add independent channels that are harder to jointly forge.
 - **Cross-language validation**: all current data is English. The cognitive calibration parameters (pause-burst ratio, IKI distributions) may not transfer to languages with different orthographic demands.
-- **Dataset release**: HuggingFace and Zenodo releases with checksums, a model card, and a reproducibility bundle.
-- **Real human baseline**: GPTZero and Originality.ai have not been tested on real human text passing through the pipeline; only synthetic traces. Running live participants through the detection stack is a required validity check.
+- **Dataset release refresh**: the gated Hugging Face release of 2026-01-29 (snapshot `d473c26d`) predates the April 2026 framework expansion and ships without checksums or a run manifest; a refreshed card, checksums, run manifest, and a Zenodo DOI remain to be published.
+- **Real human baseline**: the archived commercial-detector pilot includes four human seed texts, but process-trace evaluations use simulated reference traces. Validation of the complete detection stack on consenting human participants remains necessary.
+
+---
+
+## Release history
+
+- 2026-01-29: package and gated dataset released (fork commit `cc3a6eb`; Hugging Face revision `d473c26d`).
+- 2026-04-03: PR #1 merged into `minnesotanlp/scholawrite` (January version only).
+- 2026-04-05 to 2026-04-08: signals, adversarial framework, external loaders, calibration, and reorganization added to the fork (`26287a1`, `ea4dc63`, `9589b7a`); no package code changes committed since, documentation corrections aside.
+- 2026-04-25: `analysis/process-attestation` submitted upstream as PR #5 (open).
+- 2026-10-31: manuscript prepared.
 
 ---
 
 ## Citation
 
+For ScholaWrite-Augmented, cite David Condrey's manuscript:
+
 ```bibtex
-@inproceedings{wang2025scholawrite,
-  title     = {ScholaWrite: A Writing Process Study Dataset for Scholarly Writing},
-  author    = {Wang, Seulgi and Lee, Yoonna and Volkov, Ilya and Chau, Tuyen Luan and Kang, Dongyeop},
-  booktitle = {Proceedings of the Joint Conference of the 59th Annual Meeting of the Association for Computational Linguistics},
-  year      = {2025}
+@unpublished{condrey2026scholawriteaugmented,
+  title={ScholaWrite-Augmented: Revision-Level Benchmarks for Hybrid Human-AI Writing Detection through Causal Process Simulation},
+  author={Condrey, David},
+  year={2026},
+  note={Unpublished manuscript, Writerslogic, Inc.},
+  url={https://github.com/writerslogic/scholawrite-augmented}
+}
+```
+
+Also cite the original ScholaWrite dataset when using its data or derived artifacts:
+
+```bibtex
+@inproceedings{le2026scholawrite,
+  title={ScholaWrite: A Dataset of End-to-End Scholarly Writing},
+  author={Khanh Chi Le and Linghe Wang and Minhwa Lee and Ross Volkov and Luan Tuyen Chau and Dongyeop Kang},
+  year={2026},
+  booktitle={Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages={34755--34788},
+  publisher={Association for Computational Linguistics},
+  doi={10.18653/v1/2026.acl-long.1606},
+  url={https://aclanthology.org/2026.acl-long.1606/}
 }
 ```
 
 ## License
 
-Apache-2.0, inherited from ScholaWrite. See [docs/ATTRIBUTION_AND_LICENSE.md](docs/ATTRIBUTION_AND_LICENSE.md) for full terms including restrictions on reverse identification and PII.
+The augmentation package declares Apache-2.0 in its [package metadata](https://github.com/writerslogic/scholawrite-augmented/blob/main/augmented/pyproject.toml); the original ScholaWrite code carries the root [MIT License](https://github.com/writerslogic/scholawrite-augmented/blob/main/LICENSE). The ScholaWrite seed dataset lists Apache-2.0 alongside additional access, redistribution, privacy, and permitted-use restrictions, which every derivative artifact inherits. See [docs/ATTRIBUTION_AND_LICENSE.md](docs/ATTRIBUTION_AND_LICENSE.md) for the recorded permission and governing data terms.

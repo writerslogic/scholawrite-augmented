@@ -20,6 +20,9 @@ Access to the dataset also requires agreeing to share contact information with t
 ## License
 The Hugging Face card lists **Apache‑2.0** as the license for `minnesotanlp/scholawrite`, alongside the additional terms above. The derivative release must comply with **both** the license and the dataset terms.
 
+## Code License
+The augmentation package (`augmented/`) is licensed Apache-2.0 (`pyproject.toml`). The original ScholaWrite code in the repository root is MIT (`LICENSE`). Neither code license relaxes the seed dataset terms above.
+
 ## License / Release Terms
 The derivative dataset must **inherit these restrictions**. The release must include:
 - The ScholaWrite citation and MinnesotaNLP attribution.  

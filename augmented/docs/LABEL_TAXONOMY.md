@@ -4,7 +4,7 @@
 
 This document defines the label namespaces, hierarchy, and disjointness rules for all annotations in ScholaWrite-Augmented. Labels describe **process events and states**, not origin or intent.
 
-All labels must conform to this taxonomy. Validation is enforced by `scripts/lint_data.py`.
+All labels must conform to this taxonomy. Validation is enforced by `scripts/validate/lint_data.py`.
 
 ## 2) Namespaces
 
@@ -130,7 +130,7 @@ New labels may be added to the taxonomy only if:
 1. They are recorded in `docs/NOTES.md` with rationale.
 2. They do not violate the terminology contract (`docs/TERMINOLOGY.md`).
 3. They maintain disjointness with existing namespaces.
-4. Validation code (`scripts/lint_data.py`) is updated accordingly.
+4. Validation code (`scripts/validate/lint_data.py`) is updated accordingly.
 5. Tests are added to cover the new label.
 
 ## 11) Relationship to Other Documents
@@ -139,4 +139,4 @@ New labels may be added to the taxonomy only if:
 - **Protocol** (`docs/PROTOCOL.md`): Section 7 specifies annotation schema fields.
 - **Injection Levels** (`docs/INJECTION_LEVELS.md`): defines the injection.* level semantics.
 - **Trajectories** (`docs/TRAJECTORIES.md`): defines trajectory state semantics.
-- **Schema** (`src/scholawrite/schema.py`): implements the label enum and validation.
+- **Schema** (`scholawrite/schema.py`): implements the label enum and validation.

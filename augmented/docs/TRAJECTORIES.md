@@ -116,29 +116,29 @@ When boundaries erode, annotations must:
 
 ## 7) Implementation Reference
 
-Trajectory state enum is defined in `src/scholawrite/schema.py`:
+Trajectory state enum is defined in `scholawrite/schema.py`:
 - `TrajectoryState` enum: `COLD`, `WARM`, `ASSIMILATED`
 
-Trajectory logic is implemented in `src/scholawrite/trajectories.py`:
+Trajectory logic is implemented in `scholawrite/trajectories.py`:
 - `compute_transition(span, revision_edits)`: determines state change.
 - `apply_trajectory(injection_span, revisions)`: computes final trajectory and ambiguity.
 - `classify_edit(old_tokens, new_tokens)`: returns `light` or `substantial`.
 
-Ambiguity validation is implemented in `src/scholawrite/annotations.py`:
+Ambiguity validation is implemented in `scholawrite/annotations.py`:
 - `validate_earned_ambiguity(span, subsequent_revisions)`: verifies ambiguity flag is supported by causal evidence and boundary erosion.
 - `compute_boundary_erosion(original_span, subsequent_revisions)`: measures boundary shift ratio across revisions.
 
 ## 8) Relationship to Other Components
 
-- **Annotations** (`src/scholawrite/annotations.py`): trajectory state is a required annotation field.
-- **Augmentation** (`src/scholawrite/augment.py`): trajectories are applied during augmented document construction.
+- **Annotations** (`scholawrite/annotations.py`): trajectory state is a required annotation field.
+- **Augmentation** (`scholawrite/augment.py`): trajectories are applied during augmented document construction.
 - **Label Taxonomy** (`docs/LABEL_TAXONOMY.md`): trajectory states are orthogonal to injection levels.
 - **Protocol** (`docs/PROTOCOL.md`): Section 6 references this document.
 
 ## 9) Validation
 
 Trajectory assignments are validated by:
-- `scripts/validate_annotations.py`: ensures trajectory state is consistent with edit history.
+- `scripts/validate/validate_annotations.py`: ensures trajectory state is consistent with edit history.
 - `tests/test_trajectories.py`: unit tests for state transitions and edge cases.
 - Ambiguity flags must be present for all warm/assimilated spans (enforced in CI).
 
@@ -160,4 +160,4 @@ Where `avg_boundary_shift` is the mean total shift (start + end) across subseque
 | medium | 0.1 | Boundaries shifted by at least 10% of span size |
 | high | 0.25 | Boundaries shifted by at least 25% of span size |
 
-Implementation: `validate_earned_ambiguity()` and `compute_boundary_erosion()` in `src/scholawrite/annotations.py`.
+Implementation: `validate_earned_ambiguity()` and `compute_boundary_erosion()` in `scholawrite/annotations.py`.

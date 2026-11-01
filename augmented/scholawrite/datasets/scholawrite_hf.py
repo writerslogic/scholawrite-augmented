@@ -2,7 +2,8 @@
 
 Source: https://huggingface.co/datasets/minnesotanlp/scholawrite
 License: Open
-Citation: arXiv:2502.02904
+Citation: Le et al. (2026). ScholaWrite: A Dataset of End-to-End Scholarly Writing. Proc. ACL 2026,
+pp. 34755-34788. doi:10.18653/v1/2026.acl-long.1606 (preprint arXiv:2502.02904)
 """
 
 from __future__ import annotations
@@ -30,7 +31,11 @@ class ScholaWriteHFLoader:
         url="https://huggingface.co/datasets/minnesotanlp/scholawrite",
         license="Open",
         access=AccessType.OPEN,
-        citation="ScholaWrite (2025). arXiv:2502.02904.",
+        citation=(
+            "Le et al. (2026). ScholaWrite: A Dataset of End-to-End Scholarly Writing. "
+            "Proc. ACL 2026, pp. 34755-34788. doi:10.18653/v1/2026.acl-long.1606 "
+            "(preprint arXiv:2502.02904)"
+        ),
         description="~49K revision events from 8 authors writing 5 manuscripts in Overleaf. Windowed at 200 events.",
         task_type=TaskType.COMPOSITION,
         signals=["mean_iki", "entropy", "lag1_autocorr", "revision_density", "wpm"],

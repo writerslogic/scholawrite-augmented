@@ -2,7 +2,7 @@
 
 ## Overview
 
-CI enforces determinism, data integrity, and terminology compliance across the ScholaWrite-Augmented pipeline. All checks run on every push and pull request.
+No hosted CI workflow currently runs these checks; run them locally before pushing (`uv run --extra dev pytest -q`).
 
 ## Pipeline Stages
 
@@ -10,20 +10,20 @@ CI enforces determinism, data integrity, and terminology compliance across the S
 
 ```bash
 uv sync
-uv run python scripts/env_capture.py  # Record environment metadata
+uv run python scripts/utils/env_capture.py  # Record environment metadata
 ```
 
 ### 2) Lint and Validate
 
 ```bash
 # Schema and offset validation
-uv run python scripts/lint_data.py
+uv run python scripts/validate/lint_data.py
 
 # PII scan (blocks release if findings detected)
-uv run python scripts/lint_data.py --pii-scan
+uv run python scripts/validate/lint_data.py --pii-scan
 
 # Annotation validation (offsets, non-overlap, ambiguity constraints)
-uv run python scripts/validate_annotations.py
+uv run python scripts/validate/validate_annotations.py
 ```
 
 ### 3) Unit Tests
@@ -49,7 +49,7 @@ Required test files:
 ### 4) Smoke Test
 
 ```bash
-uv run python scripts/smoke_test.py
+uv run python scripts/validate/smoke_test.py
 ```
 
 Runs the full pipeline on a small fixture subset to verify end-to-end correctness without requiring the full seed dataset.
@@ -57,7 +57,7 @@ Runs the full pipeline on a small fixture subset to verify end-to-end correctnes
 ### 5) Checksum Verification
 
 ```bash
-uv run python scripts/hash_artifacts.py --verify
+uv run python scripts/utils/hash_artifacts.py --verify
 ```
 
 Compares computed checksums against `data/augmented/checksums.txt` to detect nondeterminism.

@@ -1,12 +1,15 @@
 from __future__ import annotations
-import pytest
-from scripts.pii_scan import scan_text
+
+from scripts.validate.pii_scan import scan_text
+
 
 def test_scan_text_empty():
     assert scan_text("") == []
 
+
 def test_scan_text_clean():
     assert scan_text("This is a clean sentence with no PII.") == []
+
 
 def test_scan_text_email():
     text = "Contact me at test@example.com for details."
@@ -18,11 +21,13 @@ def test_scan_text_email():
     # text[4:40] -> "act me at test@example.com for detai"
     assert findings[0]["snippet"] == "...act me at test@example.com for detai..."
 
+
 def test_scan_text_phone():
     text = "Call 555-123-4567 today!"
     findings = scan_text(text)
     assert len(findings) == 1
     assert findings[0]["rule_id"] == "phone"
+
 
 def test_scan_text_ssn():
     text = "My SSN is 123-45-6789."
@@ -30,6 +35,7 @@ def test_scan_text_ssn():
     assert len(findings) == 1
     assert findings[0]["rule_id"] == "ssn"
     assert findings[0]["severity"] == "high"
+
 
 def test_scan_text_multiple():
     text = "Email test@test.com or call 123-456-7890."

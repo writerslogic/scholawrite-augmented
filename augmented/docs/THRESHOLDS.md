@@ -5,7 +5,7 @@ This document provides a comprehensive reference for all threshold values used i
 ## Overview
 
 ScholaWrite uses thresholds to:
-1. **Classify causal signatures** - Determine whether writing patterns match human biometric baselines
+1. **Classify causal signatures** - Compare trace statistics against configured plausibility references
 2. **Detect anomalies** - Identify process signature violations
 3. **Classify trajectories** - Categorize injection evolution states (COLD/WARM/ASSIMILATED)
 4. **Evaluate baselines** - Compute forensic detection metrics
@@ -20,7 +20,7 @@ These thresholds validate that trajectory labels are EARNED by measurable causal
 |-----------|-------|---------|---------------|
 | WARM minimum coupling | >= 0.40 | `trajectories.py:202` | Lower bound for emerging coupling; indicates partial biometric alignment without full assimilation. Based on observed range in incremental revision sessions. |
 | ASSIMILATED minimum coupling | > 0.70 | `trajectories.py:198` | Strongest coupling threshold requiring both high coupling AND plausibility flag. Represents irreversible process integration. |
-| ASSIMILATED validation coupling | >= 0.55 | `annotations.py:112` | Minimum coupling required to validate ASSIMILATED label during annotation checks. Lower than determination threshold to allow for measurement noise. |
+| ASSIMILATED / HIGH-ambiguity validation coupling | >= 0.50 | `annotations.py:68` | Validator minimum; MEDIUM / WARM uses >= 0.30 (`annotations.py:67`). |
 | Human plausibility coupling | >= 0.60 | `causal_core.py:136`, `metrics.py:47` | Pearson r >= 0.6 between failure events and subsequent syntactic simplification. Based on cognitive science literature on resource-coupled writing behavior. |
 | Anomaly no-coupling threshold | < 0.20 | `anomalies.py:81` | Injections with coupling below this threshold are flagged as ANOMALY_NO_COUPLING. Indicates absence of human production signatures. |
 | Plausibility coupling (metrics) | > 0.50 | `metrics.py:47` | Slightly lower threshold used in general plausibility computation. Combined with locality constraint for overall determination. |
@@ -33,9 +33,9 @@ Repair locality measures the token distance between a failure event and its repa
 
 | Threshold | Value | Used In | Justification |
 |-----------|-------|---------|---------------|
-| Human repair locality range | 1.0 - 3.5 | `causal_core.py:121,136`, `metrics.py:22,47` | Based on typing repair studies showing humans typically repair errors within 1-3 tokens. Values outside this range indicate non-human production patterns. |
+| Human repair locality range | 1.0 - 3.5 | `causal_core.py:121,136`, `metrics.py:22,47` | Configured plausibility range; not a measured human bound. |
 | WARM maximum locality | <= 4.5 | `trajectories.py:202` | Upper bound for WARM state classification. Allows slightly relaxed locality for partial integration. |
-| Anomaly locality threshold | > 4.5 | `anomalies.py:79` | Locality exceeding human range triggers ANOMALY_PROCESS_VIOLATION. Indicates spatially disjoint repair patterns inconsistent with human cognition. |
+| Anomaly locality threshold | > 4.5 | `anomalies.py:79` | Locality above the configured range triggers ANOMALY_PROCESS_VIOLATION. |
 
 ---
 
@@ -201,11 +201,11 @@ Erosion is computed as the average total boundary shift (start + end) across all
 
 ## Paranoia Level Thresholds
 
-AI-detection awareness levels by academic field, affecting generation parameters.
+Detector-awareness levels by academic field (generation-prompt parameter).
 
 | Threshold | Value | Used In | Description |
 |-----------|-------|---------|-------------|
-| Traditional humanities | 0.0 - 0.2 | `prompts.py:103` | Low tech awareness, minimal AI detection concern. |
+| Traditional humanities | 0.0 - 0.2 | `prompts.py:103` | Low tech awareness, minimal detector-awareness concern. |
 | Social sciences | 0.2 - 0.4 | `prompts.py:104` | Moderate awareness. |
 | Applied sciences/business | 0.4 - 0.6 | `prompts.py:105` | Notable awareness. |
 | Computer science/data science | 0.6 - 0.8 | `prompts.py:106` | High awareness. |
@@ -237,7 +237,7 @@ AI-detection awareness levels by academic field, affecting generation parameters
 
 2. **Resource Coupling (r > 0.6)**: Derived from cognitive resource competition models. Failure at time T should correlate with syntactic simplification at T+1 in human production.
 
-3. **Glucose Depletion (0.9992)**: Calibrated to produce realistic fatigue curves matching self-reported cognitive fatigue in extended writing sessions (90 minutes).
+3. **Glucose Depletion (0.9992)**: configured per-token decay; no physiological measurement was fitted.
 
 4. **NCD Threshold (0.45)**: Empirically tuned on ScholaWrite revision patterns to balance detection precision and recall.
 
@@ -254,4 +254,4 @@ When modifying thresholds:
 3. Run the validation suite to ensure consistency
 4. Consider backward compatibility for existing datasets
 
-See `src/scholawrite/metrics.py` for centralized threshold constants.
+See `scholawrite/metrics.py` for centralized threshold constants.

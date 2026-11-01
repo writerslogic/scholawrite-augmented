@@ -2,7 +2,7 @@
 
 ## Objective
 
-The ScholaWrite-Augmented pipeline is designed to produce **bitwise-identical outputs** given the same inputs, environment, and RNG seeds. This document provides full rebuild instructions and explains the determinism guarantees.
+The local stages (normalization, trajectory assignment, annotation, validation, checksums) are deterministic given the same inputs, environment, and RNG seeds. Injection generation with `--provider placeholder` (the default) is deterministic; `--provider openrouter`, as used by `scripts/run_all.sh`, calls hosted models whose outputs can change independently of the recorded seed, so reproducing the released dataset requires the injection JSONL written by that step (`data/injections/raw/<split>.jsonl`, which is not committed to this repository and is not part of the Hugging Face release) rather than regeneration. This document provides full rebuild instructions and explains the determinism guarantees.
 
 ## Prerequisites
 
@@ -20,7 +20,7 @@ The ScholaWrite-Augmented pipeline is designed to produce **bitwise-identical ou
 uv sync
 
 # Capture environment metadata
-uv run python scripts/env_capture.py
+uv run python scripts/utils/env_capture.py
 # Writes: data/augmented/env.json
 ```
 
@@ -31,7 +31,7 @@ uv run python scripts/env_capture.py
 # Place in: data/seed/raw/hf_scholawrite/
 
 # Normalize seed data into canonical schema
-uv run python scripts/ingest_seed.py
+uv run python scripts/pipeline/ingest_seed.py
 # Writes: data/seed/normalized/*.jsonl
 ```
 
@@ -39,7 +39,7 @@ uv run python scripts/ingest_seed.py
 
 ```bash
 # Generate injection candidates (deterministic RNG)
-uv run python scripts/generate_injections.py
+uv run python scripts/pipeline/generate_injections.py
 # Writes: data/injections/raw/*.jsonl
 ```
 
@@ -47,7 +47,7 @@ uv run python scripts/generate_injections.py
 
 ```bash
 # Build augmented dataset with trajectories and annotations
-uv run python scripts/build_augmented_dataset.py
+uv run python scripts/pipeline/build_augmented_dataset.py --seed-docs data/seed/normalized/all_sorted.jsonl --injections data/injections/raw/all_sorted.jsonl --output-dir data/augmented
 # Writes: data/augmented/documents.jsonl
 #          data/augmented/annotations.jsonl
 #          data/augmented/stats.json
@@ -57,7 +57,7 @@ uv run python scripts/build_augmented_dataset.py
 
 ```bash
 # Generate process-anomaly negative controls
-uv run python scripts/generate_anomalies.py
+uv run python scripts/pipeline/generate_anomalies.py
 # Writes: data/augmented/anomalies.jsonl
 ```
 
@@ -65,21 +65,21 @@ uv run python scripts/generate_anomalies.py
 
 ```bash
 # Validate annotations (offsets, non-overlap, ambiguity)
-uv run python scripts/validate_annotations.py
+uv run python scripts/validate/validate_annotations.py
 
 # Full data lint including PII scan
-uv run python scripts/lint_data.py --pii-scan
+uv run python scripts/validate/lint_data.py --pii-scan
 ```
 
 ### Step 7: Checksums and Manifests
 
 ```bash
 # Generate artifact checksums
-uv run python scripts/hash_artifacts.py
+uv run python scripts/utils/hash_artifacts.py
 # Writes: data/augmented/checksums.txt
 
 # Record failures
-uv run python scripts/record_failures.py
+uv run python scripts/utils/record_failures.py
 # Writes: data/augmented/failures.jsonl
 ```
 
@@ -87,13 +87,13 @@ uv run python scripts/record_failures.py
 
 ```bash
 # Run baseline methods
-uv run python scripts/run_baselines.py
+uv run python scripts/eval/run_baselines.py
 # Writes: results/baselines/doc_level.json
 #          results/baselines/span_level.json
 #          results/baselines/summary.csv
 
 # Run harm analysis
-uv run python scripts/run_harm.py
+uv run python scripts/eval/run_harm.py
 # Writes: results/harm/summary.csv
 #          results/harm/by_level.csv
 ```
@@ -114,13 +114,13 @@ This script executes all steps in dependency order and halts on first failure.
 - The manifest also records the code version (git SHA) and artifact checksums.
 
 ### Text Normalization
-- All text processing uses `src/scholawrite/text.py` exclusively.
+- All text processing uses `scholawrite/text.py` exclusively.
 - Normalization is rule-based with no external model calls.
 - Character offsets are computed post-normalization.
 
 ### ID Generation
 - Document, revision, and injection IDs are deterministic hashes.
-- ID logic is centralized in `src/scholawrite/ids.py`.
+- ID logic is centralized in `scholawrite/ids.py`.
 - IDs include a version prefix for future compatibility.
 
 ### Ordering
@@ -134,13 +134,13 @@ After a rebuild, verify determinism:
 
 ```bash
 # Compare checksums
-uv run python scripts/hash_artifacts.py --verify
+uv run python scripts/utils/hash_artifacts.py --verify
 
 # Run full test suite
 uv run python -m pytest tests/ -v
 
 # Run smoke test
-uv run python scripts/smoke_test.py
+uv run python scripts/validate/smoke_test.py
 ```
 
 If checksums differ, check:
@@ -182,9 +182,9 @@ Deterministic train/validation/test splits are stored in `data/splits/splits.jso
 A PII scan must pass before any release:
 
 ```bash
-uv run python scripts/pii_scan.py
+uv run python scripts/validate/pii_scan.py
 # or
-uv run python scripts/lint_data.py --pii-scan
+uv run python scripts/validate/lint_data.py --pii-scan
 ```
 
 Any findings block release. See `docs/PROTOCOL.md` Section 11 for the PII scan output schema.

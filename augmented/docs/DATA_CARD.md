@@ -3,6 +3,11 @@
 ## 1) Dataset Summary
 ScholaWrite‑Augmented is a revision‑tracked scholarly writing dataset with **annotated external insertion events**, designed for process‑integrity research. It does **not** label origin (human vs AI) and adheres to `docs/TERMINOLOGY.md`.
 
+## 1.1) Release
+- Version: snapshot `d473c26d` of `Writerslogic/scholawrite-augmented` (gated), released 2026-01-29; not rebuilt since.
+- Released files: `documents.jsonl`, `annotations.jsonl`, `anomalies.jsonl`, `injections.jsonl`, `stats.json`, `docs/`. The `checksums.txt` and `run_manifest.json` described in Sections 10-11, and the `failures.jsonl` described in `docs/PROTOCOL.md`, are produced by the build pipeline but were not included in the 2026-01-29 release.
+- Reported counts (`stats.json`, seed 42): 5 documents, 126,246 revisions, 237 injections (naive 88, topical 101, contextual 48; cold 119, warm 79, assimilated 39).
+
 ## 2) Motivation
 Existing corpora lack revision‑structured ground truth for **process‑inconsistent external insertion**. This dataset fills that gap and enables evaluation of process‑integrity signals without stigmatizing assistive tool use.
 
@@ -80,11 +85,15 @@ This dataset inherits the ScholaWrite terms (Hugging Face). In particular:
 Include the ScholaWrite citation:
 
 ```bibtex
-@inproceedings{wang2025scholawrite,
-  title     = {ScholaWrite: A Writing Process Study Dataset for Scholarly Writing},
-  author    = {Wang, Seulgi and Lee, Yoonna and Volkov, Ilya and Chau, Tuyen Luan and Kang, Dongyeop},
-  booktitle = {Proceedings of the Joint Conference of the 59th Annual Meeting of the Association for Computational Linguistics},
-  year      = {2025}
+@inproceedings{le2026scholawrite,
+  title={ScholaWrite: A Dataset of End-to-End Scholarly Writing},
+  author={Khanh Chi Le and Linghe Wang and Minhwa Lee and Ross Volkov and Luan Tuyen Chau and Dongyeop Kang},
+  booktitle={Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  year={2026},
+  pages={34755--34788},
+  publisher={Association for Computational Linguistics},
+  doi={10.18653/v1/2026.acl-long.1606},
+  url={https://aclanthology.org/2026.acl-long.1606/}
 }
 
 ```

@@ -33,7 +33,7 @@ Prediction JSONL schema:
 ```
 
 ## Gold Data
-Gold annotations come from `data/gold/gold_annotations.jsonl` (see `docs/GOLD_SUBSET.md`).
+Gold candidates are sampled by `scripts/pipeline/prepare_gold_subset.py` and annotated as described in `docs/GOLD_SUBSET.md`; the file `data/gold/gold_annotations.jsonl` is not distributed with the repository.
 
 ## Reporting
 Report all metrics with:

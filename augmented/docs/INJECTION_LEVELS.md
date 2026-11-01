@@ -86,7 +86,7 @@ The combination is recorded in annotation metadata:
 
 ## 5) Prompt Templates
 
-Each injection level uses distinct prompt template families (defined in `src/scholawrite/prompts.py`):
+Each injection level uses distinct prompt template families (defined in `scholawrite/prompts.py`):
 
 - **Naive**: `generate_text(topic=random_topic)` — no document context.
 - **Topical**: `generate_text(domain=doc_domain, topic=doc_topic)` — domain-matched.
@@ -105,22 +105,22 @@ Actual counts are recorded in `data/augmented/stats.json` under `stats.labels`.
 
 ## 7) Implementation Reference
 
-Injection level enum is defined in `src/scholawrite/schema.py`:
+Injection level enum is defined in `scholawrite/schema.py`:
 - `InjectionLevel` enum: `NAIVE`, `TOPICAL`, `CONTEXTUAL`
 - `Label` enum includes injection labels: `INJECTION_NAIVE`, `INJECTION_TOPICAL`, `INJECTION_CONTEXTUAL`
 
-Injection generation logic is implemented in `src/scholawrite/injection.py` and `src/scholawrite/generators.py`.
+Injection generation logic is implemented in `scholawrite/injection.py` and `scholawrite/generators.py`.
 
 ## 8) Validation
 
 - Labels must use the `injection.*` namespace: `injection.naive`, `injection.topical`, `injection.contextual`.
-- Labels are validated against `docs/LABEL_TAXONOMY.md` by `scripts/lint_data.py`.
+- Labels are validated against `docs/LABEL_TAXONOMY.md` by `scripts/validate/lint_data.py`.
 - Each injection record must include `injection_level` as a required field.
 - `tests/test_injection.py` verifies that generated injections conform to their declared level.
 
 ## 9) Relationship to Baselines
 
-Baseline methods (`src/scholawrite/baselines.py`) are evaluated per-level:
+Baseline methods (`scholawrite/baselines.py`) are evaluated per-level:
 - **Lexical shift**: expected to perform well on naive, poorly on contextual.
 - **Semantic discontinuity**: expected to perform well on naive/topical, variably on contextual.
 - **Change-point detection**: process-level signal, expected to be level-independent.

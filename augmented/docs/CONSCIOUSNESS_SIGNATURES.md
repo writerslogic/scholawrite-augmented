@@ -2,10 +2,11 @@
 
 ## Overview
 
-This module measures four computational signatures *associated with* conscious,
-embodied cognitive processing in writing traces. These signatures are structurally
-absent in feedforward language model generation, making them useful discriminators
-for human vs. machine authorship.
+This module computes four trace statistics whose names are borrowed from theories
+of conscious processing. In the archived experiments they were applied to simulated
+reference traces and simulated forgeries only; no human keystroke trace and no
+LLM-produced trace has been scored with them. They are exploratory features, not
+discriminators of human versus machine authorship.
 
 **Important caveat:** These measurements do not prove consciousness exists,
 detect consciousness directly, or solve the hard problem of consciousness. They
@@ -25,8 +26,8 @@ We measure this via the **entropy production rate** (sigma), computed as the
 KL divergence between forward and reverse transition probability matrices across
 three channels: glucose trajectory, keystroke latency, and syntactic complexity.
 
-- **Human traces:** sigma > 0 (dissipative, irreversible)
-- **LLM traces:** sigma ~ 0 (time-symmetric, reversible)
+- **Simulated reference vs. simulated forgery:** expected direction under the
+  simulator's own assumptions; not measured on human or LLM-produced traces.
 
 This framing draws on Crooks' fluctuation theorem (Crooks, 1999), which
 establishes that entropy production equals the log-ratio of forward to reverse
@@ -52,11 +53,8 @@ latency, complexity, failure) as a 4-variable system. We compute Phi as the
 minimum mutual information across all non-trivial bipartitions of these channels,
 normalized by joint entropy.
 
-- **Human traces:** High Phi (channels are causally coupled through the embodied
-  cognitive state -- glucose depletion affects latency, which affects complexity,
-  which affects failure rate)
-- **LLM traces:** Low Phi (channels are statistically independent or trivially
-  correlated)
+- **Simulated reference vs. simulated forgery:** expected direction under the
+  simulator's own assumptions; not measured on human or LLM-produced traces.
 
 ### Limitations of the IIT Analogy
 
@@ -133,8 +131,8 @@ change rate), smooth it, and fit a 3-phase piecewise linear model. The
 **trajectory score** measures how well the observed free energy profile matches
 this 3-phase template relative to a flat (no-structure) model.
 
-- **Human traces:** High trajectory score (clear 3-phase structure)
-- **LLM traces:** Low trajectory score (flat or random free energy profile)
+- **Simulated reference vs. simulated forgery:** expected direction under the
+  simulator's own assumptions; not measured on human or LLM-produced traces.
 
 ### Reference
 
@@ -155,10 +153,8 @@ cases where the writer struggles with "easy" words (due to fatigue, distraction,
 or emotional state) or flows through "hard" ones (due to domain expertise or
 heightened attention). This residual is the phenomenological gap.
 
-- **Human traces:** High phenomenological gap (subjective experience diverges
-  from objective difficulty)
-- **LLM traces:** Low phenomenological gap (failure rate, if any, correlates
-  mechanistically with complexity)
+- **Simulated reference vs. simulated forgery:** expected direction under the
+  simulator's own assumptions; not measured on human or LLM-produced traces.
 
 ### Reference
 
@@ -201,10 +197,10 @@ processing (IIT, Free Energy Principle, temporal binding) but they do not:
 - Resolve the hard problem of consciousness (Chalmers, 1995)
 - Distinguish between consciousness and sophisticated unconscious processing
 
-What they *do* show is that human writing traces have structural properties
-predicted by consciousness-related theories, and that current LLM architectures
-do not produce these properties. This is a useful forensic signal, but it should
-not be confused with a consciousness detector.
+They have not been shown to separate human writing from LLM output. In the
+archived 50-trace, 40-event ablation the standalone free-energy score reached
+AUC 0.7900 against the implemented expert forger while the equal-weight composite
+fell to 0.3544 (`results/ablation_n50.json`).
 
 A sufficiently sophisticated LLM that accurately simulated embodied cognition
 (including metabolic depletion, fatigue dynamics, and active inference) could in
